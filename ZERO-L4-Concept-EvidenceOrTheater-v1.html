@@ -2771,6 +2771,76 @@ body > .frame { padding-top: 6px; }
   .ft-end { display: none; }
 }
 
+
+/* ===== interface polish pass ===== */
+/* Typography — headings balance, body prose avoids orphans */
+h1, h2, h3, h4 { text-wrap: balance; }
+p, .subtitle-text, .ch-teaches, .lede, .pou .prompt, .col-prompt { text-wrap: pretty; }
+
+/* Tabular numerals for any number that changes or aligns in columns.
+   Prevents layout shift on timers, counters, money/metrics, cell refs. */
+.scene-pos, .scrub-label, .gs-count-value, .gs-cellref, .gs-rowcount,
+.cv-num-val, .cv-num-delta, .ch-num, .cv-numbers-callout, .gs-table td.mono,
+.deck-mini-stat b, #roundN, .end-num, .sl-a-value, .sl-stat-big {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Images get a low-opacity outline so edges don't float on pale surfaces. */
+img {
+  outline: 1px solid rgba(0, 0, 0, 0.1);
+  outline-offset: -1px;
+}
+
+/* Interactive surfaces — specific transitions (never `transition: all`).
+   Covers every clickable surface across chapters + landing page. */
+.ft-step,
+.chapter, .end-cta,
+.btn, a.btn, button.btn,
+.opt, .row-pick, .pou-chart-pick, .pou-chart-inline,
+.avery-pip-qbutton,
+.ho-download-btn, #handoffDownload,
+.cw-new-btn, .cw-chat-item, .cw-send, .cw-attach,
+.gs-share, .modern-cta,
+.avery-pip-upload-zone,
+.sound-btn, .mode-toggle button,
+.sl-att, .gs-tab, .gs2-thumb {
+  transition-property: transform, background-color, border-color, box-shadow, color, opacity;
+  transition-duration: 0.15s;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Scale-on-press for tactile feedback — always 0.96, never lower. */
+.ft-step:active,
+.chapter:active, .end-cta:active,
+.btn:active, a.btn:active, button.btn:active,
+.opt:not(.disabled):active,
+.row-pick:not([style*="pointer-events: none"]):active,
+.pou-chart-pick:not([style*="pointer-events: none"]):active,
+.avery-pip-qbutton:active,
+.ho-download-btn:active, #handoffDownload:active,
+.cw-new-btn:active, .cw-send:active, .cw-attach:active,
+.gs-share:active, .modern-cta:active,
+.avery-pip-upload-zone:not(.avery-pip-upload-zone-gated):active,
+.sound-btn:active, .mode-toggle button:active {
+  transform: scale(0.96);
+}
+
+/* Hit area — small icon buttons get a transparent extension to 40×40. */
+.cw-send, .cw-attach {
+  position: relative;
+}
+.cw-send::after, .cw-attach::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  z-index: -1;
+  /* invisible hit-area extension */
+}
+
+/* Disabled / gated states shouldn't show hover or scale feedback. */
+.avery-pip-upload-zone-gated:hover { transform: none; }
+button:disabled, [disabled] { cursor: not-allowed; opacity: 0.6; }
+
 </style>
 </head>
 <body>
