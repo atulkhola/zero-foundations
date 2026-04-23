@@ -825,7 +825,7 @@ button:disabled, [disabled] { cursor: not-allowed; opacity: 0.6; }
 
 
 // === zero-foundations L0 Gemini helpers ===
-const ZF_GEMINI_API_KEY = 'AIzaSyAAPQZzB1RQFjqhqjnXMPdLLjRMt2kVGOg';
+const ZF_GEMINI_API_KEY = '';
 const ZF_GEMINI_MODEL   = 'gemini-2.5-flash-lite';
 
 const L0_POU_SYSTEM_PROMPT = `You are an analyst coach evaluating a junior analyst's answer to this question:
@@ -845,7 +845,7 @@ Return a compact JSON object ONLY (no prose, no markdown fence):
 {"scope": true|false, "mechanism": true|false, "signal": true|false, "hit_reasons": {"scope": "short reason if hit, empty if miss", "mechanism": "...", "signal": "..."}, "miss_hint": "if 1 or 2 are missing, a one-sentence pointer about what to add. empty if all three are hit."}`;
 
 async function zfCallGeminiJson(userText) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${ZF_GEMINI_MODEL}:generateContent?key=${ZF_GEMINI_API_KEY}`;
+  const url = `https://zero-foundations-proxy.zero-designs.workers.dev/v1beta/models/${ZF_GEMINI_MODEL}:generateContent`;
   const body = {
     contents: [{ role: 'user', parts: [{ text: userText }] }],
     systemInstruction: { parts: [{ text: L0_POU_SYSTEM_PROMPT }] },

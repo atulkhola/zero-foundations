@@ -3315,7 +3315,7 @@ const AUDIO_DIR = 'ZERO-L5-assets/audio';
 
 // Gemini API — used for live AI in the PIP/Cowork scene. Cheapest Gemini tier.
 // DEMO ONLY. Rotate before any public sharing.
-const GEMINI_API_KEY = 'AIzaSyAAPQZzB1RQFjqhqjnXMPdLLjRMt2kVGOg';
+const GEMINI_API_KEY = '';
 const GEMINI_MODEL = 'gemini-2.5-flash-lite';
 
 // === line manifest (from ElevenLabs generation, Avery voice kdnRe2koJdOK4Ovxn2DI) ===
@@ -4160,7 +4160,7 @@ async function callGemini(conversation) {
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }],
   }));
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+  const url = `https://zero-foundations-proxy.zero-designs.workers.dev/v1beta/models/${GEMINI_MODEL}:generateContent`;
   const body = {
     contents,
     systemInstruction: { parts: [{ text: PIP_SYSTEM_PROMPT }] },
