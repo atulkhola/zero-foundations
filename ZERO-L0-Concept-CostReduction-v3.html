@@ -1,0 +1,1384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Zero · L0 · Cost reduction (v3 · Avery's Uber story)</title>
+<style>
+:root {
+  --bg: #f4f5f7;
+  --card: #ffffff;
+  --paper: #fbf7ee;
+  --paper-grid: rgba(15,17,21,0.05);
+
+  --ink: #0f1115;
+  --ink-soft: #3d424d;
+  --ink-dim: #6b7280;
+  --ink-faint: #9ca3af;
+  --line: rgba(15,17,21,0.08);
+  --line-strong: rgba(15,17,21,0.16);
+
+  --good: #1e7a4b;
+  --good-soft: #e6f4ec;
+  --bad: #b6311d;
+  --bad-soft: #fbe8e4;
+  --warn: #a85d12;
+
+  --radius-card: 14px;
+  --radius-chip: 999px;
+
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "SF Pro Text", sans-serif;
+  --hand: "Bradley Hand", "Segoe Print", "Marker Felt", "Chalkduster", var(--serif);
+
+  --g-mint: linear-gradient(135deg, #c8f5df 0%, #86d9b5 55%, #3fb489 100%);
+
+  --shadow-card: 0 1px 2px rgba(15,17,21,0.04), 0 6px 20px rgba(15,17,21,0.06);
+  --shadow-stage: 0 8px 40px rgba(15,17,21,0.10), 0 1px 2px rgba(15,17,21,0.04);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: var(--sans); }
+body {
+  font-size: 15px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.frame {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 22px 24px 18px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Top ---------- */
+.topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.topbar .crumb { font-size: 12px; color: var(--ink-dim); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
+.topbar .title { font-size: 14px; color: var(--ink); font-weight: 600; }
+.topbar .title .ital { font-family: var(--serif); font-style: italic; font-weight: 400; }
+.topbar .spacer { flex: 1; }
+.topbar .chip {
+  font-size: 11.5px; padding: 5px 10px;
+  border-radius: var(--radius-chip);
+  background: var(--card); border: 1px solid var(--line); color: var(--ink-soft);
+}
+
+.mode-toggle {
+  display: inline-flex; align-items: center;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: 3px;
+  gap: 2px;
+}
+.mode-toggle button {
+  font: 600 11.5px/1 var(--sans);
+  border: none;
+  background: transparent;
+  color: var(--ink-soft);
+  padding: 6px 12px;
+  border-radius: var(--radius-chip);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+.mode-toggle button.on {
+  background: var(--ink); color: #fff;
+}
+
+.sound-btn {
+  font: 600 11.5px/1 var(--sans);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: 7px 12px;
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+.sound-btn.muted { color: var(--ink-faint); }
+
+/* ---------- Stage ---------- */
+.stage {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 22px;
+  padding-top: 18px;
+  min-height: 0;
+}
+
+.rail {
+  display: flex; flex-direction: column; gap: 16px;
+  min-height: 0;
+}
+
+.avery-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px;
+}
+
+.portrait {
+  position: relative;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: var(--g-mint);
+  box-shadow: 0 4px 16px rgba(63,180,137,0.22), inset 0 2px 4px rgba(255,255,255,0.6);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  transition: box-shadow 0.3s;
+}
+.portrait::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px rgba(255,255,255,0.55);
+  pointer-events: none;
+  z-index: 2;
+}
+.portrait img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.portrait .fallback {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.portrait .fallback svg { width: 100%; height: 100%; display: block; }
+
+.portrait .ring {
+  position: absolute; inset: -10px;
+  border-radius: 50%;
+  border: 2px solid rgba(63,180,137,0.38);
+  opacity: 0;
+}
+.portrait.speaking .ring {
+  animation: pulse 1.5s ease-out infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(0.92); opacity: 0.55; }
+  70% { transform: scale(1.15); opacity: 0; }
+  100% { opacity: 0; }
+}
+.portrait.speaking {
+  box-shadow: 0 6px 22px rgba(63,180,137,0.32), 0 0 0 4px rgba(63,180,137,0.15), inset 0 2px 4px rgba(255,255,255,0.6);
+}
+
+.avery-name { font-size: 14px; font-weight: 600; color: var(--ink); margin-top: 6px; }
+.avery-role { font-size: 12px; color: var(--ink-dim); }
+
+.subtitle-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 18px 20px 20px;
+  box-shadow: var(--shadow-card);
+  min-height: 170px;
+  display: flex; flex-direction: column; gap: 8px;
+  flex: 1;
+}
+.subtitle-row {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.subtitle-label {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-faint); font-weight: 600;
+}
+.subtitle-linechip {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-faint); font-weight: 600;
+}
+.speaker-chip {
+  display: inline-block; align-self: flex-start;
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: var(--radius-chip);
+  background: #0f1115; color: #f9d76e;
+  border: 1px solid #0f1115;
+  margin-bottom: 4px;
+  animation: chipIn 0.35s ease both;
+}
+@keyframes chipIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.subtitle-text {
+  font-size: 17px; line-height: 1.55; color: var(--ink);
+  font-family: var(--serif);
+  letter-spacing: -0.005em;
+  transition: opacity 0.25s ease;
+}
+.subtitle-text.fade { opacity: 0; }
+.subtitle-text .ital { font-style: italic; color: var(--ink-soft); }
+.subtitle-text em { font-style: normal; font-weight: 700; font-family: var(--sans); font-size: 15.5px; color: var(--ink); }
+
+.manual-hint {
+  margin-top: auto;
+  font-size: 11.5px; color: var(--ink-dim);
+  padding: 8px 10px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 10px;
+}
+
+/* ---------- Board ---------- */
+.board-wrap {
+  position: relative;
+  background: var(--paper);
+  border-radius: 22px;
+  border: 1px solid rgba(15,17,21,0.06);
+  box-shadow: var(--shadow-stage);
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.board-wrap::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(to right, var(--paper-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--paper-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  opacity: 0.7;
+}
+.board {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+.board > svg {  /* direct-child only — nested SVGs render inline */
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+}
+.board .tag {
+  position: absolute;
+  top: 14px; left: 16px;
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-dim); font-weight: 600;
+  background: rgba(255,255,255,0.7);
+  padding: 5px 10px; border-radius: var(--radius-chip);
+  border: 1px solid var(--line);
+  z-index: 3;
+}
+.board .scene-title {
+  position: absolute;
+  top: 14px; right: 16px;
+  font-size: 11.5px;
+  color: var(--ink-soft); font-weight: 600;
+  font-family: var(--sans);
+  z-index: 3;
+}
+
+/* SVG line-reveal system */
+.board svg g[data-line] {
+  opacity: 0;
+  transition: opacity 0.45s ease-out;
+}
+.board svg g[data-line].show {
+  opacity: 1;
+}
+/* stroke draw-in */
+.board svg .draw {
+  stroke-dasharray: var(--dash, 1200);
+  stroke-dashoffset: var(--dash, 1200);
+}
+.board svg g[data-line].show .draw {
+  animation: draw 1.0s ease-out 0.1s forwards;
+}
+@keyframes draw { to { stroke-dashoffset: 0; } }
+/* pop */
+.board svg .pop {
+  transform-origin: center;
+  transform-box: fill-box;
+  transform: scale(0.88);
+}
+.board svg g[data-line].show .pop {
+  animation: popin 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) forwards;
+}
+@keyframes popin { to { transform: scale(1); } }
+
+.wb-text { font-family: var(--hand); fill: var(--ink); }
+.wb-text.dim { fill: var(--ink-soft); }
+.wb-text.faint { fill: var(--ink-faint); }
+.wb-text.red { fill: var(--bad); }
+.wb-text.green { fill: var(--good); }
+
+/* ---------- Bottom ---------- */
+.bottombar {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 18px;
+  align-items: center;
+}
+.btn {
+  font: 500 13px/1 var(--sans);
+  background: var(--card); color: var(--ink);
+  border: 1px solid var(--line); border-radius: var(--radius-chip);
+  padding: 9px 14px; cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.btn:hover { background: #fff; border-color: var(--line-strong); }
+.btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+.btn.primary:hover { background: #000; }
+.btn.ghost { background: transparent; border-color: var(--line); }
+
+.bottom-left { display: flex; gap: 6px; align-items: center; }
+.scene-pos {
+  font-size: 11.5px; color: var(--ink-dim); font-weight: 600;
+  padding: 0 4px; font-variant-numeric: tabular-nums;
+}
+
+.scrub {
+  display: flex; align-items: center; gap: 12px;
+}
+.scrub-track {
+  flex: 1;
+  position: relative;
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(15,17,21,0.08);
+  cursor: pointer;
+}
+.scrub-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  border-radius: 4px;
+  background: var(--ink);
+  width: 0%;
+  transition: width 0.1s linear;
+}
+.scrub-marker {
+  position: absolute; top: -3px; width: 2px; height: 12px;
+  background: rgba(15,17,21,0.25);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.scrub-marker.active { background: var(--ink); }
+.scrub-label {
+  min-width: 110px;
+  font-size: 11.5px; color: var(--ink-dim); font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.hints {
+  display: flex; gap: 14px; font-size: 11px; color: var(--ink-faint);
+}
+.hints kbd {
+  font-family: var(--sans);
+  background: var(--card); border: 1px solid var(--line);
+  padding: 2px 6px; border-radius: 6px; font-size: 10.5px; color: var(--ink-soft);
+}
+
+/* ---------- POU ---------- */
+.pou {
+  position: absolute; inset: 0;
+  z-index: 5;
+  background: linear-gradient(180deg, rgba(251,247,238,0.94), rgba(251,247,238,0.98));
+  backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 36px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease-out;
+}
+.pou.show { opacity: 1; pointer-events: auto; }
+.pou .sheet {
+  max-width: 640px; width: 100%;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow-stage);
+  padding: 26px 30px 28px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.pou .label {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-faint); font-weight: 600;
+}
+.pou h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 26px;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+.pou h2 .ital { font-style: italic; }
+.pou .prompt {
+  font-size: 14.5px; color: var(--ink-soft);
+  background: var(--paper);
+  border-left: 3px solid var(--ink);
+  padding: 12px 14px;
+  border-radius: 0 10px 10px 0;
+  font-family: var(--serif); font-style: italic;
+}
+.pou textarea {
+  width: 100%;
+  min-height: 120px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: 15px/1.5 var(--sans);
+  color: var(--ink);
+  resize: vertical;
+  background: #fff;
+}
+.pou textarea:focus { outline: none; border-color: var(--ink); }
+.pou .helper { font-size: 12px; color: var(--ink-dim); }
+.pou .actions { display: flex; gap: 10px; align-items: center; }
+.pou .spacer { flex: 1; }
+.pou .feedback {
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 14px;
+  display: none;
+}
+.pou .feedback.show { display: block; }
+.pou .feedback.pass { background: var(--good-soft); color: var(--good); border: 1px solid rgba(30,122,75,0.25); }
+.pou .feedback.soft { background: #fff5e6; color: var(--warn); border: 1px solid rgba(168,93,18,0.22); }
+.pou .feedback.redirect { background: var(--bad-soft); color: var(--bad); border: 1px solid rgba(182,49,29,0.22); }
+.pou .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.pou .chip {
+  font-size: 11.5px; padding: 5px 10px;
+  border-radius: var(--radius-chip);
+  background: var(--card); border: 1px solid var(--line); color: var(--ink-dim);
+}
+.pou .chip.on { background: var(--good-soft); border-color: rgba(30,122,75,0.28); color: var(--good); }
+
+.xp-burst {
+  position: absolute; top: 18px; right: 18px;
+  background: var(--g-mint);
+  color: #0b3b28;
+  font-weight: 700; font-size: 13px;
+  padding: 8px 14px; border-radius: var(--radius-chip);
+  box-shadow: 0 6px 18px rgba(63,180,137,0.32);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 6;
+}
+.xp-burst.show { opacity: 1; transform: translateY(0); }
+
+.preload-notice {
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  font-size: 11.5px; color: var(--ink-dim);
+  background: rgba(255,255,255,0.85); border: 1px solid var(--line);
+  padding: 6px 12px; border-radius: var(--radius-chip);
+  z-index: 4;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.preload-notice.show { opacity: 1; }
+
+@media (max-width: 900px) {
+  .stage { grid-template-columns: 1fr; }
+}
+
+/* ===== Foundations 7-step path indicator ===== */
+.foundations-track {
+  position: sticky; top: 0;
+  z-index: 50;
+  background: rgba(251, 247, 238, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(15, 17, 21, 0.08);
+  padding: 8px 20px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  font-size: 12px;
+}
+.ft-brand {
+  font-weight: 700; font-size: 12px;
+  color: #0f1115;
+  letter-spacing: -0.01em;
+  padding-right: 10px;
+  border-right: 1px solid rgba(15,17,21,0.12);
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 6px;
+}
+.ft-brand-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: linear-gradient(135deg, #c8f5df, #3fb489);
+}
+.ft-steps {
+  flex: 1;
+  display: flex; gap: 4px; align-items: center;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ft-steps::-webkit-scrollbar { display: none; }
+.ft-step {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 11.5px;
+  white-space: nowrap;
+  letter-spacing: -0.005em;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  border: 1px solid transparent;
+}
+.ft-step-num {
+  font-weight: 700; font-size: 10.5px;
+  letter-spacing: 0.02em;
+}
+.ft-step-title {
+  font-weight: 500; opacity: 0.8;
+}
+.ft-step:hover { transform: translateY(-1px); }
+.ft-step.done {
+  background: #e6f4ec; color: #0f4a2b;
+  border-color: rgba(30,122,75,0.22);
+}
+.ft-step.done:hover { background: #d7eedd; }
+.ft-step.current {
+  background: #0f1115; color: #ffffff;
+  border-color: #0f1115;
+}
+.ft-step.current .ft-step-title { opacity: 1; font-weight: 600; }
+.ft-step.upcoming {
+  background: transparent; color: #6b7280;
+  border-color: rgba(15,17,21,0.15);
+}
+.ft-step.upcoming:hover { color: #0f1115; border-color: rgba(15,17,21,0.32); }
+.ft-step-sep {
+  color: #cbd5e1; font-size: 10px;
+  user-select: none;
+}
+.ft-end {
+  font-size: 11px; color: #6b7280;
+  padding-left: 10px; border-left: 1px solid rgba(15,17,21,0.12);
+  white-space: nowrap;
+}
+.ft-end a {
+  color: #0f1115; text-decoration: none;
+  font-weight: 500;
+}
+.ft-end a:hover { text-decoration: underline; }
+
+/* Give the page a little top breathing room since the track is sticky */
+body > .frame { padding-top: 6px; }
+
+@media (max-width: 720px) {
+  .foundations-track { padding: 6px 10px; gap: 6px; font-size: 11px; }
+  .ft-brand { font-size: 11px; padding-right: 6px; }
+  .ft-step-title { display: none; }
+  .ft-end { display: none; }
+}
+
+</style>
+</head>
+<body>
+<!-- zero-foundations-track:start -->
+<nav class="foundations-track" aria-label="Foundations curriculum progress">
+  <div class="ft-brand"><span class="ft-brand-dot"></span>Zero · Foundations</div>
+  <div class="ft-steps">
+    <a class="ft-step current" href="ZERO-L0-Concept-CostReduction-v3.html" title="The brief" aria-label="L0 — The brief (current)"><span class="ft-step-num">L0</span><span class="ft-step-title">the brief</span></a>
+    <a class="ft-step upcoming" href="ZERO-L1-Concept-UnderstandData-v1.html" title="Understanding data" aria-label="L1 — Understanding data"><span class="ft-step-num">L1</span><span class="ft-step-title">understanding data</span></a>
+    <a class="ft-step upcoming" href="ZERO-L2-Concept-CleanData-v1.html" title="Cleaning data" aria-label="L2 — Cleaning data"><span class="ft-step-num">L2</span><span class="ft-step-title">cleaning data</span></a>
+    <a class="ft-step upcoming" href="ZERO-L3-Concept-FiveWhy-v3.html" title="The right question" aria-label="L3 — The right question"><span class="ft-step-num">L3</span><span class="ft-step-title">the right question</span></a>
+    <a class="ft-step upcoming" href="ZERO-L4-Concept-EvidenceOrTheater-v1.html" title="Evidence or theater" aria-label="L4 — Evidence or theater"><span class="ft-step-num">L4</span><span class="ft-step-title">evidence or theater</span></a>
+    <a class="ft-step upcoming" href="ZERO-L5-Concept-FindingToRecommendation-v1.html" title="Finding → recommendation" aria-label="L5 — Finding → recommendation"><span class="ft-step-num">L5</span><span class="ft-step-title">finding → recommendation</span></a>
+    <a class="ft-step upcoming" href="ZERO-L6-Concept-ContainerIsTheFight-v1.html" title="The container" aria-label="L6 — The container"><span class="ft-step-num">L6</span><span class="ft-step-title">the container</span></a>
+  </div>
+  <div class="ft-end"><a href="index.html">↗ index</a></div>
+</nav>
+<!-- zero-foundations-track:end -->
+
+
+<div class="frame">
+
+  <div class="topbar">
+    <span class="crumb">Foundations · Cost reduction</span>
+    <span class="title">L0 · Project category <span class="ital">— what "reduce cost" actually means</span></span>
+    <span class="spacer"></span>
+    <span class="chip">v3 · Uber flashback · ≈ 100s + POU</span>
+    <div class="mode-toggle" id="modeToggle">
+      <button data-mode="auto" class="on">Auto</button>
+      <button data-mode="manual">Manual</button>
+    </div>
+    <button class="sound-btn" id="soundBtn" title="Mute / unmute">🔊 Sound on</button>
+  </div>
+
+  <div class="stage">
+
+    <!-- LEFT: Avery + subtitle -->
+    <div class="rail">
+      <div class="avery-card">
+        <div class="portrait" id="portrait">
+          <div class="ring"></div>
+          <img id="averyImg" src="ZERO-L0-assets/img/avery.jpg" alt="Avery" style="display:none"/>
+          <div class="fallback" id="averyFallback">
+            <svg viewBox="0 0 180 180" aria-label="Avery">
+              <defs>
+                <linearGradient id="averyGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+                  <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <rect width="180" height="180" fill="url(#averyGrad)"/>
+              <text x="90" y="118" font-family="Iowan Old Style, Georgia, serif" font-size="100" font-style="italic" font-weight="400" text-anchor="middle" fill="#0b3b28">A</text>
+            </svg>
+          </div>
+        </div>
+        <div class="avery-name">Avery</div>
+        <div class="avery-role">Your Foundations guide</div>
+      </div>
+
+      <div class="subtitle-card">
+        <div class="subtitle-row">
+          <div class="subtitle-label" id="sceneLabel">Scene 1 / 8</div>
+          <div class="subtitle-linechip" id="lineChip">Line 1 / 4</div>
+        </div>
+        <div class="speaker-chip" id="speakerChip" style="display:none">PRIYA · VP, Uber</div>
+        <div class="subtitle-text" id="subtitle">—</div>
+        <div class="manual-hint" id="manualHint" style="display:none">
+          Manual mode — tap <strong>Next</strong> (or <kbd>→</kbd>) for the next line.
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Whiteboard -->
+    <div class="board-wrap">
+      <div class="tag" id="boardTag">The frame</div>
+      <div class="scene-title" id="boardSceneTitle"></div>
+      <div class="board" id="board"></div>
+
+      <div class="xp-burst" id="xpBurst">+20 XP · Framing</div>
+      <div class="preload-notice" id="preloadNotice">Loading voice…</div>
+
+      <div class="pou" id="pou">
+        <div class="sheet">
+          <div class="label">Proof of understanding</div>
+          <h2>Your manager just said: <span class="ital">"we need to reduce cost this quarter."</span></h2>
+          <div class="prompt">What do you need to find out before you start? Write a few lines in your own words.</div>
+          <textarea id="pouInput" placeholder="In your own words…"></textarea>
+          <div class="helper">Tip — remember the three questions Avery just walked through.</div>
+          <div class="chips" id="pouChips">
+            <span class="chip" data-k="scope">which costs</span>
+            <span class="chip" data-k="mechanism">how</span>
+            <span class="chip" data-k="signal">how we'll know</span>
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="pouSubmit">Check my answer</button>
+            <button class="btn" id="pouSkip">Skip</button>
+            <span class="spacer"></span>
+            <button class="btn" id="pouReplay">↻ Replay L0</button>
+          </div>
+          <div class="feedback" id="pouFeedback"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottombar">
+    <div class="bottom-left">
+      <button class="btn ghost" id="btnPrev" title="Prev line (←)">← Prev</button>
+      <button class="btn primary" id="btnPlay" title="Play/Pause (Space)">▶ Play</button>
+      <button class="btn ghost" id="btnNext" title="Next line (→)">Next →</button>
+      <span class="scene-pos" id="scenePos">1·1</span>
+    </div>
+    <div class="scrub">
+      <div class="scrub-track" id="scrubTrack">
+        <div class="scrub-fill" id="scrubFill"></div>
+      </div>
+      <div class="scrub-label" id="scrubLabel">0:00 / 1:09</div>
+    </div>
+    <div class="hints">
+      <span><kbd>Space</kbd> play</span>
+      <span><kbd>←</kbd> <kbd>→</kbd> line</span>
+      <span><kbd>M</kbd> mode</span>
+      <span><kbd>R</kbd> replay</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(() => {
+
+const VB_W = 1200, VB_H = 700;
+const AUDIO_DIR = 'ZERO-L0-assets/audio-v3';
+
+// === line manifest (from ElevenLabs generation) ===
+const MANIFEST = {"scenes":[{"id":"hook","lines":[{"file":"hook-01.mp3","text":"Hey. Before Airbnb walks in to brief us \u2014","speaker":"avery","duration":2.691},{"file":"hook-02.mp3","text":"Let me take you back. Three years ago. Uber. My second project as an analyst.","speaker":"avery","duration":3.944},{"file":"hook-03.mp3","text":"My VP \u2014 Priya \u2014 walks into our standup. Coffee in one hand. And drops this:","speaker":"avery","duration":4.415},{"file":"hook-04.mp3","text":"Rider support cost. Cut it twenty percent. By Q3.","speaker":"priya","duration":3.527}]},{"id":"trap","lines":[{"file":"trap-01.mp3","text":"I almost did the rookie thing.","speaker":"avery","duration":1.672},{"file":"trap-02.mp3","text":"Opened the expense sheet. Started cutting line items.","speaker":"avery","duration":2.508},{"file":"trap-03.mp3","text":"Marco \u2014 my mentor \u2014 stopped me. Looked at the screen and said \u2014","speaker":"avery","duration":4.859},{"file":"trap-04.mp3","text":"'You don't actually know what she meant yet. The real question has three parts.'","speaker":"avery","duration":4.023}]},{"id":"q1","lines":[{"file":"q1-01.mp3","text":"First \u2014 which costs?","speaker":"avery","duration":1.489},{"file":"q1-02.mp3","text":"Rider support is a giant bucket. Refunds. Routing. Agent salaries. Tooling.","speaker":"avery","duration":3.892},{"file":"q1-03.mp3","text":"We picked the part bleeding fastest \u2014 inbound call volume.","speaker":"avery","duration":3.422},{"file":"q1-04.mp3","text":"Different target \u2014 totally different project.","speaker":"avery","duration":3.37}]},{"id":"q2","lines":[{"file":"q2-01.mp3","text":"Second \u2014 how?","speaker":"avery","duration":1.384},{"file":"q2-02.mp3","text":"There are really only a few ways to actually cut a cost.","speaker":"avery","duration":2.638},{"file":"q2-03.mp3","text":"Change the process. Switch the vendor. Do less of it. Or automate.","speaker":"avery","duration":4.362},{"file":"q2-04.mp3","text":"Same target. Four wildly different projects.","speaker":"avery","duration":2.22}]},{"id":"q3","lines":[{"file":"q3-01.mp3","text":"Third \u2014 how will we know it worked?","speaker":"avery","duration":2.273},{"file":"q3-02.mp3","text":"You need a number. A direction. A deadline.","speaker":"avery","duration":2.325},{"file":"q3-03.mp3","text":"Marco wrote it on the board for me \u2014 cost per trip, down twenty percent, by end of Q3.","speaker":"avery","duration":4.493},{"file":"q3-04.mp3","text":"Without that \u2014 you can't tell if you actually won. Or just looked busy.","speaker":"avery","duration":4.127}]},{"id":"tradeoff","lines":[{"file":"tradeoff-01.mp3","text":"Now \u2014 watch this. It matters more than it looks.","speaker":"avery","duration":3.056},{"file":"tradeoff-02.mp3","text":"Cut a million in support spend? On paper, that's a win.","speaker":"avery","duration":3.004},{"file":"tradeoff-03.mp3","text":"But \u2014 if service had gotten worse, riders would've churned. Three million in lifetime value, gone.","speaker":"avery","duration":5.747},{"file":"tradeoff-04.mp3","text":"Same move. Very different answers.","speaker":"avery","duration":2.456},{"file":"tradeoff-05.mp3","text":"That's why all three. Every time.","speaker":"avery","duration":1.62}]},{"id":"anchor","lines":[{"file":"anchor-01.mp3","text":"That's the frame I used at Uber. We'll get to how it played out, later.","speaker":"avery","duration":3.161},{"file":"anchor-02.mp3","text":"But \u2014 Airbnb is coming in to brief us in a couple of minutes.","speaker":"avery","duration":3.161},{"file":"anchor-03.mp3","text":"Before they tell us anything \u2014 we already know what we need to find out.","speaker":"avery","duration":3.997},{"file":"anchor-04.mp3","text":"These three boxes. That's the frame.","speaker":"avery","duration":2.038}]},{"id":"pou","lines":[{"file":"pou-01.mp3","text":"Alright \u2014 your turn.","speaker":"avery","duration":1.698},{"file":"pou-02.mp3","text":"Imagine your boss said 'reduce cost.' Write what you'd need to find out \u2014 your words.","speaker":"avery","duration":5.669}]}]};
+
+// === subtitle overlay (how lines display — can include <em>, <span class="ital">) ===
+const SUBTITLE_OVERRIDES = {
+  "hook-02.mp3": 'Let me take you back. Three years ago. <em>Uber.</em> My second project as an analyst.',
+  "hook-03.mp3": 'My VP — <em>Priya</em> — walks into our standup. Coffee in one hand. And drops this:',
+  "hook-04.mp3": '<em>"Rider support cost.</em> Cut it twenty percent. By Q3."',
+  "trap-01.mp3": 'I almost did the <em>rookie thing.</em>',
+  "trap-03.mp3": '<em>Marco</em> — my mentor — stopped me. Looked at the screen and said —',
+  "trap-04.mp3": '"You don\'t know what she meant yet. The real question has <em>three parts</em>."',
+  "q1-01.mp3":   'First — <em>which costs?</em>',
+  "q1-02.mp3":   '<em>Rider support</em> is a giant bucket. Refunds. Routing. Agent salaries. Tooling.',
+  "q2-01.mp3":   'Second — <em>how?</em>',
+  "q3-01.mp3":   'Third — <em>how will we know it worked?</em>',
+  "q3-03.mp3":   'Marco wrote it on the board for me — <em>cost per trip, ↓ 20%, by end of Q3.</em>',
+  "tradeoff-01.mp3": 'Now — <em>watch this.</em> It matters more than it looks.',
+  "anchor-01.mp3":   "That's the frame I used at <em>Uber.</em> We'll get to how it played out, later.",
+  "anchor-02.mp3":   "But — <em>Airbnb</em> is coming in to brief us in a couple of minutes.",
+  "pou-01.mp3":  'Alright — <em>your turn</em>.',
+};
+
+// === speaker label (used when speaker !== 'avery') ===
+const SPEAKER_LABEL = {
+  priya: 'PRIYA · VP, Uber',
+};
+
+// === scene metadata + SVG ===
+// visual reveal groups are tagged with data-line="N" to match the line index (1-based).
+const SCENES = {
+  hook: {
+    title: 'A flashback', tag: 'Uber · 2023',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text faint" font-size="18" font-style="italic" letter-spacing="0.2em" x="100" y="100">A QUICK STORY ·  UBER  ·  2023</text>
+        <text class="wb-text" text-anchor="middle" font-size="280" x="600" y="380" opacity="0.10">?</text>
+      </g>
+      <g data-line="2">
+        <text class="wb-text dim" text-anchor="middle" font-size="22" x="600" y="200" font-style="italic">three years ago — my second project as an analyst.</text>
+      </g>
+      <g data-line="3">
+        <text class="wb-text dim" text-anchor="middle" font-size="20" x="600" y="245" font-style="italic">my VP, Priya, walks into our standup.</text>
+        <line class="draw" x1="600" y1="285" x2="600" y2="430" stroke="#0f1115" stroke-width="2" stroke-dasharray="6 8" style="--dash: 220"/>
+        <text class="wb-text" text-anchor="middle" font-size="34" x="600" y="460">↓</text>
+      </g>
+      <g data-line="4">
+        <g class="pop">
+          <rect x="280" y="475" width="640" height="160" rx="20" fill="#0f1115"/>
+          <text text-anchor="middle" fill="#ffffff" font-family="Iowan Old Style, Georgia, serif" font-style="italic" font-size="42" x="600" y="540">"rider support cost"</text>
+          <text text-anchor="middle" fill="#f9d76e" font-family="Iowan Old Style, Georgia, serif" font-size="34" x="600" y="600">↓ 20%   ·   by Q3</text>
+        </g>
+      </g>
+    `
+  },
+  trap: {
+    title: 'The amateur version', tag: 'The trap',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text" text-anchor="middle" font-size="78" font-style="italic" x="600" y="240">"spend less"</text>
+      </g>
+      <g data-line="2">
+        <text class="wb-text red" text-anchor="middle" font-size="38" x="600" y="340">cut · cut · cut</text>
+        <g class="pop">
+          <text class="wb-text red" text-anchor="middle" font-size="34" x="400" y="400">✕</text>
+          <text class="wb-text red" text-anchor="middle" font-size="34" x="600" y="400">✕</text>
+          <text class="wb-text red" text-anchor="middle" font-size="34" x="800" y="400">✕</text>
+        </g>
+      </g>
+      <g data-line="3">
+        <line class="draw" x1="340" y1="225" x2="860" y2="215" stroke="#b6311d" stroke-width="7" stroke-linecap="round" style="--dash: 540"/>
+        <text class="wb-text dim" text-anchor="middle" font-size="20" x="600" y="465" font-style="italic">the amateur version</text>
+      </g>
+      <g data-line="4">
+        <text class="wb-text" text-anchor="middle" font-size="30" x="600" y="540">the real question has three parts —</text>
+        <g class="pop">
+          <circle cx="400" cy="600" r="32" fill="none" stroke="#0f1115" stroke-width="3"/>
+          <text class="wb-text" text-anchor="middle" font-size="30" x="400" y="612">1</text>
+          <circle cx="600" cy="600" r="32" fill="none" stroke="#0f1115" stroke-width="3"/>
+          <text class="wb-text" text-anchor="middle" font-size="30" x="600" y="612">2</text>
+          <circle cx="800" cy="600" r="32" fill="none" stroke="#0f1115" stroke-width="3"/>
+          <text class="wb-text" text-anchor="middle" font-size="30" x="800" y="612">3</text>
+        </g>
+      </g>
+    `
+  },
+  q1: {
+    title: 'Q1 · Which costs?', tag: '① of three',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text faint" font-size="26" font-style="italic" x="110" y="140">1 —</text>
+        <text class="wb-text" font-size="52" x="166" y="146">Which costs?</text>
+        <line class="draw" x1="166" y1="160" x2="530" y2="160" stroke="#0f1115" stroke-width="3" style="--dash: 370"/>
+      </g>
+      <g data-line="2">
+        ${['Rider support','Driver incentives','Maps & geo','Cloud infra'].map((label,i)=>{
+          const x = 180 + (i%2)*440;
+          const y = 240 + Math.floor(i/2)*170;
+          return `
+            <g class="pop">
+              <rect x="${x}" y="${y}" width="380" height="130" rx="16" ry="16" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+              <text class="wb-text" x="${x+28}" y="${y+72}" font-size="32">${label}</text>
+              <text class="wb-text dim" x="${x+28}" y="${y+102}" font-size="16" font-style="italic">— a cost category</text>
+            </g>
+          `;
+        }).join('')}
+      </g>
+      <g data-line="3">
+        <ellipse class="draw" cx="370" cy="305" rx="218" ry="86" fill="none" stroke="#f27d7d" stroke-width="5" stroke-linecap="round" style="--dash: 1020"/>
+        <text class="wb-text red" x="600" y="310" font-size="22" font-style="italic">← pick one</text>
+      </g>
+      <g data-line="4">
+        <text class="wb-text dim" text-anchor="middle" x="600" y="640" font-size="20" font-style="italic">same words — very different projects depending on target.</text>
+      </g>
+    `
+  },
+  q2: {
+    title: 'Q2 · How?', tag: '② of three',
+    svg: () => {
+      const levers = [
+        { label: 'Change the process',  angle: -140 },
+        { label: 'Switch the vendor',   angle: -40  },
+        { label: 'Do less of it',       angle: 140  },
+        { label: 'Automate it',         angle: 40   },
+      ];
+      const cx = 600, cy = 340;
+      return `
+        <g data-line="1">
+          <text class="wb-text faint" font-size="26" font-style="italic" x="110" y="140">2 —</text>
+          <text class="wb-text" font-size="52" x="166" y="146">How?</text>
+          <line class="draw" x1="166" y1="160" x2="330" y2="160" stroke="#0f1115" stroke-width="3" style="--dash: 170"/>
+          <g class="pop">
+            <rect x="${cx-180}" y="${cy-42}" width="360" height="84" rx="16" ry="16" fill="#0f1115"/>
+            <text text-anchor="middle" fill="#ffffff" font-family="Iowan Old Style, Georgia, serif" font-style="italic" font-size="26" x="${cx}" y="${cy+8}">rider support cost</text>
+          </g>
+        </g>
+        <g data-line="2">
+          <text class="wb-text dim" text-anchor="middle" x="${cx}" y="${cy+170}" font-size="20" font-style="italic">only a few ways to actually cut a cost…</text>
+        </g>
+        <g data-line="3">
+          ${levers.map(o => {
+            const rad = o.angle * Math.PI / 180;
+            const x1 = cx + Math.cos(rad) * 180;
+            const y1 = cy + Math.sin(rad) * 65;
+            const x2 = cx + Math.cos(rad) * 340;
+            const y2 = cy + Math.sin(rad) * 185;
+            const lx = x2 + Math.cos(rad) * 14;
+            const ly = y2 + Math.sin(rad) * 14;
+            const anchor = Math.cos(rad) > 0 ? 'start' : 'end';
+            return `
+              <g>
+                <line class="draw" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#0f1115" stroke-width="2.5" stroke-linecap="round" style="--dash: 380"/>
+                <circle cx="${x2}" cy="${y2}" r="6" fill="#0f1115"/>
+                <text class="wb-text" font-size="26" font-style="italic" text-anchor="${anchor}" x="${lx}" y="${ly+8}">${o.label}</text>
+              </g>
+            `;
+          }).join('')}
+        </g>
+        <g data-line="4">
+          <text class="wb-text dim" text-anchor="middle" x="${cx}" y="650" font-size="20" font-style="italic">four levers — four very different projects.</text>
+        </g>
+      `;
+    }
+  },
+  q3: {
+    title: 'Q3 · How will we know?', tag: '③ of three',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text faint" font-size="26" font-style="italic" x="110" y="140">3 —</text>
+        <text class="wb-text" font-size="52" x="166" y="146">How will we know?</text>
+        <line class="draw" x1="166" y1="160" x2="618" y2="160" stroke="#0f1115" stroke-width="3" style="--dash: 460"/>
+      </g>
+      <g data-line="2">
+        <g class="pop">
+          <rect x="180" y="250" width="260" height="130" rx="16" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+          <text class="wb-text" x="310" y="304" text-anchor="middle" font-size="26">a metric</text>
+          <text class="wb-text dim" x="310" y="338" text-anchor="middle" font-size="15" font-style="italic">what are we watching?</text>
+        </g>
+        <text class="wb-text" x="470" y="325" text-anchor="middle" font-size="40">+</text>
+        <g class="pop">
+          <rect x="500" y="250" width="240" height="130" rx="16" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+          <text class="wb-text" x="620" y="304" text-anchor="middle" font-size="26">a direction</text>
+          <text class="wb-text dim" x="620" y="338" text-anchor="middle" font-size="15" font-style="italic">up? down? how much?</text>
+        </g>
+        <text class="wb-text" x="770" y="325" text-anchor="middle" font-size="40">+</text>
+        <g class="pop">
+          <rect x="800" y="250" width="240" height="130" rx="16" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+          <text class="wb-text" x="920" y="304" text-anchor="middle" font-size="26">a deadline</text>
+          <text class="wb-text dim" x="920" y="338" text-anchor="middle" font-size="15" font-style="italic">by when?</text>
+        </g>
+      </g>
+      <g data-line="3">
+        <text class="wb-text dim" text-anchor="middle" x="600" y="480" font-size="18" font-style="italic">for example —</text>
+        <g class="pop">
+          <rect x="220" y="500" width="760" height="90" rx="18" fill="#fff7e6" stroke="#a85d12" stroke-width="2"/>
+          <text class="wb-text" text-anchor="middle" font-size="32" x="600" y="558" font-style="italic">"support cost per trip ↓ 20% by end of Q3"</text>
+        </g>
+      </g>
+      <g data-line="4">
+        <text class="wb-text dim" text-anchor="middle" x="600" y="650" font-size="20" font-style="italic">without the three — you can't tell if you won or just worked hard.</text>
+      </g>
+    `
+  },
+  tradeoff: {
+    title: 'The trade-off', tag: 'Why all three matter',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text" x="120" y="130" font-size="40">Same move. Different outcomes.</text>
+      </g>
+      <g data-line="2">
+        <g class="pop">
+          <rect x="120" y="200" width="460" height="400" rx="20" fill="#e6f4ec" stroke="#1e7a4b" stroke-width="2"/>
+          <text class="wb-text green" x="150" y="248" font-size="22" font-weight="700">The win</text>
+          <text class="wb-text" x="150" y="310" font-size="28">cost ↓ $1M</text>
+          <text class="wb-text green" x="150" y="370" font-size="28">margin ↑ 4 pts</text>
+          <text class="wb-text dim" x="150" y="400" font-size="15" font-style="italic">— quality held, churn flat</text>
+          <text class="wb-text green" x="350" y="560" text-anchor="middle" font-size="140" font-weight="700">✓</text>
+        </g>
+      </g>
+      <g data-line="3">
+        <g class="pop">
+          <rect x="620" y="200" width="460" height="400" rx="20" fill="#fbe8e4" stroke="#b6311d" stroke-width="2"/>
+          <text class="wb-text red" x="650" y="248" font-size="22" font-weight="700">The trap</text>
+          <text class="wb-text" x="650" y="310" font-size="28">cost ↓ $1M</text>
+          <text class="wb-text red" x="650" y="370" font-size="28">revenue ↓ $3M</text>
+          <text class="wb-text dim" x="650" y="400" font-size="15" font-style="italic">— renewals tanked, service got worse</text>
+          <text class="wb-text red" x="850" y="560" text-anchor="middle" font-size="140" font-weight="700">✕</text>
+        </g>
+      </g>
+      <g data-line="4">
+        <line class="draw" x1="120" y1="630" x2="1080" y2="630" stroke="#0f1115" stroke-width="2" stroke-dasharray="4 8" opacity="0.35" style="--dash: 970"/>
+      </g>
+      <g data-line="5">
+        <text class="wb-text" text-anchor="middle" x="600" y="670" font-size="22" font-style="italic">the difference is which · how · signal.</text>
+      </g>
+    `
+  },
+  anchor: {
+    title: 'Before Airbnb briefs us', tag: 'Your three boxes',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text faint" text-anchor="middle" font-size="18" font-style="italic" letter-spacing="0.14em" x="600" y="130">BRIEF FROM</text>
+        <text class="wb-text" text-anchor="middle" font-size="54" x="600" y="180" font-weight="700">Airbnb</text>
+      </g>
+      <g data-line="2">
+        <text class="wb-text dim" text-anchor="middle" x="600" y="260" font-size="20" font-style="italic">before they tell us anything…</text>
+      </g>
+      <g data-line="3">
+        ${[
+          { x: 200 },
+          { x: 600 },
+          { x: 1000 },
+        ].map(b => `
+          <g class="pop">
+            <rect x="${b.x-160}" y="290" width="320" height="240" rx="20" fill="#ffffff" stroke="#0f1115" stroke-width="2.5"/>
+            <text class="wb-text" text-anchor="middle" font-size="120" x="${b.x}" y="450" opacity="0.18">?</text>
+          </g>
+        `).join('')}
+      </g>
+      <g data-line="4">
+        ${[
+          { x: 200, label: 'Which costs?',      sub: '(what are we cutting?)' },
+          { x: 600, label: 'How?',              sub: '(process · vendor · less · auto)' },
+          { x: 1000, label: "How'll we know?",  sub: '(metric + direction + deadline)' },
+        ].map(b => `
+          <g>
+            <text class="wb-text" text-anchor="middle" font-size="26" x="${b.x}" y="570">${b.label}</text>
+            <text class="wb-text dim" text-anchor="middle" font-size="14" x="${b.x}" y="594" font-style="italic">${b.sub}</text>
+          </g>
+        `).join('')}
+        <text class="wb-text" text-anchor="middle" x="600" y="660" font-size="22" font-style="italic">— that's the frame.</text>
+      </g>
+    `
+  },
+  pou: {
+    title: 'Your turn', tag: 'POU',
+    isPou: true,
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text dim" text-anchor="middle" x="600" y="340" font-size="22" font-style="italic">your turn →</text>
+      </g>
+      <g data-line="2">
+        <text class="wb-text dim" text-anchor="middle" x="600" y="380" font-size="18" font-style="italic">(answer in the box to the right)</text>
+      </g>
+    `
+  },
+};
+
+// Flatten ordered list of scenes with their lines (from manifest)
+const FLAT = MANIFEST.scenes.map(s => ({
+  id: s.id,
+  ...SCENES[s.id],
+  lines: s.lines.map((l, i) => ({
+    ...l,
+    idx: i + 1,
+    subtitle: SUBTITLE_OVERRIDES[l.file] || l.text,
+  })),
+}));
+
+// ------------ State ------------
+let sceneIdx = 0;     // current scene
+let lineIdx = 0;      // current line within scene (0-based)
+let mode = 'auto';    // 'auto' | 'manual'
+let playing = false;
+let muted = false;
+
+const audioEl = new Audio();
+audioEl.preload = 'auto';
+
+// lookup
+const $ = id => document.getElementById(id);
+const boardEl = $('board');
+const tagEl = $('boardTag');
+const sceneTitleEl = $('boardSceneTitle');
+const subtitleEl = $('subtitle');
+const sceneLabelEl = $('sceneLabel');
+const lineChipEl = $('lineChip');
+const scenePosEl = $('scenePos');
+const scrubFill = $('scrubFill');
+const scrubLabel = $('scrubLabel');
+const scrubTrack = $('scrubTrack');
+const btnPlay = $('btnPlay');
+const btnPrev = $('btnPrev');
+const btnNext = $('btnNext');
+const portraitEl = $('portrait');
+const pouEl = $('pou');
+const pouSubmit = $('pouSubmit');
+const pouSkip = $('pouSkip');
+const pouReplay = $('pouReplay');
+const pouInput = $('pouInput');
+const pouFeedback = $('pouFeedback');
+const pouChips = document.querySelectorAll('#pouChips .chip');
+const xpBurst = $('xpBurst');
+const manualHint = $('manualHint');
+const soundBtn = $('soundBtn');
+const preloadNotice = $('preloadNotice');
+
+// ---- totals ----
+function totalDuration() {
+  return FLAT.reduce((a, s) => a + s.lines.reduce((x, l) => x + l.duration, 0), 0);
+}
+function elapsedBefore(si, li) {
+  let t = 0;
+  for (let i = 0; i < si; i++) t += FLAT[i].lines.reduce((x, l) => x + l.duration, 0);
+  for (let i = 0; i < li; i++) t += FLAT[si].lines[i].duration;
+  return t;
+}
+function fmtTime(ms) {
+  const s = Math.max(0, Math.round(ms));
+  return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+}
+
+// ---- render scene ----
+function renderScene(si) {
+  const s = FLAT[si];
+  boardEl.innerHTML = `<svg viewBox="0 0 ${VB_W} ${VB_H}" preserveAspectRatio="xMidYMid meet">${s.svg()}</svg>`;
+  tagEl.textContent = s.tag || '';
+  sceneTitleEl.textContent = s.title || '';
+  sceneLabelEl.textContent = `Scene ${si+1} / ${FLAT.length}`;
+  // POU overlay appears at the END of the POU scene, not on entry
+  pouEl.classList.remove('show');
+}
+function revealUpTo(li) {
+  const groups = boardEl.querySelectorAll('svg g[data-line]');
+  groups.forEach(g => {
+    const n = Number(g.dataset.line);
+    g.classList.toggle('show', n <= li + 1);
+  });
+}
+
+function setSubtitle(html, withFade = true) {
+  if (!withFade) { subtitleEl.innerHTML = html; return; }
+  subtitleEl.classList.add('fade');
+  setTimeout(() => {
+    subtitleEl.innerHTML = html;
+    subtitleEl.classList.remove('fade');
+  }, 200);
+}
+
+function updateScrub() {
+  const total = totalDuration();
+  const cur = elapsedBefore(sceneIdx, lineIdx) + (audioEl.currentTime || 0);
+  const pct = total > 0 ? (cur / total) * 100 : 0;
+  scrubFill.style.width = `${Math.min(100, pct)}%`;
+  scrubLabel.textContent = `${fmtTime(cur)} / ${fmtTime(total)}`;
+  scenePosEl.textContent = `${sceneIdx+1}·${lineIdx+1}`;
+  lineChipEl.textContent = `Line ${lineIdx+1} / ${FLAT[sceneIdx].lines.length}`;
+}
+
+// ---- line playback ----
+function loadLine(playAfter) {
+  const line = FLAT[sceneIdx].lines[lineIdx];
+  setSubtitle(line.subtitle);
+  // speaker chip: show only when speaker is not Avery
+  const chipEl = document.getElementById('speakerChip');
+  if (line.speaker && line.speaker !== 'avery' && SPEAKER_LABEL[line.speaker]) {
+    chipEl.textContent = SPEAKER_LABEL[line.speaker];
+    chipEl.style.display = 'inline-block';
+  } else {
+    chipEl.style.display = 'none';
+  }
+  revealUpTo(lineIdx);
+  audioEl.src = `${AUDIO_DIR}/${line.file}`;
+  audioEl.currentTime = 0;
+  updateScrub();
+  if (playAfter && !muted) {
+    const p = audioEl.play();
+    if (p && p.catch) p.catch(e => {
+      console.warn('audio play blocked', e);
+      // browser blocked autoplay — treat as paused
+      playing = false; btnPlay.textContent = '▶ Play';
+      portraitEl.classList.remove('speaking');
+    });
+    playing = true;
+    btnPlay.textContent = '❚❚ Pause';
+    portraitEl.classList.add('speaking');
+  } else if (playAfter && muted) {
+    // muted "auto" — simulate duration with timer
+    playing = true;
+    btnPlay.textContent = '❚❚ Pause';
+    portraitEl.classList.add('speaking');
+    mutedTimer = setTimeout(onLineEnd, FLAT[sceneIdx].lines[lineIdx].duration * 1000);
+  } else {
+    playing = false;
+    btnPlay.textContent = '▶ Play';
+    portraitEl.classList.remove('speaking');
+  }
+}
+
+let mutedTimer = null;
+function clearMutedTimer() {
+  if (mutedTimer) { clearTimeout(mutedTimer); mutedTimer = null; }
+}
+
+function onLineEnd() {
+  clearMutedTimer();
+  playing = false;
+  btnPlay.textContent = '▶ Play';
+  portraitEl.classList.remove('speaking');
+  updateScrub();
+  if (mode === 'auto') {
+    // advance automatically
+    goNext(true);
+  }
+}
+audioEl.addEventListener('ended', onLineEnd);
+audioEl.addEventListener('timeupdate', updateScrub);
+
+function play() {
+  const line = FLAT[sceneIdx].lines[lineIdx];
+  if (!audioEl.src || !audioEl.src.endsWith(line.file)) {
+    loadLine(true);
+    return;
+  }
+  if (muted) {
+    playing = true;
+    btnPlay.textContent = '❚❚ Pause';
+    portraitEl.classList.add('speaking');
+    clearMutedTimer();
+    const remaining = Math.max(0.1, line.duration - (audioEl.currentTime || 0));
+    mutedTimer = setTimeout(onLineEnd, remaining * 1000);
+    return;
+  }
+  const p = audioEl.play();
+  if (p && p.catch) p.catch(e => console.warn(e));
+  playing = true;
+  btnPlay.textContent = '❚❚ Pause';
+  portraitEl.classList.add('speaking');
+}
+
+function pause() {
+  audioEl.pause();
+  clearMutedTimer();
+  playing = false;
+  btnPlay.textContent = '▶ Play';
+  portraitEl.classList.remove('speaking');
+}
+
+function togglePlay() { playing ? pause() : play(); }
+
+function goNext(autoplay = false) {
+  // Move to the next line; cross scene boundaries if needed.
+  if (lineIdx + 1 < FLAT[sceneIdx].lines.length) {
+    lineIdx++;
+    loadLine(autoplay);
+  } else if (sceneIdx + 1 < FLAT.length) {
+    sceneIdx++;
+    lineIdx = 0;
+    renderScene(sceneIdx);
+    loadLine(autoplay);
+  } else {
+    // past final line of final scene — show POU overlay if we're on the POU scene
+    pause();
+    if (FLAT[sceneIdx].isPou) pouEl.classList.add('show');
+  }
+}
+
+function goPrev(autoplay = false) {
+  pause();
+  if (lineIdx > 0) {
+    lineIdx--;
+    loadLine(autoplay);
+  } else if (sceneIdx > 0) {
+    sceneIdx--;
+    lineIdx = FLAT[sceneIdx].lines.length - 1;
+    renderScene(sceneIdx);
+    loadLine(autoplay);
+  }
+}
+
+// ---- scrub ----
+scrubTrack.addEventListener('click', (e) => {
+  const rect = scrubTrack.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  const total = totalDuration();
+  const target = pct * total;
+  let acc = 0;
+  for (let i = 0; i < FLAT.length; i++) {
+    for (let j = 0; j < FLAT[i].lines.length; j++) {
+      const d = FLAT[i].lines[j].duration;
+      if (target < acc + d) {
+        const offset = target - acc;
+        if (sceneIdx !== i) { sceneIdx = i; lineIdx = j; renderScene(i); }
+        else if (lineIdx !== j) { lineIdx = j; }
+        loadLine(false);
+        audioEl.currentTime = offset;
+        updateScrub();
+        return;
+      }
+      acc += d;
+    }
+  }
+});
+
+// ---- controls ----
+btnPlay.addEventListener('click', togglePlay);
+btnPrev.addEventListener('click', () => { pause(); goPrev(true); });
+btnNext.addEventListener('click', () => { pause(); goNext(true); });
+
+document.addEventListener('keydown', (e) => {
+  if (document.activeElement === pouInput) return;
+  if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+  else if (e.key === 'ArrowRight') { pause(); goNext(true); }
+  else if (e.key === 'ArrowLeft')  { pause(); goPrev(true); }
+  else if (e.key === 'r' || e.key === 'R') { replayAll(); }
+  else if (e.key === 'm' || e.key === 'M') { setMode(mode === 'auto' ? 'manual' : 'auto'); }
+});
+
+// ---- mode toggle ----
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('#modeToggle button').forEach(b => {
+    b.classList.toggle('on', b.dataset.mode === m);
+  });
+  manualHint.style.display = m === 'manual' ? 'block' : 'none';
+}
+document.querySelectorAll('#modeToggle button').forEach(b => {
+  b.addEventListener('click', () => setMode(b.dataset.mode));
+});
+
+// ---- sound ----
+function setMuted(m) {
+  muted = m;
+  audioEl.muted = m;
+  soundBtn.classList.toggle('muted', m);
+  soundBtn.textContent = m ? '🔇 Sound off' : '🔊 Sound on';
+}
+soundBtn.addEventListener('click', () => setMuted(!muted));
+
+// ---- Avery image fallback detection ----
+const averyImg = $('averyImg');
+const averyFallback = $('averyFallback');
+averyImg.addEventListener('load', () => {
+  averyImg.style.display = 'block';
+  averyFallback.style.display = 'none';
+});
+averyImg.addEventListener('error', () => {
+  averyImg.style.display = 'none';
+  averyFallback.style.display = 'flex';
+});
+
+// ---- POU ----
+const POU_BUCKETS = {
+  scope: ['which','what cost','what costs','target','category','area','where','line item',
+          'support','travel','software','shipping','specific','focus','scope','bucket','department'],
+  mechanism: ['how','method','lever','approach','automate','vendor','switch','process','change',
+              'do less','reduce','way','tactic','mechanism','cut'],
+  signal: ['know','measure','metric','success','signal','number','deadline','by when','by q','kpi',
+           'direction','baseline','percent','%','result','tell','success look','outcome'],
+};
+function scoreInput(text) {
+  const t = (text || '').toLowerCase();
+  const hit = { scope: false, mechanism: false, signal: false };
+  for (const k of Object.keys(POU_BUCKETS)) {
+    for (const kw of POU_BUCKETS[k]) {
+      if (t.includes(kw)) { hit[k] = true; break; }
+    }
+  }
+  return hit;
+}
+pouSubmit.addEventListener('click', () => {
+  const text = pouInput.value.trim();
+  if (!text) {
+    pouFeedback.className = 'feedback soft show';
+    pouFeedback.innerHTML = 'Give it a shot — even a rough answer is fine.';
+    return;
+  }
+  const hit = scoreInput(text);
+  pouChips.forEach(c => c.classList.toggle('on', !!hit[c.dataset.k]));
+  const n = Object.values(hit).filter(Boolean).length;
+  if (n >= 3) {
+    pouFeedback.className = 'feedback pass show';
+    pouFeedback.innerHTML = `
+      <strong>Exactly — that's the frame.</strong><br>
+      You caught all three: which costs · how · how you'll know it worked.
+      <br><em>Avery:</em> "Every cost-reduction project you ever do lives inside these three boxes."
+    `;
+    xpBurst.classList.add('show');
+    setTimeout(() => xpBurst.classList.remove('show'), 2400);
+  } else if (n === 2) {
+    const missing = Object.keys(hit).filter(k => !hit[k])[0];
+    const label = { scope: 'which costs', mechanism: 'how', signal: "how we'll know" }[missing];
+    pouFeedback.className = 'feedback soft show';
+    pouFeedback.innerHTML = `<strong>Close.</strong> Missing piece — <em>${label}</em>. Try adding one line about that.`;
+  } else {
+    pouFeedback.className = 'feedback redirect show';
+    pouFeedback.innerHTML = `<strong>Rewind a sec.</strong> The three were: <em>which costs</em> · <em>how</em> · <em>how we'll know</em>. Tap ↻ Replay.`;
+  }
+});
+pouSkip.addEventListener('click', () => pouEl.classList.remove('show'));
+pouReplay.addEventListener('click', () => replayAll());
+
+function replayAll() {
+  pauseExit();
+  sceneIdx = 0; lineIdx = 0;
+  pouFeedback.className = 'feedback';
+  pouInput.value = '';
+  pouChips.forEach(c => c.classList.remove('on'));
+  renderScene(0);
+  loadLine(mode === 'auto');
+}
+function pauseExit() {
+  pause();
+  pouEl.classList.remove('show');
+}
+
+// ---- preload hint ----
+audioEl.addEventListener('waiting', () => preloadNotice.classList.add('show'));
+audioEl.addEventListener('playing', () => preloadNotice.classList.remove('show'));
+audioEl.addEventListener('canplay', () => preloadNotice.classList.remove('show'));
+
+// ---- init ----
+setMode('auto');
+renderScene(0);
+loadLine(false);
+scrubLabel.textContent = `0:00 / ${fmtTime(totalDuration())}`;
+// Don't autoplay on load — browser autoplay policy will block the unmuted audio.
+// User taps Play once; after that, auto mode cascades.
+
+})();
+</script>
+</body>
+</html>

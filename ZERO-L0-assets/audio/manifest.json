@@ -1,0 +1,199 @@
+{
+  "scenes": [
+    {
+      "id": "hook",
+      "lines": [
+        {
+          "file": "hook-01.mp3",
+          "text": "Hey. Before you open a single spreadsheet \u2014",
+          "duration": 4.441
+        },
+        {
+          "file": "hook-02.mp3",
+          "text": "I want you to answer one thing.",
+          "duration": 1.567
+        },
+        {
+          "file": "hook-03.mp3",
+          "text": "When your manager says \"reduce cost\"\u2026",
+          "duration": 2.116
+        },
+        {
+          "file": "hook-04.mp3",
+          "text": "\u2026what did they actually mean?",
+          "duration": 1.698
+        }
+      ]
+    },
+    {
+      "id": "trap",
+      "lines": [
+        {
+          "file": "trap-01.mp3",
+          "text": "Most people hear \"spend less.\"",
+          "duration": 1.75
+        },
+        {
+          "file": "trap-02.mp3",
+          "text": "They open the expense sheet. They start cutting.",
+          "duration": 2.22
+        },
+        {
+          "file": "trap-03.mp3",
+          "text": "That's the amateur version.",
+          "duration": 1.437
+        },
+        {
+          "file": "trap-04.mp3",
+          "text": "The real question has three parts.",
+          "duration": 1.907
+        }
+      ]
+    },
+    {
+      "id": "q1",
+      "lines": [
+        {
+          "file": "q1-01.mp3",
+          "text": "One \u2014 which costs?",
+          "duration": 1.75
+        },
+        {
+          "file": "q1-02.mp3",
+          "text": "You can't cut everything. You pick a target.",
+          "duration": 2.038
+        },
+        {
+          "file": "q1-03.mp3",
+          "text": "Maybe it's customer support. Maybe it's travel.",
+          "duration": 2.351
+        },
+        {
+          "file": "q1-04.mp3",
+          "text": "Different target \u2014 different project.",
+          "duration": 2.22
+        }
+      ]
+    },
+    {
+      "id": "q2",
+      "lines": [
+        {
+          "file": "q2-01.mp3",
+          "text": "Two \u2014 how?",
+          "duration": 1.437
+        },
+        {
+          "file": "q2-02.mp3",
+          "text": "There are really only a few ways to cut a cost.",
+          "duration": 1.985
+        },
+        {
+          "file": "q2-03.mp3",
+          "text": "Change the process. Switch vendor. Do less. Automate.",
+          "duration": 2.952
+        },
+        {
+          "file": "q2-04.mp3",
+          "text": "Same category. Four totally different projects.",
+          "duration": 2.22
+        }
+      ]
+    },
+    {
+      "id": "q3",
+      "lines": [
+        {
+          "file": "q3-01.mp3",
+          "text": "Three \u2014 how will we know it worked?",
+          "duration": 2.273
+        },
+        {
+          "file": "q3-02.mp3",
+          "text": "You need a number. You need a direction. You need a deadline.",
+          "duration": 3.004
+        },
+        {
+          "file": "q3-03.mp3",
+          "text": "Without that, you can't tell if you won\u2026",
+          "duration": 1.985
+        },
+        {
+          "file": "q3-04.mp3",
+          "text": "\u2026or just worked hard.",
+          "duration": 1.437
+        }
+      ]
+    },
+    {
+      "id": "tradeoff",
+      "lines": [
+        {
+          "file": "tradeoff-01.mp3",
+          "text": "Because \u2014 watch this.",
+          "duration": 1.489
+        },
+        {
+          "file": "tradeoff-02.mp3",
+          "text": "Cut a million in support? Could be a huge win.",
+          "duration": 2.325
+        },
+        {
+          "file": "tradeoff-03.mp3",
+          "text": "Or \u2014 you just lost three million in renewals because service got worse.",
+          "duration": 4.127
+        },
+        {
+          "file": "tradeoff-04.mp3",
+          "text": "Same move. Very different answers.",
+          "duration": 2.038
+        },
+        {
+          "file": "tradeoff-05.mp3",
+          "text": "That's why you need all three questions.",
+          "duration": 1.855
+        }
+      ]
+    },
+    {
+      "id": "anchor",
+      "lines": [
+        {
+          "file": "anchor-01.mp3",
+          "text": "So \u2014 Airbnb is coming in to brief us in a minute.",
+          "duration": 3.004
+        },
+        {
+          "file": "anchor-02.mp3",
+          "text": "Before they tell us anything \u2014",
+          "duration": 1.698
+        },
+        {
+          "file": "anchor-03.mp3",
+          "text": "we already know what we need to find out.",
+          "duration": 2.22
+        },
+        {
+          "file": "anchor-04.mp3",
+          "text": "These three boxes. That's the frame.",
+          "duration": 2.116
+        }
+      ]
+    },
+    {
+      "id": "pou",
+      "lines": [
+        {
+          "file": "pou-01.mp3",
+          "text": "Alright \u2014 your turn.",
+          "duration": 1.802
+        },
+        {
+          "file": "pou-02.mp3",
+          "text": "Write what you'd need to find out. No pressure \u2014 your words.",
+          "duration": 3.239
+        }
+      ]
+    }
+  ]
+}

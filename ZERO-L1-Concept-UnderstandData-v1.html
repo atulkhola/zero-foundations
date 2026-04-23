@@ -1,0 +1,3210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Zero · L1 · Understanding the data (v1 · Avery's Uber story, Day 2)</title>
+<style>
+:root {
+  --bg: #f4f5f7;
+  --card: #ffffff;
+  --paper: #fbf7ee;
+  --paper-grid: rgba(15,17,21,0.05);
+
+  --ink: #0f1115;
+  --ink-soft: #3d424d;
+  --ink-dim: #6b7280;
+  --ink-faint: #9ca3af;
+  --line: rgba(15,17,21,0.08);
+  --line-strong: rgba(15,17,21,0.16);
+
+  --good: #1e7a4b;
+  --good-soft: #e6f4ec;
+  --bad: #b6311d;
+  --bad-soft: #fbe8e4;
+  --warn: #a85d12;
+  --warn-soft: #fff5e6;
+
+  --radius-card: 14px;
+  --radius-chip: 999px;
+
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "SF Pro Text", sans-serif;
+  --mono: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --hand: "Bradley Hand", "Segoe Print", "Marker Felt", "Chalkduster", var(--serif);
+
+  --g-mint: linear-gradient(135deg, #c8f5df 0%, #86d9b5 55%, #3fb489 100%);
+
+  --shadow-card: 0 1px 2px rgba(15,17,21,0.04), 0 6px 20px rgba(15,17,21,0.06);
+  --shadow-stage: 0 8px 40px rgba(15,17,21,0.10), 0 1px 2px rgba(15,17,21,0.04);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: var(--sans); }
+body {
+  font-size: 15px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.frame {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 22px 24px 18px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Top ---------- */
+.topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.topbar .crumb { font-size: 12px; color: var(--ink-dim); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
+.topbar .title { font-size: 14px; color: var(--ink); font-weight: 600; }
+.topbar .title .ital { font-family: var(--serif); font-style: italic; font-weight: 400; }
+.topbar .spacer { flex: 1; }
+.topbar .chip {
+  font-size: 11.5px; padding: 5px 10px;
+  border-radius: var(--radius-chip);
+  background: var(--card); border: 1px solid var(--line); color: var(--ink-soft);
+}
+
+.mode-toggle {
+  display: inline-flex; align-items: center;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: 3px;
+  gap: 2px;
+}
+.mode-toggle button {
+  font: 600 11.5px/1 var(--sans);
+  border: none;
+  background: transparent;
+  color: var(--ink-soft);
+  padding: 6px 12px;
+  border-radius: var(--radius-chip);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+.mode-toggle button.on {
+  background: var(--ink); color: #fff;
+}
+
+.sound-btn {
+  font: 600 11.5px/1 var(--sans);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: 7px 12px;
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+.sound-btn.muted { color: var(--ink-faint); }
+
+/* ---------- Stage ---------- */
+.stage {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 22px;
+  padding-top: 18px;
+  min-height: 0;
+}
+
+.rail {
+  display: flex; flex-direction: column; gap: 16px;
+  min-height: 0;
+}
+
+.avery-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px;
+}
+
+.portrait {
+  position: relative;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: var(--g-mint);
+  box-shadow: 0 4px 16px rgba(63,180,137,0.22), inset 0 2px 4px rgba(255,255,255,0.6);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  transition: box-shadow 0.3s;
+}
+.portrait::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px rgba(255,255,255,0.55);
+  pointer-events: none;
+  z-index: 2;
+}
+.portrait img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.portrait .fallback {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.portrait .fallback svg { width: 100%; height: 100%; display: block; }
+
+.portrait .ring {
+  position: absolute; inset: -10px;
+  border-radius: 50%;
+  border: 2px solid rgba(63,180,137,0.38);
+  opacity: 0;
+}
+.portrait.speaking .ring {
+  animation: pulse 1.5s ease-out infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(0.92); opacity: 0.55; }
+  70% { transform: scale(1.15); opacity: 0; }
+  100% { opacity: 0; }
+}
+.portrait.speaking {
+  box-shadow: 0 6px 22px rgba(63,180,137,0.32), 0 0 0 4px rgba(63,180,137,0.15), inset 0 2px 4px rgba(255,255,255,0.6);
+}
+
+.avery-name { font-size: 14px; font-weight: 600; color: var(--ink); margin-top: 6px; }
+.avery-role { font-size: 12px; color: var(--ink-dim); }
+
+.subtitle-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 18px 20px 20px;
+  box-shadow: var(--shadow-card);
+  min-height: 170px;
+  display: flex; flex-direction: column; gap: 8px;
+  flex: 1;
+}
+.subtitle-row {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.subtitle-label {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-faint); font-weight: 600;
+}
+.subtitle-linechip {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-faint); font-weight: 600;
+}
+.speaker-chip {
+  display: inline-block; align-self: flex-start;
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: var(--radius-chip);
+  background: #0f1115; color: #f9d76e;
+  border: 1px solid #0f1115;
+  margin-bottom: 4px;
+  animation: chipIn 0.35s ease both;
+}
+@keyframes chipIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.subtitle-text {
+  font-size: 17px; line-height: 1.55; color: var(--ink);
+  font-family: var(--serif);
+  letter-spacing: -0.005em;
+  transition: opacity 0.25s ease;
+}
+.subtitle-text.fade { opacity: 0; }
+.subtitle-text .ital { font-style: italic; color: var(--ink-soft); }
+.subtitle-text em { font-style: normal; font-weight: 700; font-family: var(--sans); font-size: 15.5px; color: var(--ink); }
+.subtitle-text code { font-family: var(--mono); font-size: 14px; background: #f4f1e6; padding: 1px 5px; border-radius: 4px; color: #0f1115; }
+
+.manual-hint {
+  margin-top: auto;
+  font-size: 11.5px; color: var(--ink-dim);
+  padding: 8px 10px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 10px;
+}
+
+/* ---------- Board ---------- */
+.board-wrap {
+  position: relative;
+  background: var(--paper);
+  border-radius: 22px;
+  border: 1px solid rgba(15,17,21,0.06);
+  box-shadow: var(--shadow-stage);
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.board-wrap::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(to right, var(--paper-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--paper-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  opacity: 0.7;
+}
+.board {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+.board > svg {  /* direct-child only — nested SVGs render inline */
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+}
+.board .tag {
+  position: absolute;
+  top: 14px; left: 16px;
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-dim); font-weight: 600;
+  background: rgba(255,255,255,0.7);
+  padding: 5px 10px; border-radius: var(--radius-chip);
+  border: 1px solid var(--line);
+  z-index: 3;
+}
+.board .scene-title {
+  position: absolute;
+  top: 14px; right: 16px;
+  font-size: 11.5px;
+  color: var(--ink-soft); font-weight: 600;
+  font-family: var(--sans);
+  z-index: 3;
+}
+
+/* SVG line-reveal system */
+.board svg g[data-line] {
+  opacity: 0;
+  transition: opacity 0.45s ease-out;
+}
+.board svg g[data-line].show {
+  opacity: 1;
+}
+/* stroke draw-in */
+.board svg .draw {
+  stroke-dasharray: var(--dash, 1200);
+  stroke-dashoffset: var(--dash, 1200);
+}
+.board svg g[data-line].show .draw {
+  animation: draw 1.0s ease-out 0.1s forwards;
+}
+@keyframes draw { to { stroke-dashoffset: 0; } }
+/* pop */
+.board svg .pop {
+  transform-origin: center;
+  transform-box: fill-box;
+  transform: scale(0.88);
+}
+.board svg g[data-line].show .pop {
+  animation: popin 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) forwards;
+}
+@keyframes popin { to { transform: scale(1); } }
+
+.wb-text { font-family: var(--hand); fill: var(--ink); }
+.wb-text.dim { fill: var(--ink-soft); }
+.wb-text.faint { fill: var(--ink-faint); }
+.wb-text.red { fill: var(--bad); }
+.wb-text.green { fill: var(--good); }
+.wb-text.warn { fill: var(--warn); }
+.wb-mono { font-family: var(--mono); fill: var(--ink); }
+.wb-mono.faint { fill: var(--ink-faint); }
+
+/* ---------- Bottom ---------- */
+.bottombar {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 18px;
+  align-items: center;
+}
+.btn {
+  font: 500 13px/1 var(--sans);
+  background: var(--card); color: var(--ink);
+  border: 1px solid var(--line); border-radius: var(--radius-chip);
+  padding: 9px 14px; cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.btn:hover { background: #fff; border-color: var(--line-strong); }
+.btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+.btn.primary:hover { background: #000; }
+.btn.ghost { background: transparent; border-color: var(--line); }
+
+.bottom-left { display: flex; gap: 6px; align-items: center; }
+.scene-pos {
+  font-size: 11.5px; color: var(--ink-dim); font-weight: 600;
+  padding: 0 4px; font-variant-numeric: tabular-nums;
+}
+
+.scrub {
+  display: flex; align-items: center; gap: 12px;
+}
+.scrub-track {
+  flex: 1;
+  position: relative;
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(15,17,21,0.08);
+  cursor: pointer;
+}
+.scrub-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  border-radius: 4px;
+  background: var(--ink);
+  width: 0%;
+  transition: width 0.1s linear;
+}
+.scrub-marker {
+  position: absolute; top: -3px; width: 2px; height: 12px;
+  background: rgba(15,17,21,0.25);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.scrub-marker.active { background: var(--ink); }
+.scrub-label {
+  min-width: 110px;
+  font-size: 11.5px; color: var(--ink-dim); font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.hints {
+  display: flex; gap: 14px; font-size: 11px; color: var(--ink-faint);
+}
+.hints kbd {
+  font-family: var(--sans);
+  background: var(--card); border: 1px solid var(--line);
+  padding: 2px 6px; border-radius: 6px; font-size: 10.5px; color: var(--ink-soft);
+}
+
+/* ---------- POU — mini-game ---------- */
+.pou {
+  position: absolute; inset: 0;
+  z-index: 5;
+  background: linear-gradient(180deg, rgba(251,247,238,0.94), rgba(251,247,238,0.98));
+  backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 28px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease-out;
+}
+.pou.show { opacity: 1; pointer-events: auto; }
+.pou .sheet {
+  max-width: 780px; width: 100%;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow-stage);
+  padding: 22px 26px 24px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.pou .head-row { display: flex; align-items: center; gap: 12px; }
+.pou .label {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-faint); font-weight: 600;
+}
+.pou .round-dots { display: flex; gap: 6px; margin-left: auto; }
+.pou .round-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
+.pou .round-dots .dot.on { background: var(--ink); }
+.pou .round-dots .dot.pass { background: var(--good); }
+.pou .round-dots .dot.wrong { background: var(--bad); }
+
+.pou h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+.pou h2 .ital { font-style: italic; }
+
+.data-slice {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.data-slice table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 620px;
+}
+.data-slice th, .data-slice td {
+  text-align: left;
+  padding: 4px 10px 4px 0;
+  border-bottom: 1px dashed rgba(15,17,21,0.08);
+}
+.data-slice th { color: var(--ink-soft); font-weight: 600; }
+.data-slice td { color: var(--ink); }
+.data-slice th.focus, .data-slice td.focus {
+  background: #fff4c9;
+  border-radius: 4px;
+}
+.data-slice th.focus {
+  color: var(--ink);
+}
+
+.col-prompt {
+  font-size: 14.5px;
+  color: var(--ink-soft);
+  font-family: var(--serif);
+  font-style: italic;
+}
+.col-prompt code {
+  font-family: var(--mono);
+  font-style: normal;
+  background: #fff4c9;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--ink);
+  font-size: 13.5px;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.opt {
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: 14px/1.45 var(--sans);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
+  position: relative;
+}
+.opt:hover { background: #fafafa; border-color: var(--line-strong); }
+.opt.selected { border-color: var(--ink); background: #fafafa; }
+.opt.correct { background: var(--good-soft); border-color: rgba(30,122,75,0.35); color: var(--good); }
+.opt.wrong { background: var(--bad-soft); border-color: rgba(182,49,29,0.28); color: var(--bad); }
+.opt.disabled { pointer-events: none; opacity: 0.55; }
+.opt .mark {
+  position: absolute; right: 12px; top: 12px; font-size: 16px; font-weight: 700;
+}
+
+.feedback {
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 13.5px;
+  display: none;
+}
+.feedback.show { display: block; }
+.feedback.pass { background: var(--good-soft); color: var(--good); border: 1px solid rgba(30,122,75,0.25); }
+.feedback.soft { background: var(--warn-soft); color: var(--warn); border: 1px solid rgba(168,93,18,0.22); }
+.feedback.redirect { background: var(--bad-soft); color: var(--bad); border: 1px solid rgba(182,49,29,0.22); }
+
+.actions { display: flex; gap: 10px; align-items: center; }
+.actions .spacer { flex: 1; }
+
+.summary {
+  display: none;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--ink);
+  font-family: var(--serif);
+}
+.summary.show { display: block; }
+.summary b { font-family: var(--sans); }
+
+.xp-burst {
+  position: absolute; top: 18px; right: 18px;
+  background: var(--g-mint);
+  color: #0b3b28;
+  font-weight: 700; font-size: 13px;
+  padding: 8px 14px; border-radius: var(--radius-chip);
+  box-shadow: 0 6px 18px rgba(63,180,137,0.32);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 6;
+}
+.xp-burst.show { opacity: 1; transform: translateY(0); }
+
+.preload-notice {
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  font-size: 11.5px; color: var(--ink-dim);
+  background: rgba(255,255,255,0.85); border: 1px solid var(--line);
+  padding: 6px 12px; border-radius: var(--radius-chip);
+  z-index: 4;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.preload-notice.show { opacity: 1; }
+
+/* ---------- Cowork simulated UI (modern_move scene) ---------- */
+/* Visual target: real Claude Cowork — warm off-white canvas,
+   dark warm sidebar, assistant replies flow as body text (no bubble),
+   user messages get a rounded pill-bubble. */
+.cw-stage {
+  position: absolute; inset: 0;
+  background: #f5f4ef;
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  color: #1a1a1a;
+  overflow: hidden;
+  border-radius: 0;
+}
+.cw-sidebar {
+  background: #262521;
+  color: #d8d4c8;
+  padding: 12px 10px 10px;
+  display: flex; flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+.cw-brand {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 8px 10px;
+}
+.cw-brand .cw-brand-mark {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: #c65f2b;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: #fff; font-size: 12px; letter-spacing: -0.02em;
+  flex-shrink: 0;
+}
+.cw-brand .cw-brand-text {
+  font-size: 13px; font-weight: 600; color: #e8e4d7; letter-spacing: -0.01em;
+}
+.cw-brand .cw-brand-sub {
+  font-size: 10px; font-weight: 400; color: #8a857a; margin-left: 4px;
+  letter-spacing: 0.02em;
+}
+.cw-new-btn {
+  background: #33312c;
+  color: #e8e4d7;
+  border: 1px solid #3e3c35;
+  padding: 8px 10px; font-size: 12px; font-weight: 500;
+  border-radius: 8px; text-align: left;
+  display: flex; align-items: center; gap: 8px;
+  letter-spacing: -0.01em;
+}
+.cw-new-btn::before {
+  content: ""; width: 14px; height: 14px;
+  background:
+    linear-gradient(#8a857a, #8a857a) center / 10px 1.5px no-repeat,
+    linear-gradient(#8a857a, #8a857a) center / 1.5px 10px no-repeat;
+}
+.cw-new-btn .cw-kbd {
+  margin-left: auto; font-size: 10px; color: #8a857a;
+  border: 1px solid #3e3c35; padding: 1px 5px; border-radius: 4px;
+}
+.cw-search {
+  background: transparent;
+  color: #8a857a; font-size: 12px;
+  padding: 7px 10px;
+  display: flex; align-items: center; gap: 8px;
+  border-radius: 8px;
+}
+.cw-search::before {
+  content: ""; width: 13px; height: 13px; flex-shrink: 0;
+  background: radial-gradient(circle at 45% 45%, transparent 3.5px, #8a857a 3.5px, #8a857a 5px, transparent 5px);
+  mask: radial-gradient(circle at 45% 45%, transparent 3.5px, black 3.5px, black 5px, transparent 5px);
+  border-radius: 50%;
+  /* simplified search glass */
+}
+.cw-search-ico { width: 13px; height: 13px; flex-shrink: 0; color: #8a857a; }
+.cw-chatlist { list-style: none; margin: 4px 0; padding: 0; display: flex; flex-direction: column; gap: 1px; }
+.cw-chatlist-label {
+  font-size: 10.5px; color: #8a857a;
+  padding: 10px 10px 4px; letter-spacing: 0.04em;
+  font-weight: 500;
+}
+.cw-chat-item {
+  font-size: 12px; padding: 7px 10px; border-radius: 7px;
+  color: #b3ae9e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  letter-spacing: -0.005em;
+}
+.cw-chat-item.active { background: #33312c; color: #f0ecdf; }
+.cw-footer {
+  margin-top: auto;
+  padding: 10px 4px 4px;
+  display: flex; gap: 9px; align-items: center;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.cw-avatar-dot {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, #c8f5df, #3fb489);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12.5px; font-weight: 700; color: #0b3b28;
+  flex-shrink: 0;
+}
+.cw-user-info { flex: 1; min-width: 0; }
+.cw-user-name { font-size: 12px; color: #e8e4d7; font-weight: 500; letter-spacing: -0.01em; }
+.cw-user-tier { font-size: 10.5px; color: #8a857a; }
+
+.cw-main {
+  display: flex; flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: #f5f4ef;
+}
+.cw-header {
+  padding: 10px 18px 10px;
+  display: flex; justify-content: space-between; align-items: center;
+  background: #f5f4ef;
+  z-index: 2;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+.cw-title {
+  font-size: 13px; font-weight: 500; color: #1a1a1a;
+  letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 6px;
+}
+.cw-title::before {
+  content: "★"; font-size: 11px; color: #c0baa6; opacity: 0.6;
+}
+.cw-model {
+  font-size: 11.5px; color: #595551;
+  background: transparent;
+  padding: 3px 4px; border-radius: 6px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.cw-model::after {
+  content: "⌄"; font-size: 11px; color: #95908a; margin-left: 1px;
+}
+
+.cw-messages {
+  flex: 1; overflow: hidden;
+  padding: 20px 20px 10px;
+  display: flex; flex-direction: column; gap: 18px;
+  min-height: 0;
+  position: relative;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #1a1a1a;
+}
+
+.cw-msg {
+  opacity: 0; transform: translateY(4px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.cw-msg.show { opacity: 1; transform: translateY(0); }
+
+/* USER message — rounded pill bubble, right-aligned */
+.cw-msg.user {
+  align-self: flex-end;
+  background: #eae5d5;
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 13.5px;
+  color: #1a1a1a;
+  line-height: 1.45;
+  max-width: 80%;
+  letter-spacing: -0.005em;
+}
+.cw-msg.user .cw-csv-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.08);
+  padding: 6px 10px 6px 8px; border-radius: 10px;
+  font-size: 11.5px;
+  margin-bottom: 8px;
+  color: #4a4641;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.cw-msg.user .cw-csv-chip::before {
+  content: ""; width: 16px; height: 16px; flex-shrink: 0;
+  background: #e8f1ea;
+  border-radius: 4px;
+  display: inline-block;
+  background-image:
+    linear-gradient(#1e7a4b, #1e7a4b),
+    linear-gradient(#1e7a4b, #1e7a4b),
+    linear-gradient(#1e7a4b, #1e7a4b);
+  background-size: 8px 1px, 8px 1px, 8px 1px;
+  background-position: 4px 5px, 4px 8px, 4px 11px;
+  background-repeat: no-repeat;
+  background-color: #e8f1ea;
+}
+
+/* ASSISTANT message — flows inline, no bubble */
+.cw-msg.assistant {
+  align-self: stretch;
+  display: flex; gap: 12px;
+  max-width: 100%;
+}
+.cw-msg.assistant .claude-avatar {
+  width: 26px; height: 26px;
+  background: #c65f2b;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 13px;
+  margin-top: 1px;
+  font-family: Georgia, serif;
+  font-style: italic;
+  letter-spacing: -0.04em;
+}
+.cw-msg.assistant .claude-body {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 3px 0 0;
+  font-size: 13.5px;
+  color: #1a1a1a;
+  position: relative;
+  min-width: 0;
+  letter-spacing: -0.005em;
+}
+.cw-msg.assistant .claude-body p { margin: 0 0 8px; }
+.cw-msg.assistant .claude-body p:last-child { margin-bottom: 0; }
+.cw-msg.assistant .claude-body code {
+  font-family: "SF Mono", Menlo, monospace; font-size: 12px;
+  background: rgba(198,95,43,0.08);
+  padding: 1.5px 5px; border-radius: 4px; color: #8a4418;
+  border: 1px solid rgba(198,95,43,0.14);
+}
+.cw-msg.assistant .claude-body strong { font-weight: 600; color: #0a0a0a; }
+
+.cw-thinking {
+  display: inline-flex; gap: 5px;
+  padding: 4px 2px;
+  align-items: center;
+}
+.cw-thinking span {
+  width: 6px; height: 6px; background: #c65f2b;
+  border-radius: 50%;
+  animation: cwdot 1.2s infinite ease-in-out;
+  opacity: 0.4;
+}
+.cw-thinking span:nth-child(2) { animation-delay: 0.15s; }
+.cw-thinking span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes cwdot {
+  0%, 80%, 100% { opacity: 0.25; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+
+.cw-gloss-tbl {
+  width: 100%; border-collapse: collapse;
+  font-size: 12px;
+  margin: 10px 0 6px;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.cw-gloss-tbl th, .cw-gloss-tbl td {
+  text-align: left; padding: 8px 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  vertical-align: top;
+}
+.cw-gloss-tbl tr:last-child td { border-bottom: none; }
+.cw-gloss-tbl th {
+  font-weight: 500; color: #595551;
+  background: rgba(0,0,0,0.025);
+  font-size: 10.5px; letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 7px 10px;
+}
+.cw-gloss-tbl tr.flagged td { background: #fff4e0; }
+.cw-gloss-tbl tr.resolved td { background: #eaf5ee; }
+.cw-gloss-tbl .note {
+  color: #8a4418; font-size: 11px; margin-top: 5px;
+  line-height: 1.45;
+  padding: 5px 8px; background: rgba(198,95,43,0.06);
+  border-left: 2px solid #c65f2b;
+  border-radius: 0 4px 4px 0;
+}
+.cw-gloss-tbl .note code { background: rgba(198,95,43,0.12); }
+.cw-gloss-tbl .resolved-note {
+  color: #1e7a4b; border-left-color: #1e7a4b;
+  background: rgba(30,122,75,0.06);
+}
+.cw-gloss-tbl .resolved-note code { background: rgba(30,122,75,0.12); color: #0f4a2b; }
+.cw-gloss-tbl .col-name {
+  font-weight: 500; color: #1a1a1a;
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: 11.5px;
+  background: rgba(0,0,0,0.04);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+}
+.cw-gloss-tbl .def {
+  font-size: 12.5px; color: #1a1a1a; line-height: 1.5;
+  letter-spacing: -0.005em;
+}
+
+.cw-composer {
+  padding: 10px 20px 18px;
+  background: #f5f4ef;
+}
+.cw-composer-inner {
+  display: flex; align-items: flex-end; gap: 8px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 16px;
+  padding: 10px 10px 10px 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  min-height: 48px;
+}
+.cw-composer-inner.focused { border-color: #c65f2b; }
+.cw-attach, .cw-send {
+  width: 28px; height: 28px; border: none;
+  background: transparent; color: #595551;
+  font-size: 15px; cursor: default;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.cw-attach {
+  background: #f0eee7; color: #4a4641;
+  font-size: 18px; font-weight: 400;
+}
+.cw-send {
+  background: #c65f2b; color: white;
+  border-radius: 50%; font-size: 14px; font-weight: 700;
+}
+.cw-input {
+  flex: 1; font-size: 13.5px; color: #1a1a1a;
+  min-height: 22px; display: flex; align-items: center; min-width: 0;
+  letter-spacing: -0.005em;
+}
+.cw-input .cw-placeholder { color: #95908a; }
+.cw-input .cw-typed { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cw-caret {
+  display: inline-block; width: 1.5px; height: 14px;
+  background: #1a1a1a; vertical-align: middle;
+  margin-left: 2px;
+  animation: cwcaret 0.8s infinite;
+}
+@keyframes cwcaret { 50% { opacity: 0; } }
+
+/* Red pen overlay */
+.cw-pen {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 4;
+}
+.cw-pen.show { opacity: 1; }
+
+/* Takeaway card */
+.cw-takeaway {
+  position: absolute; inset: 0;
+  background: rgba(251,247,238,0.97);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 16px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.5s ease;
+  z-index: 5;
+  padding: 0 20px;
+  text-align: center;
+}
+.cw-takeaway.show { opacity: 1; pointer-events: auto; }
+.cw-take-label {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-faint); font-weight: 600;
+}
+.cw-takeaway-inner { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.cw-take-pill {
+  font-family: var(--sans); font-weight: 700; font-size: 16px;
+  letter-spacing: 0.08em;
+  background: var(--ink); color: white;
+  padding: 11px 20px; border-radius: 12px;
+  opacity: 0; transform: translateY(10px);
+}
+.cw-takeaway.show .cw-take-pill { animation: cwpill 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) forwards; }
+.cw-takeaway.show .cw-take-pill.p2 { animation-delay: 0.15s; background: #a85d12; }
+.cw-takeaway.show .cw-take-pill.p3 { animation-delay: 0.3s; background: var(--good); }
+.cw-take-arrow { font-size: 22px; color: var(--ink-dim); opacity: 0; }
+.cw-takeaway.show .cw-take-arrow { animation: cwpill 0.4s forwards 0.1s; }
+.cw-takeaway.show .cw-take-arrow.a2 { animation-delay: 0.25s; }
+@keyframes cwpill { to { opacity: 1; transform: translateY(0); } }
+.cw-take-line {
+  font-family: var(--serif); font-style: italic; font-size: 19px;
+  color: var(--ink-soft); margin-top: 2px;
+  opacity: 0;
+}
+.cw-takeaway.show .cw-take-line { animation: cwpill 0.5s forwards 0.5s; }
+.cw-take-next {
+  margin-top: 12px; font-size: 12px; color: var(--ink-dim);
+  opacity: 0;
+}
+.cw-takeaway.show .cw-take-next { animation: cwpill 0.5s forwards 0.8s; }
+.cw-take-next .arrow { color: var(--good); font-weight: 700; margin-right: 5px; }
+
+/* modern_move data-line hidden state works via HTML class too */
+.board [data-line] {
+  opacity: 0;
+  transition: opacity 0.45s ease-out;
+}
+.board [data-line].show {
+  opacity: 1;
+}
+
+/* Post-POU "modern move" button */
+.pou .modern-cta {
+  display: none;
+  background: linear-gradient(135deg, #da7756 0%, #b0492c 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font: 700 13.5px/1 var(--sans);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(218,119,86,0.3);
+  align-items: center; gap: 8px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.pou .modern-cta.show { display: inline-flex; }
+.pou .modern-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(218,119,86,0.38); }
+.pou .modern-cta::before {
+  content: ""; width: 10px; height: 10px; border-radius: 50%; background: white; opacity: 0.9;
+}
+
+/* ---------- Google Sheets clone (csv scene) ---------- */
+.gs-stage {
+  position: absolute; inset: 0;
+  background: #ffffff;
+  display: flex; flex-direction: column;
+  font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color: #202124;
+  overflow: hidden;
+  font-size: 13px;
+}
+.gs-topbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 14px 4px;
+  background: #ffffff;
+  border-bottom: 1px solid transparent;
+}
+.gs-fileicon {
+  width: 22px; height: 26px;
+  background: #0f9d58;
+  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 11px; font-weight: 700;
+  flex-shrink: 0;
+  position: relative;
+}
+.gs-fileicon::before {
+  content: ""; position: absolute; top: 0; right: 0;
+  width: 6px; height: 6px;
+  background: linear-gradient(225deg, #ffffff 50%, transparent 50%);
+}
+.gs-fileinfo { flex: 1; min-width: 0; }
+.gs-filename {
+  font-size: 15px; color: #202124;
+  letter-spacing: -0.005em; font-weight: 400;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.gs-filename .gs-star { color: #dadce0; font-size: 14px; }
+.gs-filename .gs-folder { color: #5f6368; font-size: 13px; }
+.gs-filestatus { font-size: 11.5px; color: #5f6368; margin-top: 1px; }
+.gs-topactions { display: flex; gap: 8px; align-items: center; }
+.gs-share {
+  background: #c2e7ff; color: #001d35;
+  padding: 8px 16px; border-radius: 20px;
+  font-size: 13px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.gs-share::before { content: "🔒"; font-size: 11px; }
+
+.gs-menu {
+  display: flex; gap: 2px;
+  padding: 0 14px 4px;
+  background: #ffffff;
+  font-size: 12.5px;
+  color: #444;
+}
+.gs-menu span {
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: #444;
+}
+
+.gs-toolbar {
+  display: flex; align-items: center; gap: 2px;
+  padding: 2px 10px 4px;
+  background: #f0f4f9;
+  border-top: 1px solid #e0e0e0;
+  margin: 4px 10px 0;
+  border-radius: 22px;
+  height: 36px;
+}
+.gs-tool {
+  height: 28px; min-width: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 13px; color: #444746;
+  padding: 0 6px;
+  border-radius: 4px;
+}
+.gs-tool.bold { font-weight: 700; }
+.gs-tool.italic { font-style: italic; }
+.gs-tooldiv { width: 1px; height: 18px; background: #c4c7c5; margin: 0 4px; }
+
+.gs-cellbar {
+  display: flex; align-items: center; gap: 4px;
+  padding: 6px 12px;
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+}
+.gs-cellref {
+  font-size: 12px; color: #444746;
+  padding: 4px 10px;
+  border: 1px solid #dadce0; border-radius: 4px;
+  min-width: 60px; text-align: center;
+  background: #ffffff;
+}
+.gs-fx {
+  font-family: "Roboto Serif", Georgia, serif;
+  font-style: italic;
+  color: #5f6368;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+.gs-formula {
+  font-size: 13px; color: #202124;
+  padding: 4px 0;
+}
+
+.gs-grid {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background: #ffffff;
+  min-height: 0;
+}
+.gs-table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+  font-size: 12px;
+}
+.gs-table th, .gs-table td {
+  border: 1px solid #e0e0e0;
+  padding: 3px 8px;
+  height: 22px;
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: "Roboto", Arial, sans-serif;
+}
+.gs-table thead th {
+  background: #f8f9fa;
+  color: #5f6368;
+  font-weight: 500;
+  font-size: 11.5px;
+  text-align: center;
+  height: 22px;
+  border-bottom: 1px solid #c0c4c9;
+}
+.gs-table .gs-rownum {
+  background: #f8f9fa;
+  color: #5f6368;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 400;
+  width: 44px;
+  border-right: 1px solid #c0c4c9;
+}
+.gs-table tr.header-row td {
+  background: #ffffff;
+  font-family: "Roboto Mono", "SF Mono", monospace;
+  font-size: 11.5px;
+  color: #202124;
+  font-weight: 500;
+}
+.gs-table tr.header-row td.highlight {
+  background: #fef7e0;
+  border-color: #f9ab00;
+}
+.gs-table td.data {
+  color: #202124;
+  font-family: "Roboto", Arial, sans-serif;
+}
+.gs-table td.mono {
+  font-family: "Roboto Mono", "SF Mono", monospace;
+  font-size: 11px;
+  color: #3c4043;
+}
+.gs-table td.selected {
+  outline: 2px solid #1a73e8;
+  outline-offset: -2px;
+  background: #e8f0fe;
+}
+
+/* column width ratios via nth-child on cells */
+.gs-table col.c-num { width: 44px; }
+.gs-table col.c-a { width: 9%; }
+.gs-table col.c-b { width: 20%; }
+.gs-table col.c-c { width: 15%; }
+.gs-table col.c-d { width: 17%; }
+.gs-table col.c-e { width: 12%; }
+.gs-table col.c-f { width: 11%; }
+.gs-table col.c-g { width: auto; }
+
+/* Question-mark confusion overlay on line 4 */
+.gs-confused {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  font-family: "Bradley Hand", cursive;
+  font-size: 22px;
+  color: #d93025;
+  font-weight: 700;
+  transform: rotate(-5deg);
+  z-index: 4;
+}
+.gs-confused.show { opacity: 1; }
+
+.gs-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 5px 12px;
+  background: #ffffff;
+  border-top: 1px solid #e0e0e0;
+  font-size: 11.5px;
+  color: #5f6368;
+}
+.gs-tabs { display: flex; gap: 2px; align-items: center; }
+.gs-tab {
+  padding: 4px 14px; font-size: 11.5px; color: #5f6368;
+  border-top: 2px solid transparent; border-radius: 0;
+  display: flex; align-items: center; gap: 6px;
+}
+.gs-tab.active {
+  background: #ffffff; color: #202124; font-weight: 500;
+  border-top-color: #0f9d58;
+  box-shadow: 0 -2px 0 #0f9d58 inset;
+}
+.gs-tab-add { color: #5f6368; padding: 4px 8px; font-size: 13px; }
+.gs-rowcount {
+  font-size: 11.5px; color: #5f6368;
+  background: transparent;
+  padding: 3px 10px;
+  border-radius: 4px;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.gs-rowcount.flash { background: #fef7e0; color: #b05e00; font-weight: 500; }
+
+/* ---------- Column-confusion view (trap scene, Sheets-focus) ---------- */
+.tr-stage {
+  position: absolute; inset: 0;
+  background: #f5f4ef;
+  display: flex; flex-direction: column;
+  font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color: #202124;
+  overflow: hidden;
+  padding: 0;
+}
+.tr-breadcrumb {
+  padding: 10px 18px;
+  font-size: 12px;
+  color: #5f6368;
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex; align-items: center; gap: 8px;
+}
+.tr-breadcrumb .tr-sheeticon {
+  width: 16px; height: 18px;
+  background: #0f9d58; border-radius: 2px; flex-shrink: 0;
+  position: relative;
+}
+.tr-breadcrumb .tr-sheeticon::before {
+  content: ""; position: absolute; top: 0; right: 0;
+  width: 5px; height: 5px;
+  background: linear-gradient(225deg, #ffffff 50%, transparent 50%);
+}
+.tr-breadcrumb .tr-file { color: #202124; font-weight: 500; }
+.tr-breadcrumb .tr-sep { color: #9aa0a6; }
+.tr-breadcrumb .tr-active { color: #5f6368; }
+
+.tr-body {
+  flex: 1; overflow: hidden;
+  padding: 36px 24px 18px;
+  display: flex; flex-direction: column;
+  min-height: 0;
+  position: relative;
+}
+.tr-hint {
+  font-size: 11.5px; color: #9aa0a6;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 14px;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.tr-hint.show { opacity: 1; }
+
+.tr-header-row {
+  display: grid;
+  grid-template-columns: 0.9fr 1.7fr 1.3fr 1.6fr;
+  gap: 2px;
+  background: #ffffff;
+  border: 1px solid #c0c4c9;
+  border-radius: 4px;
+  padding: 0;
+  overflow: hidden;
+}
+.tr-header-cell {
+  padding: 14px 14px;
+  background: #f8f9fa;
+  border-right: 1px solid #dadce0;
+  font-family: "Roboto Mono", "SF Mono", monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: #202124;
+  text-align: center;
+  position: relative;
+  transition: background 0.35s ease, color 0.35s ease;
+}
+.tr-header-cell:last-child { border-right: none; }
+.tr-header-cell.highlight {
+  background: #fef7e0;
+  color: #b45309;
+}
+.tr-header-cell.highlight::after {
+  content: ""; position: absolute; inset: -2px;
+  border: 2px solid #f9ab00;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.tr-guess-row {
+  display: grid;
+  grid-template-columns: 0.9fr 1.7fr 1.3fr 1.6fr;
+  gap: 2px;
+  margin-top: 20px;
+  min-height: 110px;
+}
+.tr-guess-cell {
+  padding: 8px 10px;
+  text-align: center;
+  font-family: "Bradley Hand", "Segoe Print", "Marker Felt", cursive;
+  font-size: 19px;
+  color: #3c4043;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  line-height: 1.35;
+  font-style: italic;
+}
+.tr-guess-cell.show { opacity: 1; transform: translateY(0); }
+.tr-guess-cell.known { color: #1e7a4b; }
+.tr-guess-cell.unsure { color: #b45309; }
+.tr-guess-cell .tr-q { color: #d93025; font-weight: 700; }
+.tr-arrow {
+  display: block;
+  width: 2px; height: 22px;
+  background: #9aa0a6;
+  margin: 0 auto 6px;
+  position: relative;
+  opacity: 0.5;
+}
+.tr-arrow::after {
+  content: "";
+  position: absolute;
+  left: -4px; bottom: -2px;
+  width: 10px; height: 10px;
+  border-right: 2px solid #9aa0a6;
+  border-bottom: 2px solid #9aa0a6;
+  transform: rotate(45deg);
+}
+
+.tr-thought {
+  margin-top: auto;
+  padding: 14px 18px;
+  font-family: "Bradley Hand", cursive;
+  font-style: italic;
+  font-size: 20px;
+  color: #5f6368;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.tr-thought.show { opacity: 1; }
+
+/* Marco overlay reused from Jupyter namespace — renamed to .tr-marco */
+.tr-marco {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.38);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 0 24px 32px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.45s ease;
+  z-index: 5;
+}
+.tr-marco.show { opacity: 1; }
+.tr-marco-card {
+  background: #0f1115;
+  border-radius: 16px;
+  padding: 18px 22px 20px;
+  max-width: 620px;
+  width: 100%;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  transform: translateY(20px);
+  transition: transform 0.45s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+.tr-marco.show .tr-marco-card { transform: translateY(0); }
+.tr-marco-speaker {
+  color: #f9d76e; font-size: 10.5px; letter-spacing: 0.14em;
+  font-weight: 700; margin-bottom: 8px;
+}
+.tr-marco-quote {
+  color: #ffffff;
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+.tr-marco-quote code {
+  font-family: "SF Mono", Menlo, monospace;
+  font-style: normal;
+  color: #f9d76e;
+  background: rgba(249,215,110,0.12);
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-size: 18px;
+}
+
+/* ---------- (legacy) Jupyter styles kept as no-op stubs ---------- */
+.jp-stage {
+  position: absolute; inset: 0;
+  background: #ffffff;
+  display: none;
+}
+.jp-topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding: 8px 14px;
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+}
+.jp-logo {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  color: #f37626;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.jp-logo::before {
+  content: "◉"; color: #767677; font-size: 16px; margin-right: 6px;
+}
+.jp-filename {
+  font-size: 15px; color: #000;
+  font-weight: 500;
+}
+.jp-filename .jp-unsaved { color: #f37626; font-size: 13px; margin-left: 4px; }
+.jp-status {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: #767677;
+}
+.jp-status .jp-kernel-ok { color: #4a9b4a; font-size: 11px; }
+.jp-logout {
+  font-size: 12px; color: #000;
+  padding: 3px 10px; border: 1px solid #dcdcdc;
+  border-radius: 3px; background: #f7f7f7;
+}
+
+.jp-menu {
+  display: flex; gap: 16px;
+  padding: 4px 14px;
+  background: #ffffff;
+  font-size: 13px;
+  color: #000;
+  border-bottom: 1px solid #e6e6e6;
+}
+.jp-menu span { padding: 2px 0; }
+
+.jp-toolbar {
+  display: flex; align-items: center; gap: 1px;
+  padding: 4px 8px;
+  background: #ffffff;
+  border-bottom: 1px solid #e6e6e6;
+}
+.jp-tool {
+  height: 26px; min-width: 30px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12px; color: #333;
+  padding: 0 7px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: #fafafa;
+  border: 1px solid #dcdcdc;
+  margin-right: -1px;
+}
+.jp-tool-run {
+  padding: 0 10px; color: #333; font-size: 12px;
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #fafafa; border: 1px solid #dcdcdc;
+  height: 26px; border-radius: 2px;
+}
+.jp-tool-run::before { content: "▶"; font-size: 9px; color: #333; }
+.jp-tooldiv { width: 1px; height: 18px; background: #dcdcdc; margin: 0 8px; }
+.jp-celltype {
+  height: 26px; padding: 0 8px;
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #fafafa; border: 1px solid #dcdcdc; border-radius: 2px;
+  font-size: 12px; color: #333;
+  min-width: 64px;
+  margin-left: 6px;
+}
+.jp-celltype::after { content: "▾"; font-size: 10px; color: #666; margin-left: auto; }
+
+.jp-notebook {
+  flex: 1;
+  overflow: hidden;
+  padding: 18px 20px;
+  background: #ffffff;
+  min-height: 0;
+  position: relative;
+}
+
+.jp-cell {
+  display: flex; gap: 0;
+  margin-bottom: 10px;
+  border: 1px solid transparent;
+  position: relative;
+}
+.jp-cell.focused {
+  border-left: 3px solid #42a5f5;
+}
+.jp-cell.about-to-run {
+  border-left: 3px solid #d32f2f;
+  background: rgba(211,47,47,0.02);
+}
+.jp-cell.about-to-run::before {
+  content: ""; position: absolute; inset: 0;
+  background: rgba(211,47,47,0.06);
+  pointer-events: none;
+}
+.jp-prompt {
+  width: 88px;
+  flex-shrink: 0;
+  padding: 8px 10px 8px 8px;
+  font-family: "Menlo", "Monaco", monospace;
+  font-size: 12px;
+  color: #1976d2;
+  text-align: right;
+  font-weight: 500;
+}
+.jp-prompt-num { color: #1976d2; }
+.jp-prompt.empty .jp-prompt-num { color: #9e9e9e; }
+.jp-cellbody {
+  flex: 1;
+  background: #f7f7f7;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+  padding: 8px 12px;
+  overflow: hidden;
+  position: relative;
+  min-width: 0;
+}
+.jp-cellbody .jp-cursor {
+  display: inline-block;
+  width: 2px; height: 14px;
+  background: #000;
+  vertical-align: middle;
+  animation: jpcaret 1s infinite;
+}
+@keyframes jpcaret { 50% { opacity: 0; } }
+.jp-code {
+  margin: 0;
+  font-family: "Menlo", "Monaco", "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #000;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.jp-code .tok-kw { color: #008000; font-weight: 500; }
+.jp-code .tok-fn { color: #000; }
+.jp-code .tok-str { color: #ba2121; }
+.jp-code .tok-num { color: #080; }
+.jp-code .tok-attr { color: #000; }
+.jp-code .tok-dot { color: #666; }
+
+.jp-warn-overlay {
+  position: absolute;
+  left: 88px; right: 0;
+  margin-top: 4px;
+  padding: 8px 12px;
+  background: rgba(211,47,47,0.08);
+  border: 1px solid rgba(211,47,47,0.25);
+  border-radius: 4px;
+  color: #b71c1c;
+  font-size: 12.5px;
+  font-style: italic;
+  display: flex; align-items: center; gap: 8px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 3;
+}
+.jp-warn-overlay.show { opacity: 1; }
+.jp-warn-overlay::before { content: "⚠"; color: #d32f2f; font-style: normal; }
+
+/* Marco's interruption — overlay with dimming */
+.jp-marco {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 0 24px 32px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.45s ease;
+  z-index: 5;
+}
+.jp-marco.show { opacity: 1; }
+.jp-marco-card {
+  background: #0f1115;
+  border-radius: 16px;
+  padding: 18px 22px 20px;
+  max-width: 580px;
+  width: 100%;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  transform: translateY(20px);
+  transition: transform 0.45s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+.jp-marco.show .jp-marco-card { transform: translateY(0); }
+.jp-marco-speaker {
+  color: #f9d76e; font-size: 10.5px; letter-spacing: 0.14em;
+  font-weight: 700; margin-bottom: 8px;
+}
+.jp-marco-quote {
+  color: #ffffff;
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+.jp-marco-quote code {
+  font-family: "SF Mono", Menlo, monospace;
+  font-style: normal;
+  color: #f9d76e;
+  background: rgba(249,215,110,0.12);
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-size: 18px;
+}
+
+@media (max-width: 900px) {
+  .stage { grid-template-columns: 1fr; }
+  .options { grid-template-columns: 1fr; }
+  .cw-stage { grid-template-columns: 60px 1fr; }
+}
+
+/* ===== Foundations 7-step path indicator ===== */
+.foundations-track {
+  position: sticky; top: 0;
+  z-index: 50;
+  background: rgba(251, 247, 238, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(15, 17, 21, 0.08);
+  padding: 8px 20px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  font-size: 12px;
+}
+.ft-brand {
+  font-weight: 700; font-size: 12px;
+  color: #0f1115;
+  letter-spacing: -0.01em;
+  padding-right: 10px;
+  border-right: 1px solid rgba(15,17,21,0.12);
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 6px;
+}
+.ft-brand-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: linear-gradient(135deg, #c8f5df, #3fb489);
+}
+.ft-steps {
+  flex: 1;
+  display: flex; gap: 4px; align-items: center;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ft-steps::-webkit-scrollbar { display: none; }
+.ft-step {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 11.5px;
+  white-space: nowrap;
+  letter-spacing: -0.005em;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  border: 1px solid transparent;
+}
+.ft-step-num {
+  font-weight: 700; font-size: 10.5px;
+  letter-spacing: 0.02em;
+}
+.ft-step-title {
+  font-weight: 500; opacity: 0.8;
+}
+.ft-step:hover { transform: translateY(-1px); }
+.ft-step.done {
+  background: #e6f4ec; color: #0f4a2b;
+  border-color: rgba(30,122,75,0.22);
+}
+.ft-step.done:hover { background: #d7eedd; }
+.ft-step.current {
+  background: #0f1115; color: #ffffff;
+  border-color: #0f1115;
+}
+.ft-step.current .ft-step-title { opacity: 1; font-weight: 600; }
+.ft-step.upcoming {
+  background: transparent; color: #6b7280;
+  border-color: rgba(15,17,21,0.15);
+}
+.ft-step.upcoming:hover { color: #0f1115; border-color: rgba(15,17,21,0.32); }
+.ft-step-sep {
+  color: #cbd5e1; font-size: 10px;
+  user-select: none;
+}
+.ft-end {
+  font-size: 11px; color: #6b7280;
+  padding-left: 10px; border-left: 1px solid rgba(15,17,21,0.12);
+  white-space: nowrap;
+}
+.ft-end a {
+  color: #0f1115; text-decoration: none;
+  font-weight: 500;
+}
+.ft-end a:hover { text-decoration: underline; }
+
+/* Give the page a little top breathing room since the track is sticky */
+body > .frame { padding-top: 6px; }
+
+@media (max-width: 720px) {
+  .foundations-track { padding: 6px 10px; gap: 6px; font-size: 11px; }
+  .ft-brand { font-size: 11px; padding-right: 6px; }
+  .ft-step-title { display: none; }
+  .ft-end { display: none; }
+}
+
+</style>
+</head>
+<body>
+<!-- zero-foundations-track:start -->
+<nav class="foundations-track" aria-label="Foundations curriculum progress">
+  <div class="ft-brand"><span class="ft-brand-dot"></span>Zero · Foundations</div>
+  <div class="ft-steps">
+    <a class="ft-step done" href="ZERO-L0-Concept-CostReduction-v3.html" title="The brief" aria-label="L0 — The brief (completed)"><span class="ft-step-num">L0</span><span class="ft-step-title">the brief</span></a>
+    <a class="ft-step current" href="ZERO-L1-Concept-UnderstandData-v1.html" title="Understanding data" aria-label="L1 — Understanding data (current)"><span class="ft-step-num">L1</span><span class="ft-step-title">understanding data</span></a>
+    <a class="ft-step upcoming" href="ZERO-L2-Concept-CleanData-v1.html" title="Cleaning data" aria-label="L2 — Cleaning data"><span class="ft-step-num">L2</span><span class="ft-step-title">cleaning data</span></a>
+    <a class="ft-step upcoming" href="ZERO-L3-Concept-FiveWhy-v3.html" title="The right question" aria-label="L3 — The right question"><span class="ft-step-num">L3</span><span class="ft-step-title">the right question</span></a>
+    <a class="ft-step upcoming" href="ZERO-L4-Concept-EvidenceOrTheater-v1.html" title="Evidence or theater" aria-label="L4 — Evidence or theater"><span class="ft-step-num">L4</span><span class="ft-step-title">evidence or theater</span></a>
+    <a class="ft-step upcoming" href="ZERO-L5-Concept-FindingToRecommendation-v1.html" title="Finding → recommendation" aria-label="L5 — Finding → recommendation"><span class="ft-step-num">L5</span><span class="ft-step-title">finding → recommendation</span></a>
+    <a class="ft-step upcoming" href="ZERO-L6-Concept-ContainerIsTheFight-v1.html" title="The container" aria-label="L6 — The container"><span class="ft-step-num">L6</span><span class="ft-step-title">the container</span></a>
+  </div>
+  <div class="ft-end"><a href="index.html">↗ index</a></div>
+</nav>
+<!-- zero-foundations-track:end -->
+
+
+<div class="frame">
+
+  <div class="topbar">
+    <span class="crumb">Foundations · See · Understanding the data</span>
+    <span class="title">L1 · Understanding the data <span class="ital">— headers lie. translate before you analyze.</span></span>
+    <span class="spacer"></span>
+    <span class="chip">v4 · Day 2 · Sheets + Cowork · Claude-wrong arc</span>
+    <div class="mode-toggle" id="modeToggle">
+      <button data-mode="auto" class="on">Auto</button>
+      <button data-mode="manual">Manual</button>
+    </div>
+    <button class="sound-btn" id="soundBtn" title="Mute / unmute">🔊 Sound on</button>
+  </div>
+
+  <div class="stage">
+
+    <!-- LEFT: Avery + subtitle -->
+    <div class="rail">
+      <div class="avery-card">
+        <div class="portrait" id="portrait">
+          <div class="ring"></div>
+          <img id="averyImg" src="ZERO-L0-assets/img/avery.jpg" alt="Avery" style="display:none"/>
+          <div class="fallback" id="averyFallback">
+            <svg viewBox="0 0 180 180" aria-label="Avery">
+              <defs>
+                <linearGradient id="averyGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+                  <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <rect width="180" height="180" fill="url(#averyGrad)"/>
+              <text x="90" y="118" font-family="Iowan Old Style, Georgia, serif" font-size="100" font-style="italic" font-weight="400" text-anchor="middle" fill="#0b3b28">A</text>
+            </svg>
+          </div>
+        </div>
+        <div class="avery-name">Avery</div>
+        <div class="avery-role">Your Foundations guide</div>
+      </div>
+
+      <div class="subtitle-card">
+        <div class="subtitle-row">
+          <div class="subtitle-label" id="sceneLabel">Scene 1 / 8</div>
+          <div class="subtitle-linechip" id="lineChip">Line 1 / 3</div>
+        </div>
+        <div class="speaker-chip" id="speakerChip" style="display:none">MARCO · MENTOR, Uber</div>
+        <div class="subtitle-text" id="subtitle">—</div>
+        <div class="manual-hint" id="manualHint" style="display:none">
+          Manual mode — tap <strong>Next</strong> (or <kbd>→</kbd>) for the next line.
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Whiteboard -->
+    <div class="board-wrap">
+      <div class="tag" id="boardTag">Day 2 · Uber</div>
+      <div class="scene-title" id="boardSceneTitle"></div>
+      <div class="board" id="board"></div>
+
+      <div class="xp-burst" id="xpBurst">+20 XP · Translate before you analyze</div>
+      <div class="preload-notice" id="preloadNotice">Loading voice…</div>
+
+      <div class="pou" id="pou">
+        <div class="sheet">
+          <div class="head-row">
+            <div class="label">Proof of understanding · Airbnb column ID</div>
+            <div class="round-dots" id="roundDots">
+              <span class="dot on"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+          <h2 id="pouH2">Airbnb support dataset — round <span id="roundN">1</span> of 3</h2>
+          <div class="col-prompt" id="pouPrompt">— loading round —</div>
+          <div class="data-slice" id="dataSlice">—</div>
+          <div class="options" id="options"></div>
+          <div class="feedback" id="pouFeedback"></div>
+          <div class="summary" id="pouSummary"></div>
+          <div class="actions">
+            <button class="btn primary" id="pouNext" style="display:none">Next column →</button>
+            <button class="btn primary" id="pouFinish" style="display:none">Finish</button>
+            <button class="modern-cta" id="pouModernCta">See how Avery does this today →</button>
+            <button class="btn" id="pouSkip">Skip</button>
+            <span class="spacer"></span>
+            <button class="btn" id="pouReplay">↻ Replay L1</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottombar">
+    <div class="bottom-left">
+      <button class="btn ghost" id="btnPrev" title="Prev line (←)">← Prev</button>
+      <button class="btn primary" id="btnPlay" title="Play/Pause (Space)">▶ Play</button>
+      <button class="btn ghost" id="btnNext" title="Next line (→)">Next →</button>
+      <span class="scene-pos" id="scenePos">1·1</span>
+    </div>
+    <div class="scrub">
+      <div class="scrub-track" id="scrubTrack">
+        <div class="scrub-fill" id="scrubFill"></div>
+      </div>
+      <div class="scrub-label" id="scrubLabel">0:00 / 1:56</div>
+    </div>
+    <div class="hints">
+      <span><kbd>Space</kbd> play</span>
+      <span><kbd>←</kbd> <kbd>→</kbd> line</span>
+      <span><kbd>M</kbd> mode</span>
+      <span><kbd>R</kbd> replay</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(() => {
+
+const VB_W = 1200, VB_H = 700;
+const AUDIO_DIR = 'ZERO-L1-assets/audio';
+
+// === line manifest (from ElevenLabs generation, Avery voice kdnRe2koJdOK4Ovxn2DI) ===
+const MANIFEST = {"scenes":[{"id":"bridge","lines":[{"file":"bridge-01.mp3","text":"So — I had my three questions. Rider support cost, down twenty percent, by end of Q3.","speaker":"avery","duration":5.799},{"file":"bridge-02.mp3","text":"I had the frame. Now I needed the data.","speaker":"avery","duration":4.206},{"file":"bridge-03.mp3","text":"Day two. I walk in ready to work.","speaker":"avery","duration":3.239}]},{"id":"csv","lines":[{"file":"csv-01.mp3","text":"Finance drops this on my desk.","speaker":"avery","duration":1.567},{"file":"csv-02.mp3","text":"One CSV. Forty-thousand rows.","speaker":"avery","duration":4.284},{"file":"csv-03.mp3","text":"Column headers like tkt_closed_dt_v2. I had no idea what that meant.","speaker":"avery","duration":7.889},{"file":"csv-04.mp3","text":"It's a menu in a language I don't speak.","speaker":"avery","duration":2.351}]},{"id":"trap","lines":[{"file":"trap-01.mp3","text":"I stare at the names. Trying to decode them.","speaker":"avery","duration":2.85},{"file":"trap-02.mp3","text":"Ticket closed dt v2? Rider seg enc? Supp contact flag three?","speaker":"avery","duration":6.69},{"file":"trap-03.mp3","text":"Half the words are abbreviated. I'm inventing meanings as I go.","speaker":"avery","duration":3.47},{"file":"trap-04.mp3","text":"Marco walks past. Sees me squinting. He goes — what does that one actually mean? I had no idea.","speaker":"avery","duration":8.12}]},{"id":"lie","lines":[{"file":"lie-01.mp3","text":"Headers lie.","speaker":"avery","duration":1.306},{"file":"lie-02.mp3","text":"That one column — could mean the first time a ticket was closed.","speaker":"avery","duration":3.971},{"file":"lie-03.mp3","text":"Or the final close, after re-opens.","speaker":"avery","duration":2.429},{"file":"lie-04.mp3","text":"Count the first-closes, tickets look flat. Count the finals, tickets look doubled.","speaker":"avery","duration":4.911},{"file":"lie-05.mp3","text":"Same column. Two totally different realities.","speaker":"avery","duration":4.676}]},{"id":"translate","lines":[{"file":"translate-01.mp3","text":"Before you analyze — you translate.","speaker":"avery","duration":2.351},{"file":"translate-02.mp3","text":"For every column I'd use, three questions.","speaker":"avery","duration":2.508},{"file":"translate-03.mp3","text":"What does it actually mean — in plain English.","speaker":"avery","duration":3.004},{"file":"translate-04.mp3","text":"Where does it come from — who writes to it.","speaker":"avery","duration":2.351},{"file":"translate-05.mp3","text":"And — what does it not tell me.","speaker":"avery","duration":2.769}]},{"id":"glossary","lines":[{"file":"glossary-01.mp3","text":"Whole afternoon. Just a notebook and the CSV open.","speaker":"avery","duration":5.642},{"file":"glossary-02.mp3","text":"One line per column. In my own words.","speaker":"avery","duration":3.004},{"file":"glossary-03.mp3","text":"Half of them I ended up DMing Jorge — the finance guy who shipped the export.","speaker":"avery","duration":3.631},{"file":"glossary-04.mp3","text":"By sundown I could read the dataset like a newspaper.","speaker":"avery","duration":2.586}]},{"id":"anchor","lines":[{"file":"anchor-01.mp3","text":"Airbnb's dataset is going to be messier than mine was.","speaker":"avery","duration":2.926},{"file":"anchor-02.mp3","text":"Host-support tickets. Refunds. Disputes. Cancellations. Policy flags.","speaker":"avery","duration":7.001},{"file":"anchor-03.mp3","text":"Before you run a single query — build the glossary.","speaker":"avery","duration":3.318},{"file":"anchor-04.mp3","text":"Translate first. Then analyze.","speaker":"avery","duration":4.049}]},{"id":"pou","lines":[{"file":"pou-01.mp3","text":"Alright — your turn.","speaker":"avery","duration":1.306},{"file":"pou-02.mp3","text":"I'll show you three columns from an Airbnb slice. Pick what each one actually means.","speaker":"avery","duration":4.911}]},{"id":"modern_move","lines":[{"file":"modern-01.mp3","text":"I did this with a notebook in 2023. Today? I'd just drop the CSV in here and ask.","speaker":"avery","duration":5.56},{"file":"modern-02.mp3","text":"Thirty seconds. Same shape I spent an afternoon on. But watch — Claude just took the obvious read. Exactly the trap that almost got me.","speaker":"avery","duration":8.20},{"file":"modern-03.mp3","text":"So I push back with what I know. Claude corrects. I only caught it because I'd already done the work.","speaker":"avery","duration":5.41},{"file":"modern-04.mp3","text":"Use the tool. Don't outsource the thinking.","speaker":"avery","duration":2.85}]}]};
+
+// === subtitle overrides (HTML-rich, emphasis, code) ===
+const SUBTITLE_OVERRIDES = {
+  "bridge-01.mp3": 'So — I had my three questions. <em>Rider support cost</em>, ↓ 20%, by end of Q3.',
+  "bridge-02.mp3": 'I had the frame. <em>Now I needed the data.</em>',
+  "bridge-03.mp3": '<em>Day 2.</em> I walk in ready to work.',
+  "csv-01.mp3":   'Finance drops this on my desk.',
+  "csv-02.mp3":   'One CSV. <em>Forty-thousand rows.</em>',
+  "csv-03.mp3":   'Column headers like <code>tkt_closed_dt_v2</code>. I had no idea what that meant.',
+  "csv-04.mp3":   "It's a menu in a <em>language I don't speak.</em>",
+  "trap-01.mp3":  'I stare at the names. <em>Trying to decode them.</em>',
+  "trap-02.mp3":  '<code>tkt_closed_dt_v2</code>? <code>rider_seg_enc</code>? <code>supp_contact_flag_3</code>?',
+  "trap-03.mp3":  'Half the words are abbreviated. <em>I\'m inventing meanings as I go.</em>',
+  "trap-04.mp3":  'Marco walks past. Sees me squinting. He goes — <span class="ital">"what does that one actually mean?"</span> I had no idea.',
+  "lie-01.mp3":   '<em>Headers lie.</em>',
+  "lie-02.mp3":   'That one column — could mean the <em>first</em> time a ticket was closed.',
+  "lie-03.mp3":   'Or the <em>final</em> close, after re-opens.',
+  "lie-04.mp3":   'Count the first-closes, tickets look <em>flat.</em> Count the finals, tickets look <em>doubled.</em>',
+  "lie-05.mp3":   'Same column. <em>Two totally different realities.</em>',
+  "translate-01.mp3": 'Before you analyze — <em>you translate.</em>',
+  "translate-02.mp3": 'For every column I\'d use, <em>three questions.</em>',
+  "translate-03.mp3": 'What does it actually <em>mean</em> — in plain English.',
+  "translate-04.mp3": 'Where does it <em>come from</em> — who writes to it.',
+  "translate-05.mp3": 'And — what does it <em>not tell</em> me.',
+  "glossary-01.mp3":  'Whole afternoon. Just a notebook and the CSV open.',
+  "glossary-02.mp3":  '<em>One line per column.</em> In my own words.',
+  "glossary-03.mp3":  'Half of them I ended up DMing <em>Jorge</em> — the finance guy who shipped the export.',
+  "glossary-04.mp3":  'By sundown I could read the dataset <em>like a newspaper.</em>',
+  "anchor-01.mp3":    "Airbnb's dataset is going to be <em>messier</em> than mine was.",
+  "anchor-02.mp3":    'Host-support tickets. Refunds. Disputes. Cancellations. Policy flags.',
+  "anchor-03.mp3":    'Before you run a single query — <em>build the glossary.</em>',
+  "anchor-04.mp3":    '<em>Translate first.</em> Then analyze.',
+  "pou-01.mp3":       'Alright — <em>your turn.</em>',
+  "pou-02.mp3":       "I'll show you three columns from an Airbnb slice. Pick what each one <em>actually</em> means.",
+  "modern-01.mp3":    'I did this with a <em>notebook</em> in 2023. Today? I\'d just drop the CSV in here and ask.',
+  "modern-02.mp3":    'Thirty seconds. Same shape I spent an afternoon on. But watch — <em>Claude just took the obvious read.</em> Exactly the trap that almost got me.',
+  "modern-03.mp3":    "So I push back with what I know. Claude corrects. <em>I only caught it because I\'d already done the work.</em>",
+  "modern-04.mp3":    'Use the tool. <em>Don\'t outsource the thinking.</em>',
+};
+
+const SPEAKER_LABEL = {
+  marco: 'MARCO · MENTOR, Uber',
+};
+
+// === scene metadata + SVG (whiteboard) ===
+const SCENES = {
+  bridge: {
+    title: 'From the frame to the data', tag: 'Day 2 · Uber',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text faint" font-size="18" font-style="italic" letter-spacing="0.2em" x="100" y="100">CHAPTER 2 · DAY TWO · UBER</text>
+        <g class="pop">
+          <rect x="180" y="170" width="840" height="100" rx="18" fill="#0f1115"/>
+          <text text-anchor="middle" fill="#ffffff" font-family="Iowan Old Style, Georgia, serif" font-style="italic" font-size="32" x="600" y="220">"rider support cost — ↓ 20%, by end of Q3"</text>
+          <text text-anchor="middle" fill="#f9d76e" font-family="system-ui, sans-serif" font-size="14" letter-spacing="0.14em" x="600" y="250">THE FRAME · FROM L0</text>
+        </g>
+      </g>
+      <g data-line="2">
+        <text class="wb-text dim" text-anchor="middle" font-size="24" x="600" y="360" font-style="italic">now I needed…</text>
+        <g class="pop">
+          <rect x="380" y="400" width="440" height="130" rx="20" fill="#fff7e6" stroke="#a85d12" stroke-width="2.5"/>
+          <text class="wb-text" text-anchor="middle" font-size="46" x="600" y="470" font-style="italic">the data.</text>
+          <text class="wb-text dim" text-anchor="middle" font-size="16" x="600" y="500">— whatever shape it came in.</text>
+        </g>
+      </g>
+      <g data-line="3">
+        <text class="wb-text dim" text-anchor="middle" font-size="18" x="600" y="590" font-style="italic">next morning — I walked in ready to work.</text>
+        <line class="draw" x1="380" y1="610" x2="820" y2="610" stroke="#0f1115" stroke-width="2" stroke-dasharray="6 8" style="--dash: 500"/>
+      </g>
+    `
+  },
+  csv: {
+    title: 'The mess that landed', tag: 'Google Sheets · Finance',
+    html: () => `
+      <div class="gs-stage">
+        <div class="gs-topbar">
+          <div class="gs-fileicon">≡</div>
+          <div class="gs-fileinfo">
+            <div class="gs-filename">rider_support_tickets_q2 <span class="gs-star">☆</span> <span class="gs-folder">🗀 Finance › Q2 exports</span></div>
+            <div class="gs-filestatus">Shared by <b>jorge@uber.com</b> · Saved to Drive · Last edited 11 minutes ago</div>
+          </div>
+          <div class="gs-topactions">
+            <div class="gs-share">Share</div>
+          </div>
+        </div>
+        <div class="gs-menu">
+          <span>File</span><span>Edit</span><span>View</span><span>Insert</span>
+          <span>Format</span><span>Data</span><span>Tools</span><span>Extensions</span><span>Help</span>
+        </div>
+        <div class="gs-toolbar">
+          <div class="gs-tool">↶</div>
+          <div class="gs-tool">↷</div>
+          <div class="gs-tool">🖨</div>
+          <div class="gs-tooldiv"></div>
+          <div class="gs-tool">100%</div>
+          <div class="gs-tooldiv"></div>
+          <div class="gs-tool">$</div>
+          <div class="gs-tool">%</div>
+          <div class="gs-tool">.0</div>
+          <div class="gs-tool">123</div>
+          <div class="gs-tooldiv"></div>
+          <div class="gs-tool">Default</div>
+          <div class="gs-tooldiv"></div>
+          <div class="gs-tool bold">B</div>
+          <div class="gs-tool italic">I</div>
+          <div class="gs-tool">U</div>
+          <div class="gs-tool">A</div>
+          <div class="gs-tooldiv"></div>
+          <div class="gs-tool">≡</div>
+          <div class="gs-tool">⤢</div>
+        </div>
+        <div class="gs-cellbar">
+          <div class="gs-cellref" id="gsCellRef">A1</div>
+          <div class="gs-fx">fx</div>
+          <div class="gs-formula" id="gsFormula">tkt_id</div>
+        </div>
+        <div class="gs-grid" id="gsGrid">
+          <table class="gs-table">
+            <colgroup>
+              <col class="c-num"><col class="c-a"><col class="c-b"><col class="c-c">
+              <col class="c-d"><col class="c-e"><col class="c-f"><col class="c-g">
+            </colgroup>
+            <thead>
+              <tr>
+                <th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th>
+              </tr>
+            </thead>
+            <tbody id="gsBody"></tbody>
+          </table>
+          <div class="gs-confused" id="gsConfused1" style="left: 22%; top: 78px;">???</div>
+          <div class="gs-confused" id="gsConfused2" style="left: 38%; top: 82px; font-size: 24px; transform: rotate(4deg);">???</div>
+          <div class="gs-confused" id="gsConfused3" style="left: 60%; top: 76px; font-size: 20px; transform: rotate(-8deg);">???</div>
+          <div class="gs-confused" id="gsConfused4" style="left: 78%; top: 80px; font-size: 22px; transform: rotate(5deg);">???</div>
+        </div>
+        <div class="gs-footer">
+          <div class="gs-tabs">
+            <div class="gs-tab active">rider_support_q2 ▾</div>
+            <div class="gs-tab-add">+</div>
+          </div>
+          <div class="gs-rowcount" id="gsRowcount">—</div>
+        </div>
+      </div>
+    `
+  },
+  trap: {
+    title: 'Decoding the column names', tag: 'Google Sheets · header row',
+    html: () => `
+      <div class="tr-stage">
+        <div class="tr-breadcrumb">
+          <div class="tr-sheeticon"></div>
+          <span class="tr-file">rider_support_tickets_q2</span>
+          <span class="tr-sep">›</span>
+          <span class="tr-active">row 1 — headers</span>
+        </div>
+        <div class="tr-body">
+          <div class="tr-hint" id="trHint">What does each of these actually mean?</div>
+
+          <div class="tr-header-row" id="trHeaderRow">
+            <div class="tr-header-cell" data-idx="0">tkt_id</div>
+            <div class="tr-header-cell" data-idx="1">tkt_closed_dt_v2</div>
+            <div class="tr-header-cell" data-idx="2">rider_seg_enc</div>
+            <div class="tr-header-cell" data-idx="3">supp_contact_flag_3</div>
+          </div>
+
+          <div class="tr-guess-row">
+            <div class="tr-guess-cell" data-idx="0">
+              <div class="tr-arrow"></div>
+              <span>ticket ID</span>
+              <span class="tr-q"> ✓</span>
+            </div>
+            <div class="tr-guess-cell" data-idx="1">
+              <div class="tr-arrow"></div>
+              <span>closed date… v2<span class="tr-q">?</span></span>
+            </div>
+            <div class="tr-guess-cell" data-idx="2">
+              <div class="tr-arrow"></div>
+              <span>segment… encoded<span class="tr-q">?</span></span>
+            </div>
+            <div class="tr-guess-cell" data-idx="3">
+              <div class="tr-arrow"></div>
+              <span>flag three<span class="tr-q">??</span></span>
+            </div>
+          </div>
+
+          <div class="tr-thought" id="trThought">half the words are abbreviated. I'm making this up as I go.</div>
+        </div>
+        <div class="tr-marco" id="trMarco">
+          <div class="tr-marco-card">
+            <div class="tr-marco-speaker">MARCO · MENTOR, UBER</div>
+            <div class="tr-marco-quote">"What does <code>tkt_closed_dt_v2</code> actually mean?"</div>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  lie: {
+    title: 'Headers lie', tag: 'The ambiguity',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text" font-size="54" x="600" y="130" text-anchor="middle" font-weight="700">headers lie.</text>
+        <line class="draw" x1="430" y1="150" x2="770" y2="150" stroke="#b6311d" stroke-width="4" stroke-linecap="round" style="--dash: 350"/>
+      </g>
+      <g data-line="2">
+        <g class="pop">
+          <rect x="140" y="200" width="400" height="180" rx="16" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+          <text class="wb-mono" font-size="18" x="160" y="240">tkt_closed_dt_v2</text>
+          <text class="wb-text dim" font-size="14" x="160" y="268" font-style="italic">— two readings —</text>
+          <text class="wb-text" font-size="24" x="160" y="318">first close</text>
+          <text class="wb-text dim" font-size="14" x="160" y="342" font-style="italic">when was it first resolved?</text>
+        </g>
+      </g>
+      <g data-line="3">
+        <g class="pop">
+          <rect x="660" y="200" width="400" height="180" rx="16" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+          <text class="wb-mono" font-size="18" x="680" y="240">tkt_closed_dt_v2</text>
+          <text class="wb-text dim" font-size="14" x="680" y="268" font-style="italic">— two readings —</text>
+          <text class="wb-text" font-size="24" x="680" y="318">final close</text>
+          <text class="wb-text dim" font-size="14" x="680" y="342" font-style="italic">when was it really done?</text>
+        </g>
+      </g>
+      <g data-line="4">
+        <g class="pop">
+          <rect x="140" y="420" width="400" height="130" rx="14" fill="#e6f4ec" stroke="#1e7a4b" stroke-width="2"/>
+          <text class="wb-text green" font-size="22" x="340" y="462" text-anchor="middle" font-style="italic">tickets look flat ⤳</text>
+          <text class="wb-text" font-size="48" x="340" y="520" text-anchor="middle" font-weight="700">→ 1×</text>
+        </g>
+        <g class="pop">
+          <rect x="660" y="420" width="400" height="130" rx="14" fill="#fbe8e4" stroke="#b6311d" stroke-width="2"/>
+          <text class="wb-text red" font-size="22" x="860" y="462" text-anchor="middle" font-style="italic">tickets look doubled ⤳</text>
+          <text class="wb-text" font-size="48" x="860" y="520" text-anchor="middle" font-weight="700">→ 2×</text>
+        </g>
+      </g>
+      <g data-line="5">
+        <text class="wb-text" text-anchor="middle" font-size="26" x="600" y="625" font-style="italic">same column — <tspan fill="#b6311d" font-weight="700">two totally different realities.</tspan></text>
+      </g>
+    `
+  },
+  translate: {
+    title: 'Translate before you analyze', tag: 'The three-question frame',
+    svg: () => {
+      const items = [
+        { x: 180, title: 'what does it mean', sub: '(in plain English)', badge: '①' },
+        { x: 600, title: 'where does it come from', sub: '(who writes to it?)', badge: '②' },
+        { x: 1020, title: 'what does it NOT tell me', sub: '(the silent gap)', badge: '③' },
+      ];
+      return `
+        <g data-line="1">
+          <text class="wb-text" font-size="46" x="600" y="135" text-anchor="middle" font-style="italic">translate before you analyze.</text>
+          <line class="draw" x1="260" y1="156" x2="940" y2="156" stroke="#0f1115" stroke-width="3" style="--dash: 690"/>
+        </g>
+        <g data-line="2">
+          <text class="wb-text dim" text-anchor="middle" font-size="20" x="600" y="210" font-style="italic">for every column I'd use — three questions.</text>
+        </g>
+        ${items.map((o, i) => `
+          <g data-line="${3 + i}">
+            <g class="pop">
+              <rect x="${o.x-160}" y="270" width="320" height="220" rx="20" fill="#ffffff" stroke="#0f1115" stroke-width="2.5"/>
+              <text class="wb-text faint" font-size="66" x="${o.x}" y="340" text-anchor="middle" font-style="italic">${o.badge}</text>
+              <text class="wb-text" font-size="24" x="${o.x}" y="410" text-anchor="middle">${o.title}</text>
+              <text class="wb-text dim" font-size="14" x="${o.x}" y="445" text-anchor="middle" font-style="italic">${o.sub}</text>
+            </g>
+          </g>
+        `).join('')}
+        <g data-line="5">
+          <text class="wb-text dim" text-anchor="middle" x="600" y="560" font-size="18" font-style="italic">three questions. per column. <tspan font-weight="700" fill="#0f1115">before</tspan> you touch the data.</text>
+        </g>
+      `;
+    }
+  },
+  glossary: {
+    title: 'The afternoon of the glossary', tag: 'One line per column',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text faint" font-size="16" letter-spacing="0.2em" x="110" y="110">DAY 2 · 2PM — 6PM</text>
+        <text class="wb-text" font-size="38" x="110" y="150" font-style="italic">a notebook. the CSV open. nothing else.</text>
+      </g>
+      <g data-line="2">
+        <g class="pop">
+          <rect x="120" y="190" width="960" height="320" rx="14" fill="#fffbf0" stroke="#a85d12" stroke-width="1.5"/>
+          <text class="wb-text warn" font-size="16" letter-spacing="0.14em" x="140" y="218">AVERY'S GLOSSARY · v0.1</text>
+          ${[
+            ['tkt_closed_dt_v2', '= timestamp of FIRST close.  (NOT final. confirmed w/ Jorge)'],
+            ['rider_seg_enc',    '= encoded rider segment. 1A/2B/3C = spend tier. legacy scheme.'],
+            ['supp_contact_flag_3', '= 1 if rider contacted support ≥3× in 30d. rolling window.'],
+            ['tkt_cat',          '= category. cancel / refund / payment / trip-issue / other.'],
+            ['reopen_cnt',       '= times this ticket was re-opened after close. 0 = clean.'],
+          ].map((row, i) => {
+            const y = 260 + i*44;
+            return `
+              <text class="wb-mono" font-size="17" x="160" y="${y}">${row[0]}</text>
+              <text class="wb-text dim" font-size="15" font-style="italic" x="480" y="${y}">${row[1]}</text>
+            `;
+          }).join('')}
+        </g>
+      </g>
+      <g data-line="3">
+        <g class="pop">
+          <rect x="680" y="540" width="400" height="130" rx="16" fill="#0f1115"/>
+          <text fill="#9ca3af" font-family="system-ui, sans-serif" font-size="12" letter-spacing="0.14em" x="700" y="568">SLACK · DM</text>
+          <text fill="#f9d76e" font-family="system-ui, sans-serif" font-size="14" font-weight="700" x="700" y="590">→ @jorge</text>
+          <text fill="#ffffff" font-family="Iowan Old Style, Georgia, serif" font-style="italic" font-size="15" x="700" y="616">"first close or final close on v2?"</text>
+          <text fill="#86d9b5" font-family="Iowan Old Style, Georgia, serif" font-style="italic" font-size="14" x="700" y="644">jorge: "first. v3 is final. confusing, I know."</text>
+        </g>
+      </g>
+      <g data-line="4">
+        <text class="wb-text green" font-size="26" x="120" y="615" font-style="italic">by sundown — I could read it like a newspaper.</text>
+      </g>
+    `
+  },
+  anchor: {
+    title: 'Your move — Airbnb is next', tag: 'Forward reference',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text faint" text-anchor="middle" font-size="16" letter-spacing="0.14em" x="600" y="120">YOUR DATASET</text>
+        <text class="wb-text" text-anchor="middle" font-size="52" x="600" y="170" font-weight="700">Airbnb · host support</text>
+        <text class="wb-text dim" text-anchor="middle" font-size="18" x="600" y="200" font-style="italic">messier than mine was. I'll spoil it for you.</text>
+      </g>
+      <g data-line="2">
+        ${['tickets','refunds','disputes','cancellations','policy_flags'].map((label, i) => {
+          const x = 140 + i*190;
+          return `
+            <g class="pop">
+              <rect x="${x}" y="250" width="170" height="100" rx="14" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+              <text class="wb-mono" x="${x+85}" y="290" text-anchor="middle" font-size="15">${label}</text>
+              <text class="wb-text dim" x="${x+85}" y="318" text-anchor="middle" font-size="12" font-style="italic">.csv</text>
+              <text class="wb-text faint" x="${x+85}" y="340" text-anchor="middle" font-size="11" letter-spacing="0.1em">?  ? ? ?</text>
+            </g>
+          `;
+        }).join('')}
+      </g>
+      <g data-line="3">
+        <g class="pop">
+          <rect x="240" y="420" width="720" height="100" rx="18" fill="#fff7e6" stroke="#a85d12" stroke-width="2.5"/>
+          <text class="wb-text warn" text-anchor="middle" font-size="16" letter-spacing="0.14em" x="600" y="454">THE RULE</text>
+          <text class="wb-text" text-anchor="middle" font-size="32" x="600" y="498" font-style="italic">build the glossary first.</text>
+        </g>
+      </g>
+      <g data-line="4">
+        <text class="wb-text" text-anchor="middle" font-size="36" x="600" y="600" font-style="italic">translate first. <tspan fill="#1e7a4b" font-weight="700">then</tspan> analyze.</text>
+      </g>
+    `
+  },
+  pou: {
+    title: 'Your turn', tag: 'POU · mini-game',
+    isPou: true,
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text dim" text-anchor="middle" x="600" y="340" font-size="22" font-style="italic">your turn →</text>
+      </g>
+      <g data-line="2">
+        <text class="wb-text dim" text-anchor="middle" x="600" y="378" font-size="16" font-style="italic">(three columns · pick what each actually means)</text>
+      </g>
+    `
+  },
+  modern_move: {
+    title: 'The modern move — Claude Cowork', tag: 'Cowork · live demo',
+    isModern: true,
+    html: () => `
+      <div class="cw-stage">
+        <aside class="cw-sidebar">
+          <div class="cw-brand">
+            <div class="cw-brand-mark">C</div>
+            <div><span class="cw-brand-text">Claude</span> <span class="cw-brand-sub">Cowork</span></div>
+          </div>
+          <div class="cw-new-btn">New chat<span class="cw-kbd">⌘N</span></div>
+          <div class="cw-search">Search chats</div>
+          <div class="cw-chatlist-label">Recents</div>
+          <ul class="cw-chatlist">
+            <li class="cw-chat-item active">Uber support data</li>
+            <li class="cw-chat-item">L0 narrative review</li>
+            <li class="cw-chat-item">Homescreen title cards</li>
+            <li class="cw-chat-item">Tesla FTUX delivery</li>
+            <li class="cw-chat-item">Q2 roadmap notes</li>
+            <li class="cw-chat-item">Airbnb brief — draft</li>
+          </ul>
+          <div class="cw-footer">
+            <div class="cw-avatar-dot">A</div>
+            <div class="cw-user-info">
+              <div class="cw-user-name">Avery Chen</div>
+              <div class="cw-user-tier">Max plan</div>
+            </div>
+          </div>
+        </aside>
+        <main class="cw-main">
+          <header class="cw-header">
+            <div class="cw-title">Uber support data</div>
+            <div class="cw-model">Claude Sonnet 4.6</div>
+          </header>
+          <div class="cw-messages" id="cwMsgs">
+            <!-- Line 1 — user sends CSV + prompt -->
+            <div class="cw-msg user" data-line="1" id="cwUserMsg1">
+              <div class="cw-csv-chip">rider_support_tickets_q2.csv · 40,128 rows</div>
+              <div id="cwPromptText">
+                <span class="cw-typed" id="cwPrompt1"></span>
+              </div>
+            </div>
+
+            <!-- Line 2 — Claude drafts glossary CONFIDENTLY (wrong) -->
+            <div class="cw-msg assistant" data-line="2" id="cwAssistantMsg1">
+              <div class="claude-avatar">C</div>
+              <div class="claude-body" id="cwClaudeBody1">
+                <div class="cw-thinking" id="cwThinking1"><span></span><span></span><span></span></div>
+                <div id="cwResponse1" style="display:none">
+                  <p>Here's a plain-English glossary for each column:</p>
+                  <table class="cw-gloss-tbl">
+                    <thead><tr><th>column</th><th>meaning</th></tr></thead>
+                    <tbody id="cwGlossRows1"></tbody>
+                  </table>
+                  <p style="margin-top:8px;">Let me know if you want me to help with the analysis next.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Line 3 — user catches it + Claude course-corrects -->
+            <div class="cw-msg user" data-line="3" id="cwUserMsg2">
+              <span class="cw-typed" id="cwPrompt2"></span>
+            </div>
+            <div class="cw-msg assistant" data-line="3" id="cwAssistantMsg2">
+              <div class="claude-avatar">C</div>
+              <div class="claude-body" id="cwClaudeBody2">
+                <div class="cw-thinking" id="cwThinking2"><span></span><span></span><span></span></div>
+                <div id="cwResponse2" style="display:none">
+                  <p>You're right — I got that wrong. I shouldn't have given a definitive read on <code>tkt_closed_dt_v2</code> without checking.</p>
+                  <table class="cw-gloss-tbl">
+                    <thead><tr><th>column</th><th>meaning</th></tr></thead>
+                    <tbody id="cwGlossRows2"></tbody>
+                  </table>
+                  <p style="margin-top:8px;font-size:12px;color:#3d424d;">You caught something I missed: because <code>reopen_cnt</code> exists in the data, first-close vs. final-close is a meaningful distinction. From the data alone I can't tell which one v2 captures — you'll need to confirm with the schema owner before trusting any time-series built on this column.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cw-composer">
+            <div class="cw-composer-inner" id="cwComposer">
+              <div class="cw-attach">+</div>
+              <div class="cw-input">
+                <span class="cw-placeholder" id="cwPlaceholder">Reply to Claude…</span>
+              </div>
+              <div class="cw-send">↑</div>
+            </div>
+          </div>
+        </main>
+      </div>
+      <div class="cw-pen" id="cwPen">
+        <svg viewBox="0 0 1200 700" preserveAspectRatio="none" style="width:100%;height:100%;position:absolute;inset:0;pointer-events:none">
+          <ellipse cx="780" cy="305" rx="185" ry="32" fill="none" stroke="#b6311d" stroke-width="4" stroke-linecap="round" stroke-dasharray="3 4" style="opacity:0.85"/>
+          <path d="M 970 290 Q 1030 280 1080 250" stroke="#b6311d" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <text x="1085" y="242" font-family="Bradley Hand, cursive" font-size="18" fill="#b6311d" font-style="italic">audit this</text>
+        </svg>
+      </div>
+      <div class="cw-takeaway" data-line="4" id="cwTakeaway">
+        <div class="cw-take-label">THE MODERN MOVE</div>
+        <div class="cw-takeaway-inner">
+          <div class="cw-take-pill">DRAFT</div>
+          <div class="cw-take-arrow">→</div>
+          <div class="cw-take-pill p2">AUDIT</div>
+          <div class="cw-take-arrow a2">→</div>
+          <div class="cw-take-pill p3">LEAD</div>
+        </div>
+        <div class="cw-take-line">Claude's the fast hands. The questions are still yours.</div>
+        <div class="cw-take-next"><span class="arrow">→</span> Next up — <strong>L2 · Clean the data.</strong></div>
+      </div>
+    `
+  },
+};
+
+// === POU — mini-game content (Airbnb host-support dataset) ===
+// Three rounds, each a column from the same data slice. 4 options, 1 correct.
+const POU_ROUNDS = [
+  {
+    column: "rsp_ts_v2",
+    prompt: "Column <code>rsp_ts_v2</code> — what does it actually mean?",
+    slice: {
+      headers: ["tkt_id", "rsp_ts_v2", "host_seg", "refund_amt"],
+      rows: [
+        ["T-48201", "2026-03-04 09:12", "SUPER",  "$0"],
+        ["T-48202", "2026-03-04 09:41", "NEW",    "$42"],
+        ["T-48203", "2026-03-04 10:03", "SUPER",  "$0"],
+        ["T-48204", "2026-03-04 10:18", "STD",    "$180"],
+      ],
+      focus: 1,
+    },
+    options: [
+      { t: "Timestamp of the host's first response to the ticket.", correct: true,
+        note: "Nailed it. <code>rsp</code> = response, <code>v2</code> is the version of the schema (v1 was deprecated in 2024 per Airbnb's data docs)." },
+      { t: "Timestamp when the ticket was resolved.", correct: false,
+        note: "Close — but <code>rsp</code> is response, not resolution. Resolution timestamp is usually <code>close_ts</code>. This is a classic headers-lie trap." },
+      { t: "The version of the response template used.", correct: false,
+        note: "Easy to guess from <code>v2</code>, but that's schema version, not template. Values look like datetimes — templates would be codes." },
+      { t: "Average response time in seconds.", correct: false,
+        note: "Values are datetimes, not durations. If it were seconds you'd expect integers. Always check the values before trusting the header." },
+    ],
+  },
+  {
+    column: "host_seg",
+    prompt: "Column <code>host_seg</code> — what does it actually mean?",
+    slice: {
+      headers: ["tkt_id", "rsp_ts_v2", "host_seg", "refund_amt"],
+      rows: [
+        ["T-48201", "…", "SUPER",  "$0"],
+        ["T-48202", "…", "NEW",    "$42"],
+        ["T-48203", "…", "SUPER",  "$0"],
+        ["T-48204", "…", "STD",    "$180"],
+        ["T-48205", "…", "PRO",    "$0"],
+      ],
+      focus: 2,
+    },
+    options: [
+      { t: "Host tier — Superhost / New / Standard / Pro.", correct: true,
+        note: "Right. <code>seg</code> = segment. You'd verify by asking your data engineer \"are these all the values?\" — which is exactly Avery's Q2 (where does it come from)." },
+      { t: "Number of hosts on the ticket.", correct: false,
+        note: "Values are strings like SUPER/NEW, not numbers. The header could read that way — but check the data first." },
+      { t: "The host's geographic segment (region).", correct: false,
+        note: "Tempting, because <code>seg</code> can mean region in other datasets. But these values are tier labels, not places." },
+      { t: "Ticket segment type.", correct: false,
+        note: "The prefix <code>host_</code> tells you it belongs to the host, not the ticket. Read the prefix." },
+    ],
+  },
+  {
+    column: "refund_amt",
+    prompt: "Column <code>refund_amt</code> — what does it NOT tell you?",
+    slice: {
+      headers: ["tkt_id", "rsp_ts_v2", "host_seg", "refund_amt"],
+      rows: [
+        ["T-48201", "…", "SUPER",  "$0"],
+        ["T-48202", "…", "NEW",    "$42"],
+        ["T-48204", "…", "STD",    "$180"],
+        ["T-48206", "…", "STD",    "-$20"],
+      ],
+      focus: 3,
+    },
+    options: [
+      { t: "Whether the refund was ever actually paid out.", correct: true,
+        note: "Exactly — <code>refund_amt</code> is the <em>requested</em> or <em>calculated</em> amount. Paid status usually lives in a separate <code>payment_status</code> column. That's Avery's Q3 — what the column doesn't tell you." },
+      { t: "The currency of the refund.", correct: false,
+        note: "Fair — but values show dollar signs, so this IS telling you. The harder question is whether it was paid." },
+      { t: "Which host was refunded.", correct: false,
+        note: "That's <code>tkt_id</code> joined to the host table. The column does its job for the amount." },
+      { t: "The reason for the refund.", correct: false,
+        note: "True, but not the highest-risk gap — payment status is what bites your analysis." },
+    ],
+  },
+];
+
+// =====================================================================
+// modern_move scene — animation callbacks (Cowork-like live demo).
+// These get spread into FLAT[8] via the SCENES entry below.
+// =====================================================================
+
+// Typing-out helper — writes `text` into el across durationMs.
+function typeInto(el, text, durationMs, done) {
+  if (!el) return;
+  el.textContent = '';
+  const chars = Array.from(text);
+  const step = Math.max(12, durationMs / chars.length);
+  let i = 0;
+  const tick = () => {
+    if (!el.isConnected) return;
+    if (i >= chars.length) { if (done) done(); return; }
+    el.textContent += chars[i++];
+    setTimeout(tick, step);
+  };
+  setTimeout(tick, 80);
+}
+
+// Append rows to a glossary <tbody> sequentially to feel like streaming.
+function streamRows(tbodyEl, rows, durationMs, done) {
+  if (!tbodyEl) return;
+  tbodyEl.innerHTML = '';
+  const step = durationMs / Math.max(1, rows.length);
+  rows.forEach((r, i) => {
+    setTimeout(() => {
+      if (!tbodyEl.isConnected) return;
+      const tr = document.createElement('tr');
+      if (r.flagged) tr.className = 'flagged';
+      if (r.resolved) tr.className = 'resolved';
+      tr.dataset.col = r.name;
+      tr.innerHTML = `
+        <td style="width:40%"><span class="col-name">${r.name}</span></td>
+        <td><span class="def">${r.def}</span>${r.note ? `<div class="note">${r.note}</div>` : ''}${r.resolvedNote ? `<div class="note resolved-note">${r.resolvedNote}</div>` : ''}</td>
+      `;
+      tr.style.opacity = 0;
+      tr.style.transition = 'opacity 0.3s ease';
+      tbodyEl.appendChild(tr);
+      requestAnimationFrame(() => { tr.style.opacity = 1; });
+      if (i === rows.length - 1 && done) setTimeout(done, 250);
+    }, i * step);
+  });
+}
+
+// Position the red-pen annotation over the row Avery is auditing in Claude's first response.
+// In the "Claude-confidently-wrong" flow, we circle tkt_closed_dt_v2 — the one he got wrong.
+function placeRedPen() {
+  const pen = document.getElementById('cwPen');
+  const flagged = document.querySelector('#cwGlossRows1 tr[data-col="tkt_closed_dt_v2"]')
+               || document.querySelector('#cwGlossRows1 tr.flagged');
+  if (!pen || !flagged) return;
+  const board = boardEl.getBoundingClientRect();
+  const row = flagged.getBoundingClientRect();
+  // Give pen the row's rect in board-local coords
+  pen.style.left = (row.left - board.left - 20) + 'px';
+  pen.style.top = (row.top - board.top - 8) + 'px';
+  pen.style.width = (row.width + 40) + 'px';
+  pen.style.height = (row.height + 20) + 'px';
+  // Rewrite the inline SVG to frame the row
+  const w = row.width + 40, h = row.height + 20;
+  pen.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:100%;overflow:visible">
+      <ellipse cx="${w/2}" cy="${h/2}" rx="${w/2 - 6}" ry="${h/2 - 2}"
+               fill="none" stroke="#b6311d" stroke-width="3"
+               stroke-linecap="round" stroke-dasharray="5 5"
+               style="opacity:0.88"/>
+      <path d="M ${w - 10} ${h/2 - 4} Q ${w + 30} ${h/2 - 20} ${w + 60} ${h/2 - 40}"
+            stroke="#b6311d" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <text x="${w + 65}" y="${h/2 - 42}" font-family="Bradley Hand, cursive"
+            font-size="17" fill="#b6311d" font-style="italic">not so fast —</text>
+      <text x="${w + 65}" y="${h/2 - 22}" font-family="Bradley Hand, cursive"
+            font-size="15" fill="#b6311d" font-style="italic">which close? first or final?</text>
+    </svg>
+  `;
+}
+
+// =====================================================================
+// csv scene — Google Sheets clone animation callbacks.
+// =====================================================================
+
+// Realistic-ish mock rows for the Uber rider-support dataset.
+const GS_DATA_ROWS = [
+  ['23481', '2023-05-12 14:22:18', '3C',  '1', 'cancel',     '0', '94107'],
+  ['23482', '2023-05-12 14:41:03', '2B',  '0', 'refund',     '0', '10001'],
+  ['23483', '2023-05-12 14:52:47', '3C',  '1', 'cancel',     '1', '60614'],
+  ['23484', '2023-05-12 15:08:11', '1A',  '1', 'trip-issue', '0', '30301'],
+  ['23485', '2023-05-12 15:19:55', '2B',  '0', 'payment',    '0', '02116'],
+  ['23486', '2023-05-12 15:24:33', '3C',  '1', 'cancel',     '0', '94102'],
+  ['23487', '2023-05-12 15:31:02', '1A',  '0', 'other',      '0', '75201'],
+];
+const GS_HEADERS = [
+  'tkt_id', 'tkt_closed_dt_v2', 'rider_seg_enc', 'supp_contact_flag_3',
+  'tkt_cat', 'reopen_cnt', 'rider_zip_enc',
+];
+
+Object.assign(SCENES.csv, {
+  onMount() {
+    const body = document.getElementById('gsBody');
+    if (body) body.innerHTML = '';
+    const rc = document.getElementById('gsRowcount');
+    if (rc) { rc.textContent = '—'; rc.classList.remove('flash'); }
+    ['gsConfused1','gsConfused2','gsConfused3','gsConfused4'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('show');
+    });
+  },
+  onLine(li, dur) {
+    // LINE 1 (~1.57s) — "Finance drops this on my desk." → sheet chrome visible; empty grid pulse
+    if (li === 0) {
+      const body = document.getElementById('gsBody');
+      if (body) {
+        // render empty placeholder rows for visual body
+        body.innerHTML = Array.from({length: 12}).map((_, i) => `
+          <tr><td class="gs-rownum">${i+1}</td>${Array.from({length:7}).map(() => '<td></td>').join('')}</tr>
+        `).join('');
+      }
+      return;
+    }
+
+    // LINE 2 (~4.28s) — "One CSV. Forty-thousand rows." → headers + data rows populate; counter flashes
+    if (li === 1) {
+      const body = document.getElementById('gsBody');
+      if (!body) return;
+      body.innerHTML = '';
+      // header row first
+      const headerTr = document.createElement('tr');
+      headerTr.className = 'header-row';
+      headerTr.innerHTML = `<td class="gs-rownum">1</td>` + GS_HEADERS.map((h, i) =>
+        `<td data-col="${i}">${h}</td>`).join('');
+      body.appendChild(headerTr);
+
+      // stream data rows over ~2.5s
+      const step = 2400 / GS_DATA_ROWS.length;
+      GS_DATA_ROWS.forEach((row, ri) => {
+        setTimeout(() => {
+          if (!body.isConnected) return;
+          const tr = document.createElement('tr');
+          const cells = [
+            `<td class="gs-rownum">${ri + 2}</td>`,
+            `<td class="data mono">${row[0]}</td>`,
+            `<td class="data mono">${row[1]}</td>`,
+            `<td class="data mono">${row[2]}</td>`,
+            `<td class="data mono">${row[3]}</td>`,
+            `<td class="data">${row[4]}</td>`,
+            `<td class="data mono">${row[5]}</td>`,
+            `<td class="data mono">${row[6]}</td>`,
+          ];
+          tr.innerHTML = cells.join('');
+          tr.style.opacity = 0;
+          tr.style.transition = 'opacity 0.2s ease';
+          body.appendChild(tr);
+          requestAnimationFrame(() => { tr.style.opacity = 1; });
+        }, 220 + ri * step);
+      });
+      // row-count flash near end of line
+      setTimeout(() => {
+        const rc = document.getElementById('gsRowcount');
+        if (rc) { rc.textContent = '40,128 rows'; rc.classList.add('flash'); }
+      }, 2800);
+      return;
+    }
+
+    // LINE 3 (~7.89s) — "Column headers like tkt_closed_dt_v2..." → highlight header row, select cell B1, formula updates
+    if (li === 2) {
+      // Ensure data is there (if user scrubbed)
+      const body = document.getElementById('gsBody');
+      if (body && !body.querySelector('.header-row')) {
+        SCENES.csv.onLine(1, dur);
+      }
+      setTimeout(() => {
+        const headerCells = document.querySelectorAll('#gsBody tr.header-row td[data-col]');
+        headerCells.forEach(c => c.classList.add('highlight'));
+        // select the B1 cell (tkt_closed_dt_v2) with the blue selection box
+        const selTd = document.querySelector('#gsBody tr.header-row td[data-col="1"]');
+        if (selTd) selTd.classList.add('selected');
+        const cellRef = document.getElementById('gsCellRef');
+        const formula = document.getElementById('gsFormula');
+        if (cellRef) cellRef.textContent = 'B1';
+        if (formula) formula.textContent = 'tkt_closed_dt_v2';
+      }, 150);
+      return;
+    }
+
+    // LINE 4 (~2.35s) — "It's a menu in a language I don't speak." → confused ??? marks
+    if (li === 3) {
+      // Position ??? marks over the header cells using their live bounding boxes
+      setTimeout(() => {
+        const grid = document.getElementById('gsGrid');
+        if (!grid) return;
+        const gridRect = grid.getBoundingClientRect();
+        const targets = [1, 2, 3, 5]; // B, C, D, F = the gnarly ones
+        const ids = ['gsConfused1','gsConfused2','gsConfused3','gsConfused4'];
+        targets.forEach((col, i) => {
+          const td = document.querySelector(`#gsBody tr.header-row td[data-col="${col}"]`);
+          const mark = document.getElementById(ids[i]);
+          if (!td || !mark) return;
+          const r = td.getBoundingClientRect();
+          mark.style.left = (r.left - gridRect.left + r.width / 2 - 18) + 'px';
+          mark.style.top = (r.top - gridRect.top - 26) + 'px';
+          setTimeout(() => mark.classList.add('show'), i * 120);
+        });
+      }, 120);
+      return;
+    }
+  }
+});
+
+// =====================================================================
+// trap scene — "Column-name confusion" in Google Sheets header row.
+// Avery stares at the gnarly column names and tries to decode them.
+// =====================================================================
+
+Object.assign(SCENES.trap, {
+  onMount() {
+    // Reset all animatable elements
+    document.querySelectorAll('#trHeaderRow .tr-header-cell').forEach(c => c.classList.remove('highlight'));
+    document.querySelectorAll('.tr-guess-cell').forEach(c => c.classList.remove('show'));
+    const hint = document.getElementById('trHint');
+    if (hint) hint.classList.remove('show');
+    const thought = document.getElementById('trThought');
+    if (thought) thought.classList.remove('show');
+    const marco = document.getElementById('trMarco');
+    if (marco) marco.classList.remove('show');
+  },
+  onLine(li, dur) {
+    // LINE 1 (~2.85s) — "I stare at the names. Trying to decode them."
+    if (li === 0) {
+      const hint = document.getElementById('trHint');
+      if (hint) hint.classList.add('show');
+      // first guess ✓ appears near end of line to show she gets the easy one
+      setTimeout(() => {
+        const first = document.querySelector('.tr-guess-cell[data-idx="0"]');
+        if (first) first.classList.add('show');
+      }, 1200);
+      return;
+    }
+
+    // LINE 2 (~6.69s) — reading phonetically: "tkt_closed_dt_v2? rider_seg_enc? supp_contact_flag_3?"
+    // Highlight each gnarly header as she reads it, and the handwritten guess appears under it
+    if (li === 1) {
+      const gnarly = [1, 2, 3];
+      const perItem = (dur * 1000) / (gnarly.length + 0.5); // last one completes before line ends
+      gnarly.forEach((idx, i) => {
+        setTimeout(() => {
+          const hdr = document.querySelector(`#trHeaderRow .tr-header-cell[data-idx="${idx}"]`);
+          const guess = document.querySelector(`.tr-guess-cell[data-idx="${idx}"]`);
+          if (hdr) hdr.classList.add('highlight');
+          if (guess) guess.classList.add('show');
+        }, 300 + i * perItem);
+      });
+      return;
+    }
+
+    // LINE 3 (~3.47s) — "Half the words are abbreviated. I'm inventing meanings as I go."
+    if (li === 2) {
+      // ensure all guesses visible (defensive if scrubbed)
+      document.querySelectorAll('.tr-guess-cell').forEach(c => c.classList.add('show'));
+      document.querySelectorAll('#trHeaderRow .tr-header-cell[data-idx]').forEach(c => {
+        if (c.dataset.idx !== '0') c.classList.add('highlight');
+      });
+      setTimeout(() => {
+        const t = document.getElementById('trThought');
+        if (t) t.classList.add('show');
+      }, 500);
+      return;
+    }
+
+    // LINE 4 (~8.12s) — Marco's overlay lands
+    if (li === 3) {
+      setTimeout(() => {
+        const marco = document.getElementById('trMarco');
+        if (marco) marco.classList.add('show');
+      }, 1800);
+      return;
+    }
+  }
+});
+
+// Modern-move scene: Claude confidently wrong → user catches it → Claude course-corrects.
+Object.assign(SCENES.modern_move, {
+  onMount() {
+    const pen = document.getElementById('cwPen');
+    if (pen) pen.classList.remove('show');
+    const take = document.getElementById('cwTakeaway');
+    if (take) take.classList.remove('show');
+  },
+  onLine(li, dur) {
+    // LINE 1 (~5.56s) — user prompt + CSV chip
+    if (li === 0) {
+      const promptEl = document.getElementById('cwPrompt1');
+      const fullPrompt = "help me understand this data — give me a plain-English glossary for each column.";
+      const compPlaceholder = document.getElementById('cwPlaceholder');
+      if (compPlaceholder) compPlaceholder.textContent = "Reply to Claude…";
+      typeInto(promptEl, fullPrompt, Math.min(3800, dur * 1000 * 0.7));
+      return;
+    }
+
+    // LINE 2 (~8.2s) — Claude thinking → CONFIDENTLY-WRONG glossary → red pen on the bad row
+    if (li === 1) {
+      const thinking = document.getElementById('cwThinking1');
+      const resp = document.getElementById('cwResponse1');
+      const tbody = document.getElementById('cwGlossRows1');
+      setTimeout(() => {
+        if (thinking) thinking.style.display = 'none';
+        if (resp) resp.style.display = 'block';
+        // NOTE: No uncertainty flag. Claude confidently gives the obvious-but-wrong read.
+        const rows = [
+          { name: 'tkt_id', def: 'Unique support ticket identifier.' },
+          { name: 'tkt_closed_dt_v2', def: 'Timestamp when the ticket was closed.', willFlag: true },
+          { name: 'rider_seg_enc', def: 'Encoded rider segment tier (1A / 2B / 3C) — legacy spend tier.' },
+          { name: 'supp_contact_flag_3', def: 'Binary flag: 1 if rider contacted support ≥ 3× in a 30-day rolling window.' },
+          { name: 'tkt_cat', def: 'Ticket category: cancel / refund / payment / trip-issue / other.' },
+          { name: 'reopen_cnt', def: 'Count of times this ticket was re-opened after a close. 0 = clean close first time.' },
+        ];
+        streamRows(tbody, rows, 3200, () => {
+          // after rows land, Avery red-pens Claude's mistake (targeted by data-col)
+          setTimeout(() => {
+            placeRedPen();
+            document.getElementById('cwPen').classList.add('show');
+          }, 400);
+        });
+      }, 900);
+      return;
+    }
+
+    // LINE 3 (~5.41s) — user pushes back with what they already know; Claude acknowledges + corrects.
+    if (li === 2) {
+      const pen = document.getElementById('cwPen');
+      if (pen) pen.classList.remove('show');
+      const promptEl = document.getElementById('cwPrompt2');
+      const fullFollowup = "wait — reopen_cnt is in the data, so tickets get reopened. is tkt_closed_dt_v2 the FIRST close or the FINAL close? that changes the whole weekly volume story.";
+      typeInto(promptEl, fullFollowup, Math.min(2600, dur * 1000 * 0.5), () => {
+        const thinking = document.getElementById('cwThinking2');
+        const resp = document.getElementById('cwResponse2');
+        const tbody = document.getElementById('cwGlossRows2');
+        setTimeout(() => {
+          if (thinking) thinking.style.display = 'none';
+          if (resp) resp.style.display = 'block';
+          const rows = [
+            { name: 'tkt_closed_dt_v2', def: '<strong>Unclear from the data alone</strong> — could be first-close or final-close. The <code>v2</code> suffix hints at a schema revision but doesn\'t tell us which.',
+              flagged: true,
+              note: 'Recommend confirming with the schema owner before any time-series work. If v2 is first-close, weekly volume will look flat even when reopens spike the real workload.' },
+          ];
+          streamRows(tbody, rows, 900);
+        }, 450);
+      });
+      return;
+    }
+
+    // LINE 4 (~2.85s) — takeaway card
+    if (li === 3) {
+      setTimeout(() => {
+        const take = document.getElementById('cwTakeaway');
+        if (take) take.classList.add('show');
+      }, 150);
+      return;
+    }
+  }
+});
+
+// Flatten ordered list of scenes with their lines (from manifest)
+const FLAT = MANIFEST.scenes.map(s => ({
+  id: s.id,
+  ...SCENES[s.id],
+  lines: s.lines.map((l, i) => ({
+    ...l,
+    idx: i + 1,
+    subtitle: SUBTITLE_OVERRIDES[l.file] || l.text,
+  })),
+}));
+
+// ------------ State ------------
+let sceneIdx = 0;
+let lineIdx = 0;
+let mode = 'auto';
+let playing = false;
+let muted = false;
+
+const audioEl = new Audio();
+audioEl.preload = 'auto';
+
+const $ = id => document.getElementById(id);
+const boardEl = $('board');
+const tagEl = $('boardTag');
+const sceneTitleEl = $('boardSceneTitle');
+const subtitleEl = $('subtitle');
+const sceneLabelEl = $('sceneLabel');
+const lineChipEl = $('lineChip');
+const scenePosEl = $('scenePos');
+const scrubFill = $('scrubFill');
+const scrubLabel = $('scrubLabel');
+const scrubTrack = $('scrubTrack');
+const btnPlay = $('btnPlay');
+const btnPrev = $('btnPrev');
+const btnNext = $('btnNext');
+const portraitEl = $('portrait');
+const pouEl = $('pou');
+const pouSkip = $('pouSkip');
+const pouReplay = $('pouReplay');
+const pouNext = $('pouNext');
+const pouFinish = $('pouFinish');
+const pouFeedback = $('pouFeedback');
+const pouSummary = $('pouSummary');
+const xpBurst = $('xpBurst');
+const manualHint = $('manualHint');
+const soundBtn = $('soundBtn');
+const preloadNotice = $('preloadNotice');
+
+// ---- totals ----
+function totalDuration() {
+  return FLAT.reduce((a, s) => a + s.lines.reduce((x, l) => x + l.duration, 0), 0);
+}
+function elapsedBefore(si, li) {
+  let t = 0;
+  for (let i = 0; i < si; i++) t += FLAT[i].lines.reduce((x, l) => x + l.duration, 0);
+  for (let i = 0; i < li; i++) t += FLAT[si].lines[i].duration;
+  return t;
+}
+function fmtTime(ms) {
+  const s = Math.max(0, Math.round(ms));
+  return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+}
+
+// ---- render scene ----
+function renderScene(si) {
+  const s = FLAT[si];
+  if (s.html) {
+    boardEl.innerHTML = s.html();
+  } else {
+    boardEl.innerHTML = `<svg viewBox="0 0 ${VB_W} ${VB_H}" preserveAspectRatio="xMidYMid meet">${s.svg()}</svg>`;
+  }
+  tagEl.textContent = s.tag || '';
+  sceneTitleEl.textContent = s.title || '';
+  sceneLabelEl.textContent = `Scene ${si+1} / ${FLAT.length}`;
+  pouEl.classList.remove('show');
+  if (s.onMount) s.onMount();
+}
+function revealUpTo(li) {
+  // works for both svg (g[data-line]) and html ([data-line])
+  const groups = boardEl.querySelectorAll('[data-line]');
+  groups.forEach(g => {
+    const n = Number(g.dataset.line);
+    g.classList.toggle('show', n <= li + 1);
+  });
+}
+
+function setSubtitle(html, withFade = true) {
+  if (!withFade) { subtitleEl.innerHTML = html; return; }
+  subtitleEl.classList.add('fade');
+  setTimeout(() => {
+    subtitleEl.innerHTML = html;
+    subtitleEl.classList.remove('fade');
+  }, 200);
+}
+
+function updateScrub() {
+  const total = totalDuration();
+  const cur = elapsedBefore(sceneIdx, lineIdx) + (audioEl.currentTime || 0);
+  const pct = total > 0 ? (cur / total) * 100 : 0;
+  scrubFill.style.width = `${Math.min(100, pct)}%`;
+  scrubLabel.textContent = `${fmtTime(cur)} / ${fmtTime(total)}`;
+  scenePosEl.textContent = `${sceneIdx+1}·${lineIdx+1}`;
+  lineChipEl.textContent = `Line ${lineIdx+1} / ${FLAT[sceneIdx].lines.length}`;
+}
+
+// ---- line playback ----
+function loadLine(playAfter) {
+  const line = FLAT[sceneIdx].lines[lineIdx];
+  setSubtitle(line.subtitle);
+  const chipEl = document.getElementById('speakerChip');
+  if (line.speaker && line.speaker !== 'avery' && SPEAKER_LABEL[line.speaker]) {
+    chipEl.textContent = SPEAKER_LABEL[line.speaker];
+    chipEl.style.display = 'inline-block';
+  } else {
+    chipEl.style.display = 'none';
+  }
+  revealUpTo(lineIdx);
+  if (FLAT[sceneIdx].onLine) FLAT[sceneIdx].onLine(lineIdx, line.duration);
+  audioEl.src = `${AUDIO_DIR}/${line.file}`;
+  audioEl.currentTime = 0;
+  updateScrub();
+  if (playAfter && !muted) {
+    const p = audioEl.play();
+    if (p && p.catch) p.catch(e => {
+      console.warn('audio play blocked', e);
+      playing = false; btnPlay.textContent = '▶ Play';
+      portraitEl.classList.remove('speaking');
+    });
+    playing = true;
+    btnPlay.textContent = '❚❚ Pause';
+    portraitEl.classList.add('speaking');
+  } else if (playAfter && muted) {
+    playing = true;
+    btnPlay.textContent = '❚❚ Pause';
+    portraitEl.classList.add('speaking');
+    mutedTimer = setTimeout(onLineEnd, FLAT[sceneIdx].lines[lineIdx].duration * 1000);
+  } else {
+    playing = false;
+    btnPlay.textContent = '▶ Play';
+    portraitEl.classList.remove('speaking');
+  }
+}
+
+let mutedTimer = null;
+function clearMutedTimer() {
+  if (mutedTimer) { clearTimeout(mutedTimer); mutedTimer = null; }
+}
+
+function onLineEnd() {
+  clearMutedTimer();
+  playing = false;
+  btnPlay.textContent = '▶ Play';
+  portraitEl.classList.remove('speaking');
+  updateScrub();
+  if (mode === 'auto') goNext(true);
+}
+audioEl.addEventListener('ended', onLineEnd);
+audioEl.addEventListener('timeupdate', updateScrub);
+
+function play() {
+  const line = FLAT[sceneIdx].lines[lineIdx];
+  if (!audioEl.src || !audioEl.src.endsWith(line.file)) { loadLine(true); return; }
+  if (muted) {
+    playing = true;
+    btnPlay.textContent = '❚❚ Pause';
+    portraitEl.classList.add('speaking');
+    clearMutedTimer();
+    const remaining = Math.max(0.1, line.duration - (audioEl.currentTime || 0));
+    mutedTimer = setTimeout(onLineEnd, remaining * 1000);
+    return;
+  }
+  const p = audioEl.play();
+  if (p && p.catch) p.catch(e => console.warn(e));
+  playing = true;
+  btnPlay.textContent = '❚❚ Pause';
+  portraitEl.classList.add('speaking');
+}
+function pause() {
+  audioEl.pause();
+  clearMutedTimer();
+  playing = false;
+  btnPlay.textContent = '▶ Play';
+  portraitEl.classList.remove('speaking');
+}
+function togglePlay() { playing ? pause() : play(); }
+
+function goNext(autoplay = false) {
+  const curScene = FLAT[sceneIdx];
+  const atLast = lineIdx + 1 >= curScene.lines.length;
+  // POU scene: at its last line, stop and open overlay — don't bleed into modern_move
+  if (atLast && curScene.isPou) {
+    pause();
+    openPou();
+    return;
+  }
+  if (!atLast) {
+    lineIdx++;
+    loadLine(autoplay);
+  } else if (sceneIdx + 1 < FLAT.length) {
+    sceneIdx++;
+    lineIdx = 0;
+    renderScene(sceneIdx);
+    loadLine(autoplay);
+  } else {
+    pause();
+  }
+}
+function goPrev(autoplay = false) {
+  pause();
+  if (lineIdx > 0) {
+    lineIdx--;
+    loadLine(autoplay);
+  } else if (sceneIdx > 0) {
+    sceneIdx--;
+    lineIdx = FLAT[sceneIdx].lines.length - 1;
+    renderScene(sceneIdx);
+    loadLine(autoplay);
+  }
+}
+
+// ---- scrub ----
+scrubTrack.addEventListener('click', (e) => {
+  const rect = scrubTrack.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  const total = totalDuration();
+  const target = pct * total;
+  let acc = 0;
+  for (let i = 0; i < FLAT.length; i++) {
+    for (let j = 0; j < FLAT[i].lines.length; j++) {
+      const d = FLAT[i].lines[j].duration;
+      if (target < acc + d) {
+        const offset = target - acc;
+        if (sceneIdx !== i) { sceneIdx = i; lineIdx = j; renderScene(i); }
+        else if (lineIdx !== j) { lineIdx = j; }
+        loadLine(false);
+        audioEl.currentTime = offset;
+        updateScrub();
+        return;
+      }
+      acc += d;
+    }
+  }
+});
+
+// ---- controls ----
+btnPlay.addEventListener('click', togglePlay);
+btnPrev.addEventListener('click', () => { pause(); goPrev(true); });
+btnNext.addEventListener('click', () => { pause(); goNext(true); });
+
+document.addEventListener('keydown', (e) => {
+  const active = document.activeElement;
+  if (active && active.tagName === 'TEXTAREA') return;
+  if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+  else if (e.key === 'ArrowRight') { pause(); goNext(true); }
+  else if (e.key === 'ArrowLeft')  { pause(); goPrev(true); }
+  else if (e.key === 'r' || e.key === 'R') { replayAll(); }
+  else if (e.key === 'm' || e.key === 'M') { setMode(mode === 'auto' ? 'manual' : 'auto'); }
+});
+
+// ---- mode toggle ----
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('#modeToggle button').forEach(b => {
+    b.classList.toggle('on', b.dataset.mode === m);
+  });
+  manualHint.style.display = m === 'manual' ? 'block' : 'none';
+}
+document.querySelectorAll('#modeToggle button').forEach(b => {
+  b.addEventListener('click', () => setMode(b.dataset.mode));
+});
+
+// ---- sound ----
+function setMuted(m) {
+  muted = m;
+  audioEl.muted = m;
+  soundBtn.classList.toggle('muted', m);
+  soundBtn.textContent = m ? '🔇 Sound off' : '🔊 Sound on';
+}
+soundBtn.addEventListener('click', () => setMuted(!muted));
+
+// ---- Avery image fallback ----
+const averyImg = $('averyImg');
+const averyFallback = $('averyFallback');
+averyImg.addEventListener('load', () => {
+  averyImg.style.display = 'block';
+  averyFallback.style.display = 'none';
+});
+averyImg.addEventListener('error', () => {
+  averyImg.style.display = 'none';
+  averyFallback.style.display = 'flex';
+});
+
+// ---- POU mini-game ----
+let roundIdx = 0;
+let roundResults = []; // true/false per round
+
+function openPou() {
+  roundIdx = 0;
+  roundResults = [];
+  pouEl.classList.add('show');
+  renderRound();
+}
+function renderRound() {
+  const r = POU_ROUNDS[roundIdx];
+  $('roundN').textContent = String(roundIdx + 1);
+  $('pouPrompt').innerHTML = r.prompt;
+  // data slice table
+  const th = r.slice.headers.map((h, i) =>
+    `<th class="${i === r.slice.focus ? 'focus' : ''}">${h}</th>`
+  ).join('');
+  const trs = r.slice.rows.map(row =>
+    `<tr>${row.map((c, i) =>
+      `<td class="${i === r.slice.focus ? 'focus' : ''}">${c}</td>`
+    ).join('')}</tr>`
+  ).join('');
+  $('dataSlice').innerHTML = `<table><thead><tr>${th}</tr></thead><tbody>${trs}</tbody></table>`;
+  // options
+  const opts = document.getElementById('options');
+  opts.innerHTML = r.options.map((o, i) => `
+    <button class="opt" data-i="${i}">${o.t}<span class="mark"></span></button>
+  `).join('');
+  // update dots
+  const dots = document.querySelectorAll('#roundDots .dot');
+  dots.forEach((d, i) => {
+    d.className = 'dot';
+    if (i < roundIdx) d.classList.add(roundResults[i] ? 'pass' : 'wrong');
+    else if (i === roundIdx) d.classList.add('on');
+  });
+  pouFeedback.className = 'feedback';
+  pouFeedback.innerHTML = '';
+  pouNext.style.display = 'none';
+  pouFinish.style.display = 'none';
+  pouSummary.className = 'summary';
+  // bind clicks
+  opts.querySelectorAll('.opt').forEach(b => {
+    b.addEventListener('click', () => onOption(b));
+  });
+}
+function onOption(btn) {
+  const i = Number(btn.dataset.i);
+  const r = POU_ROUNDS[roundIdx];
+  const opt = r.options[i];
+  // lock all
+  document.querySelectorAll('#options .opt').forEach(b => {
+    b.classList.add('disabled');
+    const bi = Number(b.dataset.i);
+    if (r.options[bi].correct) {
+      b.classList.add('correct');
+      b.querySelector('.mark').textContent = '✓';
+    } else if (bi === i) {
+      b.classList.add('wrong');
+      b.querySelector('.mark').textContent = '✕';
+    }
+  });
+  roundResults[roundIdx] = !!opt.correct;
+  if (opt.correct) {
+    pouFeedback.className = 'feedback pass show';
+    pouFeedback.innerHTML = `<strong>Right.</strong> ${opt.note}`;
+  } else {
+    pouFeedback.className = 'feedback redirect show';
+    pouFeedback.innerHTML = `<strong>Not quite.</strong> ${opt.note}`;
+  }
+  // update dots
+  const dots = document.querySelectorAll('#roundDots .dot');
+  dots[roundIdx].className = 'dot ' + (opt.correct ? 'pass' : 'wrong');
+  if (roundIdx + 1 < POU_ROUNDS.length) pouNext.style.display = 'inline-block';
+  else pouFinish.style.display = 'inline-block';
+}
+pouNext.addEventListener('click', () => {
+  roundIdx++;
+  renderRound();
+});
+pouFinish.addEventListener('click', () => {
+  const passed = roundResults.filter(Boolean).length;
+  const n = POU_ROUNDS.length;
+  pouSummary.className = 'summary show';
+  if (passed === n) {
+    pouSummary.innerHTML = `<b>Clean sweep — ${passed} / ${n}.</b> You're thinking like an analyst already: translate before you analyze. <em>Avery:</em> "When Airbnb drops their dataset on you, build the glossary first. Translate. Then touch the data."`;
+    xpBurst.classList.add('show');
+    setTimeout(() => xpBurst.classList.remove('show'), 2400);
+  } else if (passed >= 2) {
+    pouSummary.innerHTML = `<b>${passed} / ${n} — solid.</b> One miss — take a second pass through the column you got wrong. <em>Avery:</em> "Every analyst I know has been burned by headers that looked obvious. Check the values. Ask the source."`;
+    xpBurst.classList.add('show');
+    setTimeout(() => xpBurst.classList.remove('show'), 2200);
+  } else {
+    pouSummary.innerHTML = `<b>${passed} / ${n}.</b> Rewind and replay — the three questions (<em>what · where · what-it-doesn't-say</em>) are the whole move here. <em>Avery:</em> "The glossary is the boring part. It's also the part that saves you."`;
+  }
+  pouFinish.style.display = 'none';
+  pouNext.style.display = 'none';
+  // Earned the shortcut — show the modern-move CTA.
+  document.getElementById('pouModernCta').classList.add('show');
+});
+// Post-POU CTA → modern_move scene
+document.getElementById('pouModernCta').addEventListener('click', () => {
+  triggerModernMove();
+});
+pouSkip.addEventListener('click', () => {
+  pouEl.classList.remove('show');
+  // skipping POU still lets the learner see the modern move
+  setTimeout(triggerModernMove, 200);
+});
+
+function triggerModernMove() {
+  pouEl.classList.remove('show');
+  const idx = FLAT.findIndex(s => s.id === 'modern_move');
+  if (idx < 0) return;
+  sceneIdx = idx;
+  lineIdx = 0;
+  renderScene(sceneIdx);
+  loadLine(true);
+}
+pouReplay.addEventListener('click', () => replayAll());
+
+function replayAll() {
+  pauseExit();
+  sceneIdx = 0; lineIdx = 0;
+  roundIdx = 0; roundResults = [];
+  renderScene(0);
+  loadLine(mode === 'auto');
+}
+function pauseExit() {
+  pause();
+  pouEl.classList.remove('show');
+}
+
+// ---- preload hint ----
+audioEl.addEventListener('waiting', () => preloadNotice.classList.add('show'));
+audioEl.addEventListener('playing', () => preloadNotice.classList.remove('show'));
+audioEl.addEventListener('canplay', () => preloadNotice.classList.remove('show'));
+
+// ---- init ----
+setMode('auto');
+renderScene(0);
+loadLine(false);
+scrubLabel.textContent = `0:00 / ${fmtTime(totalDuration())}`;
+
+})();
+</script>
+</body>
+</html>

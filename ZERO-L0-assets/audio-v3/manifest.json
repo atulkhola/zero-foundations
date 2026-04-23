@@ -1,0 +1,230 @@
+{
+  "scenes": [
+    {
+      "id": "hook",
+      "lines": [
+        {
+          "file": "hook-01.mp3",
+          "text": "Hey. Before Airbnb walks in to brief us \u2014",
+          "speaker": "avery",
+          "duration": 2.691
+        },
+        {
+          "file": "hook-02.mp3",
+          "text": "Let me take you back. Three years ago. Uber. My second project as an analyst.",
+          "speaker": "avery",
+          "duration": 3.944
+        },
+        {
+          "file": "hook-03.mp3",
+          "text": "My VP \u2014 Priya \u2014 walks into our standup. Coffee in one hand. And drops this:",
+          "speaker": "avery",
+          "duration": 4.415
+        },
+        {
+          "file": "hook-04.mp3",
+          "text": "Rider support cost. Cut it twenty percent. By Q3.",
+          "speaker": "priya",
+          "duration": 3.527
+        }
+      ]
+    },
+    {
+      "id": "trap",
+      "lines": [
+        {
+          "file": "trap-01.mp3",
+          "text": "I almost did the rookie thing.",
+          "speaker": "avery",
+          "duration": 1.672
+        },
+        {
+          "file": "trap-02.mp3",
+          "text": "Opened the expense sheet. Started cutting line items.",
+          "speaker": "avery",
+          "duration": 2.508
+        },
+        {
+          "file": "trap-03.mp3",
+          "text": "Marco \u2014 my mentor \u2014 stopped me. Looked at the screen and said \u2014",
+          "speaker": "avery",
+          "duration": 4.859
+        },
+        {
+          "file": "trap-04.mp3",
+          "text": "'You don't actually know what she meant yet. The real question has three parts.'",
+          "speaker": "avery",
+          "duration": 4.023
+        }
+      ]
+    },
+    {
+      "id": "q1",
+      "lines": [
+        {
+          "file": "q1-01.mp3",
+          "text": "First \u2014 which costs?",
+          "speaker": "avery",
+          "duration": 1.489
+        },
+        {
+          "file": "q1-02.mp3",
+          "text": "Rider support is a giant bucket. Refunds. Routing. Agent salaries. Tooling.",
+          "speaker": "avery",
+          "duration": 3.892
+        },
+        {
+          "file": "q1-03.mp3",
+          "text": "We picked the part bleeding fastest \u2014 inbound call volume.",
+          "speaker": "avery",
+          "duration": 3.422
+        },
+        {
+          "file": "q1-04.mp3",
+          "text": "Different target \u2014 totally different project.",
+          "speaker": "avery",
+          "duration": 3.37
+        }
+      ]
+    },
+    {
+      "id": "q2",
+      "lines": [
+        {
+          "file": "q2-01.mp3",
+          "text": "Second \u2014 how?",
+          "speaker": "avery",
+          "duration": 1.384
+        },
+        {
+          "file": "q2-02.mp3",
+          "text": "There are really only a few ways to actually cut a cost.",
+          "speaker": "avery",
+          "duration": 2.638
+        },
+        {
+          "file": "q2-03.mp3",
+          "text": "Change the process. Switch the vendor. Do less of it. Or automate.",
+          "speaker": "avery",
+          "duration": 4.362
+        },
+        {
+          "file": "q2-04.mp3",
+          "text": "Same target. Four wildly different projects.",
+          "speaker": "avery",
+          "duration": 2.22
+        }
+      ]
+    },
+    {
+      "id": "q3",
+      "lines": [
+        {
+          "file": "q3-01.mp3",
+          "text": "Third \u2014 how will we know it worked?",
+          "speaker": "avery",
+          "duration": 2.273
+        },
+        {
+          "file": "q3-02.mp3",
+          "text": "You need a number. A direction. A deadline.",
+          "speaker": "avery",
+          "duration": 2.325
+        },
+        {
+          "file": "q3-03.mp3",
+          "text": "Marco wrote it on the board for me \u2014 cost per trip, down twenty percent, by end of Q3.",
+          "speaker": "avery",
+          "duration": 4.493
+        },
+        {
+          "file": "q3-04.mp3",
+          "text": "Without that \u2014 you can't tell if you actually won. Or just looked busy.",
+          "speaker": "avery",
+          "duration": 4.127
+        }
+      ]
+    },
+    {
+      "id": "tradeoff",
+      "lines": [
+        {
+          "file": "tradeoff-01.mp3",
+          "text": "Now \u2014 watch this. It matters more than it looks.",
+          "speaker": "avery",
+          "duration": 3.056
+        },
+        {
+          "file": "tradeoff-02.mp3",
+          "text": "Cut a million in support spend? On paper, that's a win.",
+          "speaker": "avery",
+          "duration": 3.004
+        },
+        {
+          "file": "tradeoff-03.mp3",
+          "text": "But \u2014 if service had gotten worse, riders would've churned. Three million in lifetime value, gone.",
+          "speaker": "avery",
+          "duration": 5.747
+        },
+        {
+          "file": "tradeoff-04.mp3",
+          "text": "Same move. Very different answers.",
+          "speaker": "avery",
+          "duration": 2.456
+        },
+        {
+          "file": "tradeoff-05.mp3",
+          "text": "That's why all three. Every time.",
+          "speaker": "avery",
+          "duration": 1.62
+        }
+      ]
+    },
+    {
+      "id": "anchor",
+      "lines": [
+        {
+          "file": "anchor-01.mp3",
+          "text": "That's the frame I used at Uber. We'll get to how it played out, later.",
+          "speaker": "avery",
+          "duration": 3.161
+        },
+        {
+          "file": "anchor-02.mp3",
+          "text": "But \u2014 Airbnb is coming in to brief us in a couple of minutes.",
+          "speaker": "avery",
+          "duration": 3.161
+        },
+        {
+          "file": "anchor-03.mp3",
+          "text": "Before they tell us anything \u2014 we already know what we need to find out.",
+          "speaker": "avery",
+          "duration": 3.997
+        },
+        {
+          "file": "anchor-04.mp3",
+          "text": "These three boxes. That's the frame.",
+          "speaker": "avery",
+          "duration": 2.038
+        }
+      ]
+    },
+    {
+      "id": "pou",
+      "lines": [
+        {
+          "file": "pou-01.mp3",
+          "text": "Alright \u2014 your turn.",
+          "speaker": "avery",
+          "duration": 1.698
+        },
+        {
+          "file": "pou-02.mp3",
+          "text": "Imagine your boss said 'reduce cost.' Write what you'd need to find out \u2014 your words.",
+          "speaker": "avery",
+          "duration": 5.669
+        }
+      ]
+    }
+  ]
+}

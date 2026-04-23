@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+._*
+
+# editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# build / scratch
+node_modules/
+*.log
+/tmp/

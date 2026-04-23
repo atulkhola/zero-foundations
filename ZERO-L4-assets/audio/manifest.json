@@ -1,0 +1,280 @@
+{
+  "scenes": [
+    {
+      "id": "bridge",
+      "lines": [
+        {
+          "file": "bridge-01.mp3",
+          "text": "Now I had the real question. Why did a UI change cause a support spike? I needed to see it.",
+          "speaker": "avery",
+          "duration": 6.269
+        },
+        {
+          "file": "bridge-02.mp3",
+          "text": "And I had seven minutes with Priya tomorrow. Whatever I brought her had to hold up.",
+          "speaker": "avery",
+          "duration": 4.989
+        }
+      ]
+    },
+    {
+      "id": "request",
+      "lines": [
+        {
+          "file": "request-01.mp3",
+          "text": "I pinged Kenji, our analyst. Asked for the chart, the stat, and a one-paragraph summary.",
+          "speaker": "avery",
+          "duration": 4.833
+        },
+        {
+          "file": "request-02.mp3",
+          "text": "Hour later, he sends me the whole bundle. Looked ready to ship. But I'd learned to check before I trust.",
+          "speaker": "avery",
+          "duration": 5.564
+        }
+      ]
+    },
+    {
+      "id": "chart_slip",
+      "lines": [
+        {
+          "file": "chart-01.mp3",
+          "text": "First thing — the chart. Cancel tickets versus the UI ship date.",
+          "speaker": "avery",
+          "duration": 4.362
+        },
+        {
+          "file": "chart-02.mp3",
+          "text": "What does your eye tell you? Huge spike, right? Looks like a cliff.",
+          "speaker": "avery",
+          "duration": 5.486
+        },
+        {
+          "file": "chart-03.mp3",
+          "text": "Now look at the actual numbers. About fifty thousand, up to fifty-three thousand. That's a six-percent bump.",
+          "speaker": "avery",
+          "duration": 6.609
+        },
+        {
+          "file": "chart-04.mp3",
+          "text": "The chart made a six-percent change look like a doubling. Priya would've spotted that in two seconds.",
+          "speaker": "avery",
+          "duration": 5.486
+        },
+        {
+          "file": "chart-05.mp3",
+          "text": "The name for this is a truncated axis. Forget the name. Remember the test. When your eye says one thing, and the numbers say another — something's off.",
+          "speaker": "avery",
+          "duration": 8.124
+        }
+      ]
+    },
+    {
+      "id": "stat_slip",
+      "lines": [
+        {
+          "file": "stat-01.mp3",
+          "text": "Next — Kenji's headline claim. UI change drove a forty-seven percent increase. P less than point oh five.",
+          "speaker": "avery",
+          "duration": 7.471
+        },
+        {
+          "file": "stat-02.mp3",
+          "text": "Sounds definitive. But how much data did he actually look at?",
+          "speaker": "avery",
+          "duration": 3.631
+        },
+        {
+          "file": "stat-03.mp3",
+          "text": "Three weeks.",
+          "speaker": "avery",
+          "duration": 0.758
+        },
+        {
+          "file": "stat-04.mp3",
+          "text": "Think about it. Kenji's making a claim about millions of Uber riders, over the long run. With three weeks of post-ship data. It's like polling ten people and making a claim about a whole country.",
+          "speaker": "avery",
+          "duration": 11.233
+        },
+        {
+          "file": "stat-05.mp3",
+          "text": "Analysts call this sample size. The test is simpler — does the size of the data match the size of the claim you're making?",
+          "speaker": "avery",
+          "duration": 7.628
+        }
+      ]
+    },
+    {
+      "id": "prose_slip",
+      "lines": [
+        {
+          "file": "prose-01.mp3",
+          "text": "Third piece — Kenji's summary paragraph. Listen.",
+          "speaker": "avery",
+          "duration": 3.709
+        },
+        {
+          "file": "prose-02.mp3",
+          "text": "Analysis indicates a statistically significant correlation between the December 14 deployment and a substantial increase in rider support engagement.",
+          "speaker": "avery",
+          "duration": 8.908
+        },
+        {
+          "file": "prose-03.mp3",
+          "text": "Sounds polished. But if Priya asked me — what's he recommending? — I couldn't tell her. It doesn't commit.",
+          "speaker": "avery",
+          "duration": 7.889
+        },
+        {
+          "file": "prose-04.mp3",
+          "text": "A real version: Revert the December 14 Cancel button change. Projected thirty-five percent ticket reduction. Forty engineering hours. Priya can sign that in thirty seconds.",
+          "speaker": "avery",
+          "duration": 10.841
+        },
+        {
+          "file": "prose-05.mp3",
+          "text": "This stuff — text that sounds smart but doesn't commit — we call it slop. Especially common now, because AI makes it easy to write. Test — can the reader do something with it?",
+          "speaker": "avery",
+          "duration": 11.651
+        }
+      ]
+    },
+    {
+      "id": "taxonomy",
+      "lines": [
+        {
+          "file": "taxonomy-01.mp3",
+          "text": "Three forms. Same question underneath.",
+          "speaker": "avery",
+          "duration": 2.194
+        },
+        {
+          "file": "taxonomy-02.mp3",
+          "text": "Chart — does the visual match the numbers? Stat — does the data match the claim? Prose — can the reader act on it? When any of those break — it's slop.",
+          "speaker": "avery",
+          "duration": 11.729
+        }
+      ]
+    },
+    {
+      "id": "resolution",
+      "lines": [
+        {
+          "file": "resolution-01.mp3",
+          "text": "I sent it back. Kenji rebuilt it.",
+          "speaker": "avery",
+          "duration": 2.586
+        },
+        {
+          "file": "resolution-02.mp3",
+          "text": "Chart honest from zero. Claim scaled to what we actually know. Prose committing to one recommendation. Still makes the case — now it holds up.",
+          "speaker": "avery",
+          "duration": 9.639
+        }
+      ]
+    },
+    {
+      "id": "anchor",
+      "lines": [
+        {
+          "file": "anchor-01.mp3",
+          "text": "At Airbnb, someone will hand you a chart, a stat, and a summary. Don't nod.",
+          "speaker": "avery",
+          "duration": 5.329
+        },
+        {
+          "file": "anchor-02.mp3",
+          "text": "Visual against numbers. Data against claim. Prose against action. Those are the three checks. Every time.",
+          "speaker": "avery",
+          "duration": 8.438
+        }
+      ]
+    },
+    {
+      "id": "pou",
+      "lines": [
+        {
+          "file": "pou-01.mp3",
+          "text": "Your turn.",
+          "speaker": "avery",
+          "duration": 0.522
+        },
+        {
+          "file": "pou-02.mp3",
+          "text": "Four situations. For each — tell me if the evidence holds up.",
+          "speaker": "avery",
+          "duration": 3.553
+        }
+      ]
+    },
+    {
+      "id": "handoff",
+      "lines": [
+        {
+          "file": "handoff-01.mp3",
+          "text": "Nice. Now — here's a real one.",
+          "speaker": "avery",
+          "duration": 3.239
+        },
+        {
+          "file": "handoff-02.mp3",
+          "text": "A PM just sent you a product recommendation deck. Chart, stat, summary — the whole package.",
+          "speaker": "avery",
+          "duration": 5.642
+        },
+        {
+          "file": "handoff-03.mp3",
+          "text": "Before it goes up the chain — stress-test it with Claude. I'll walk you through how to ask.",
+          "speaker": "avery",
+          "duration": 4.754
+        }
+      ]
+    },
+    {
+      "id": "pip",
+      "lines": [
+        {
+          "file": "pip-01.mp3",
+          "text": "First — try asking Claude your own way. Whatever feels natural.",
+          "speaker": "avery",
+          "duration": 3.709
+        },
+        {
+          "file": "pip-02.mp3",
+          "text": "See how vague your question got you a vague answer? Let me teach you the sharp ones.",
+          "speaker": "avery",
+          "duration": 4.127
+        },
+        {
+          "file": "pip-03.mp3",
+          "text": "Always put your claim in the question. What am I trying to say? What decision is someone making? Then ask Claude if the evidence actually holds.",
+          "speaker": "avery",
+          "duration": 9.247
+        },
+        {
+          "file": "pip-04.mp3",
+          "text": "Copy these questions. They're your toolkit. When you're done — send the fixed bundle back to me.",
+          "speaker": "avery",
+          "duration": 5.564
+        }
+      ]
+    },
+    {
+      "id": "close",
+      "lines": [
+        {
+          "file": "close-01.mp3",
+          "text": "That's the move. You didn't need a statistics degree. You needed four questions.",
+          "speaker": "avery",
+          "duration": 4.441
+        },
+        {
+          "file": "close-02.mp3",
+          "text": "Honest chart. Real finding. Next — how do you turn it into something someone can actually act on?",
+          "speaker": "avery",
+          "duration": 6.531
+        }
+      ]
+    }
+  ]
+}

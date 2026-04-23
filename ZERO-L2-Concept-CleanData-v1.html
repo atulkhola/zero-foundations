@@ -1,0 +1,3717 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Zero · L2 · Cleaning the data (v1 · Day 2 late afternoon · Uber story)</title>
+<style>
+:root {
+  --bg: #f4f5f7;
+  --card: #ffffff;
+  --paper: #fbf7ee;
+  --paper-grid: rgba(15,17,21,0.05);
+
+  --ink: #0f1115;
+  --ink-soft: #3d424d;
+  --ink-dim: #6b7280;
+  --ink-faint: #9ca3af;
+  --line: rgba(15,17,21,0.08);
+  --line-strong: rgba(15,17,21,0.16);
+
+  --good: #1e7a4b;
+  --good-soft: #e6f4ec;
+  --bad: #b6311d;
+  --bad-soft: #fbe8e4;
+  --warn: #a85d12;
+  --warn-soft: #fff5e6;
+
+  --radius-card: 14px;
+  --radius-chip: 999px;
+
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "SF Pro Text", sans-serif;
+  --mono: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --hand: "Bradley Hand", "Segoe Print", "Marker Felt", "Chalkduster", var(--serif);
+
+  --g-mint: linear-gradient(135deg, #c8f5df 0%, #86d9b5 55%, #3fb489 100%);
+
+  --shadow-card: 0 1px 2px rgba(15,17,21,0.04), 0 6px 20px rgba(15,17,21,0.06);
+  --shadow-stage: 0 8px 40px rgba(15,17,21,0.10), 0 1px 2px rgba(15,17,21,0.04);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: var(--sans); }
+body {
+  font-size: 15px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.frame {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 22px 24px 18px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Top ---------- */
+.topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.topbar .crumb { font-size: 12px; color: var(--ink-dim); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
+.topbar .title { font-size: 14px; color: var(--ink); font-weight: 600; }
+.topbar .title .ital { font-family: var(--serif); font-style: italic; font-weight: 400; }
+.topbar .spacer { flex: 1; }
+.topbar .chip {
+  font-size: 11.5px; padding: 5px 10px;
+  border-radius: var(--radius-chip);
+  background: var(--card); border: 1px solid var(--line); color: var(--ink-soft);
+}
+
+.mode-toggle {
+  display: inline-flex; align-items: center;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: 3px;
+  gap: 2px;
+}
+.mode-toggle button {
+  font: 600 11.5px/1 var(--sans);
+  border: none;
+  background: transparent;
+  color: var(--ink-soft);
+  padding: 6px 12px;
+  border-radius: var(--radius-chip);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+.mode-toggle button.on {
+  background: var(--ink); color: #fff;
+}
+
+.sound-btn {
+  font: 600 11.5px/1 var(--sans);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: 7px 12px;
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+.sound-btn.muted { color: var(--ink-faint); }
+
+/* ---------- Stage ---------- */
+.stage {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 22px;
+  padding-top: 18px;
+  min-height: 0;
+}
+
+.rail {
+  display: flex; flex-direction: column; gap: 16px;
+  min-height: 0;
+}
+
+.avery-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px;
+}
+
+.portrait {
+  position: relative;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: var(--g-mint);
+  box-shadow: 0 4px 16px rgba(63,180,137,0.22), inset 0 2px 4px rgba(255,255,255,0.6);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  transition: box-shadow 0.3s;
+}
+.portrait::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px rgba(255,255,255,0.55);
+  pointer-events: none;
+  z-index: 2;
+}
+.portrait img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.portrait .fallback {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.portrait .fallback svg { width: 100%; height: 100%; display: block; }
+
+.portrait .ring {
+  position: absolute; inset: -10px;
+  border-radius: 50%;
+  border: 2px solid rgba(63,180,137,0.38);
+  opacity: 0;
+}
+.portrait.speaking .ring {
+  animation: pulse 1.5s ease-out infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(0.92); opacity: 0.55; }
+  70% { transform: scale(1.15); opacity: 0; }
+  100% { opacity: 0; }
+}
+.portrait.speaking {
+  box-shadow: 0 6px 22px rgba(63,180,137,0.32), 0 0 0 4px rgba(63,180,137,0.15), inset 0 2px 4px rgba(255,255,255,0.6);
+}
+
+.avery-name { font-size: 14px; font-weight: 600; color: var(--ink); margin-top: 6px; }
+.avery-role { font-size: 12px; color: var(--ink-dim); }
+
+.subtitle-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 18px 20px 20px;
+  box-shadow: var(--shadow-card);
+  min-height: 170px;
+  display: flex; flex-direction: column; gap: 8px;
+  flex: 1;
+}
+.subtitle-row {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.subtitle-label {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-faint); font-weight: 600;
+}
+.subtitle-linechip {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-faint); font-weight: 600;
+}
+.speaker-chip {
+  display: inline-block; align-self: flex-start;
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: var(--radius-chip);
+  background: #0f1115; color: #f9d76e;
+  border: 1px solid #0f1115;
+  margin-bottom: 4px;
+  animation: chipIn 0.35s ease both;
+}
+@keyframes chipIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.subtitle-text {
+  font-size: 17px; line-height: 1.55; color: var(--ink);
+  font-family: var(--serif);
+  letter-spacing: -0.005em;
+  transition: opacity 0.25s ease;
+}
+.subtitle-text.fade { opacity: 0; }
+.subtitle-text .ital { font-style: italic; color: var(--ink-soft); }
+.subtitle-text em { font-style: normal; font-weight: 700; font-family: var(--sans); font-size: 15.5px; color: var(--ink); }
+.subtitle-text code { font-family: var(--mono); font-size: 14px; background: #f4f1e6; padding: 1px 5px; border-radius: 4px; color: #0f1115; }
+
+.manual-hint {
+  margin-top: auto;
+  font-size: 11.5px; color: var(--ink-dim);
+  padding: 8px 10px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 10px;
+}
+
+/* ---------- Board ---------- */
+.board-wrap {
+  position: relative;
+  background: var(--paper);
+  border-radius: 22px;
+  border: 1px solid rgba(15,17,21,0.06);
+  box-shadow: var(--shadow-stage);
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.board-wrap::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(to right, var(--paper-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--paper-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  opacity: 0.7;
+}
+.board {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+.board > svg {  /* direct-child only — nested SVGs render inline */
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+}
+.board .tag {
+  position: absolute;
+  top: 14px; left: 16px;
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-dim); font-weight: 600;
+  background: rgba(255,255,255,0.7);
+  padding: 5px 10px; border-radius: var(--radius-chip);
+  border: 1px solid var(--line);
+  z-index: 3;
+}
+.board .scene-title {
+  position: absolute;
+  top: 14px; right: 16px;
+  font-size: 11.5px;
+  color: var(--ink-soft); font-weight: 600;
+  font-family: var(--sans);
+  z-index: 3;
+}
+
+/* SVG line-reveal system */
+.board svg g[data-line] {
+  opacity: 0;
+  transition: opacity 0.45s ease-out;
+}
+.board svg g[data-line].show {
+  opacity: 1;
+}
+/* stroke draw-in */
+.board svg .draw {
+  stroke-dasharray: var(--dash, 1200);
+  stroke-dashoffset: var(--dash, 1200);
+}
+.board svg g[data-line].show .draw {
+  animation: draw 1.0s ease-out 0.1s forwards;
+}
+@keyframes draw { to { stroke-dashoffset: 0; } }
+/* pop */
+.board svg .pop {
+  transform-origin: center;
+  transform-box: fill-box;
+  transform: scale(0.88);
+}
+.board svg g[data-line].show .pop {
+  animation: popin 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) forwards;
+}
+@keyframes popin { to { transform: scale(1); } }
+
+.wb-text { font-family: var(--hand); fill: var(--ink); }
+.wb-text.dim { fill: var(--ink-soft); }
+.wb-text.faint { fill: var(--ink-faint); }
+.wb-text.red { fill: var(--bad); }
+.wb-text.green { fill: var(--good); }
+.wb-text.warn { fill: var(--warn); }
+.wb-mono { font-family: var(--mono); fill: var(--ink); }
+.wb-mono.faint { fill: var(--ink-faint); }
+
+/* ---------- Bottom ---------- */
+.bottombar {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 18px;
+  align-items: center;
+}
+.btn {
+  font: 500 13px/1 var(--sans);
+  background: var(--card); color: var(--ink);
+  border: 1px solid var(--line); border-radius: var(--radius-chip);
+  padding: 9px 14px; cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.btn:hover { background: #fff; border-color: var(--line-strong); }
+.btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+.btn.primary:hover { background: #000; }
+.btn.ghost { background: transparent; border-color: var(--line); }
+
+.bottom-left { display: flex; gap: 6px; align-items: center; }
+.scene-pos {
+  font-size: 11.5px; color: var(--ink-dim); font-weight: 600;
+  padding: 0 4px; font-variant-numeric: tabular-nums;
+}
+
+.scrub {
+  display: flex; align-items: center; gap: 12px;
+}
+.scrub-track {
+  flex: 1;
+  position: relative;
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(15,17,21,0.08);
+  cursor: pointer;
+}
+.scrub-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  border-radius: 4px;
+  background: var(--ink);
+  width: 0%;
+  transition: width 0.1s linear;
+}
+.scrub-marker {
+  position: absolute; top: -3px; width: 2px; height: 12px;
+  background: rgba(15,17,21,0.25);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.scrub-marker.active { background: var(--ink); }
+.scrub-label {
+  min-width: 110px;
+  font-size: 11.5px; color: var(--ink-dim); font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.hints {
+  display: flex; gap: 14px; font-size: 11px; color: var(--ink-faint);
+}
+.hints kbd {
+  font-family: var(--sans);
+  background: var(--card); border: 1px solid var(--line);
+  padding: 2px 6px; border-radius: 6px; font-size: 10.5px; color: var(--ink-soft);
+}
+
+/* ---------- POU — mini-game ---------- */
+.pou {
+  position: absolute; inset: 0;
+  z-index: 5;
+  background: linear-gradient(180deg, rgba(251,247,238,0.94), rgba(251,247,238,0.98));
+  backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 28px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease-out;
+}
+.pou.show { opacity: 1; pointer-events: auto; }
+.pou .sheet {
+  max-width: 780px; width: 100%;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow-stage);
+  padding: 22px 26px 24px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.pou .head-row { display: flex; align-items: center; gap: 12px; }
+.pou .label {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-faint); font-weight: 600;
+}
+.pou .round-dots { display: flex; gap: 6px; margin-left: auto; }
+.pou .round-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
+.pou .round-dots .dot.on { background: var(--ink); }
+.pou .round-dots .dot.pass { background: var(--good); }
+.pou .round-dots .dot.wrong { background: var(--bad); }
+
+.pou h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+.pou h2 .ital { font-style: italic; }
+
+.data-slice {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.data-slice table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 620px;
+}
+.data-slice th, .data-slice td {
+  text-align: left;
+  padding: 4px 10px 4px 0;
+  border-bottom: 1px dashed rgba(15,17,21,0.08);
+}
+.data-slice th { color: var(--ink-soft); font-weight: 600; }
+.data-slice td { color: var(--ink); }
+.data-slice th.focus, .data-slice td.focus {
+  background: #fff4c9;
+  border-radius: 4px;
+}
+.data-slice th.focus {
+  color: var(--ink);
+}
+
+.col-prompt {
+  font-size: 14.5px;
+  color: var(--ink-soft);
+  font-family: var(--serif);
+  font-style: italic;
+}
+.col-prompt code {
+  font-family: var(--mono);
+  font-style: normal;
+  background: #fff4c9;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--ink);
+  font-size: 13.5px;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.opt {
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: 14px/1.45 var(--sans);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
+  position: relative;
+}
+.opt:hover { background: #fafafa; border-color: var(--line-strong); }
+.opt.selected { border-color: var(--ink); background: #fafafa; }
+.opt.correct { background: var(--good-soft); border-color: rgba(30,122,75,0.35); color: var(--good); }
+.opt.wrong { background: var(--bad-soft); border-color: rgba(182,49,29,0.28); color: var(--bad); }
+.opt.disabled { pointer-events: none; opacity: 0.55; }
+.opt .mark {
+  position: absolute; right: 12px; top: 12px; font-size: 16px; font-weight: 700;
+}
+
+.feedback {
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 13.5px;
+  display: none;
+}
+.feedback.show { display: block; }
+.feedback.pass { background: var(--good-soft); color: var(--good); border: 1px solid rgba(30,122,75,0.25); }
+.feedback.soft { background: var(--warn-soft); color: var(--warn); border: 1px solid rgba(168,93,18,0.22); }
+.feedback.redirect { background: var(--bad-soft); color: var(--bad); border: 1px solid rgba(182,49,29,0.22); }
+
+.actions { display: flex; gap: 10px; align-items: center; }
+.actions .spacer { flex: 1; }
+
+.summary {
+  display: none;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--ink);
+  font-family: var(--serif);
+}
+.summary.show { display: block; }
+.summary b { font-family: var(--sans); }
+
+.xp-burst {
+  position: absolute; top: 18px; right: 18px;
+  background: var(--g-mint);
+  color: #0b3b28;
+  font-weight: 700; font-size: 13px;
+  padding: 8px 14px; border-radius: var(--radius-chip);
+  box-shadow: 0 6px 18px rgba(63,180,137,0.32);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 6;
+}
+.xp-burst.show { opacity: 1; transform: translateY(0); }
+
+.preload-notice {
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  font-size: 11.5px; color: var(--ink-dim);
+  background: rgba(255,255,255,0.85); border: 1px solid var(--line);
+  padding: 6px 12px; border-radius: var(--radius-chip);
+  z-index: 4;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.preload-notice.show { opacity: 1; }
+
+/* ---------- Cowork simulated UI (modern_move scene) ---------- */
+/* Visual target: real Claude Cowork — warm off-white canvas,
+   dark warm sidebar, assistant replies flow as body text (no bubble),
+   user messages get a rounded pill-bubble. */
+.cw-stage {
+  position: absolute; inset: 0;
+  background: #f5f4ef;
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  color: #1a1a1a;
+  overflow: hidden;
+  border-radius: 0;
+}
+.cw-sidebar {
+  background: #262521;
+  color: #d8d4c8;
+  padding: 12px 10px 10px;
+  display: flex; flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+.cw-brand {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 8px 10px;
+}
+.cw-brand .cw-brand-mark {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: #c65f2b;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: #fff; font-size: 12px; letter-spacing: -0.02em;
+  flex-shrink: 0;
+}
+.cw-brand .cw-brand-text {
+  font-size: 13px; font-weight: 600; color: #e8e4d7; letter-spacing: -0.01em;
+}
+.cw-brand .cw-brand-sub {
+  font-size: 10px; font-weight: 400; color: #8a857a; margin-left: 4px;
+  letter-spacing: 0.02em;
+}
+.cw-new-btn {
+  background: #33312c;
+  color: #e8e4d7;
+  border: 1px solid #3e3c35;
+  padding: 8px 10px; font-size: 12px; font-weight: 500;
+  border-radius: 8px; text-align: left;
+  display: flex; align-items: center; gap: 8px;
+  letter-spacing: -0.01em;
+}
+.cw-new-btn::before {
+  content: ""; width: 14px; height: 14px;
+  background:
+    linear-gradient(#8a857a, #8a857a) center / 10px 1.5px no-repeat,
+    linear-gradient(#8a857a, #8a857a) center / 1.5px 10px no-repeat;
+}
+.cw-new-btn .cw-kbd {
+  margin-left: auto; font-size: 10px; color: #8a857a;
+  border: 1px solid #3e3c35; padding: 1px 5px; border-radius: 4px;
+}
+.cw-search {
+  background: transparent;
+  color: #8a857a; font-size: 12px;
+  padding: 7px 10px;
+  display: flex; align-items: center; gap: 8px;
+  border-radius: 8px;
+}
+.cw-search::before {
+  content: ""; width: 13px; height: 13px; flex-shrink: 0;
+  background: radial-gradient(circle at 45% 45%, transparent 3.5px, #8a857a 3.5px, #8a857a 5px, transparent 5px);
+  mask: radial-gradient(circle at 45% 45%, transparent 3.5px, black 3.5px, black 5px, transparent 5px);
+  border-radius: 50%;
+  /* simplified search glass */
+}
+.cw-search-ico { width: 13px; height: 13px; flex-shrink: 0; color: #8a857a; }
+.cw-chatlist { list-style: none; margin: 4px 0; padding: 0; display: flex; flex-direction: column; gap: 1px; }
+.cw-chatlist-label {
+  font-size: 10.5px; color: #8a857a;
+  padding: 10px 10px 4px; letter-spacing: 0.04em;
+  font-weight: 500;
+}
+.cw-chat-item {
+  font-size: 12px; padding: 7px 10px; border-radius: 7px;
+  color: #b3ae9e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  letter-spacing: -0.005em;
+}
+.cw-chat-item.active { background: #33312c; color: #f0ecdf; }
+.cw-footer {
+  margin-top: auto;
+  padding: 10px 4px 4px;
+  display: flex; gap: 9px; align-items: center;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.cw-avatar-dot {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, #c8f5df, #3fb489);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12.5px; font-weight: 700; color: #0b3b28;
+  flex-shrink: 0;
+}
+.cw-user-info { flex: 1; min-width: 0; }
+.cw-user-name { font-size: 12px; color: #e8e4d7; font-weight: 500; letter-spacing: -0.01em; }
+.cw-user-tier { font-size: 10.5px; color: #8a857a; }
+
+.cw-main {
+  display: flex; flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: #f5f4ef;
+}
+.cw-header {
+  padding: 10px 18px 10px;
+  display: flex; justify-content: space-between; align-items: center;
+  background: #f5f4ef;
+  z-index: 2;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+.cw-title {
+  font-size: 13px; font-weight: 500; color: #1a1a1a;
+  letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 6px;
+}
+.cw-title::before {
+  content: "★"; font-size: 11px; color: #c0baa6; opacity: 0.6;
+}
+.cw-model {
+  font-size: 11.5px; color: #595551;
+  background: transparent;
+  padding: 3px 4px; border-radius: 6px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.cw-model::after {
+  content: "⌄"; font-size: 11px; color: #95908a; margin-left: 1px;
+}
+
+.cw-messages {
+  flex: 1; overflow: hidden;
+  padding: 20px 20px 10px;
+  display: flex; flex-direction: column; gap: 18px;
+  min-height: 0;
+  position: relative;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #1a1a1a;
+}
+
+.cw-msg {
+  opacity: 0; transform: translateY(4px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.cw-msg.show { opacity: 1; transform: translateY(0); }
+
+/* USER message — rounded pill bubble, right-aligned */
+.cw-msg.user {
+  align-self: flex-end;
+  background: #eae5d5;
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 13.5px;
+  color: #1a1a1a;
+  line-height: 1.45;
+  max-width: 80%;
+  letter-spacing: -0.005em;
+}
+.cw-msg.user .cw-csv-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.08);
+  padding: 6px 10px 6px 8px; border-radius: 10px;
+  font-size: 11.5px;
+  margin-bottom: 8px;
+  color: #4a4641;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.cw-msg.user .cw-csv-chip::before {
+  content: ""; width: 16px; height: 16px; flex-shrink: 0;
+  background: #e8f1ea;
+  border-radius: 4px;
+  display: inline-block;
+  background-image:
+    linear-gradient(#1e7a4b, #1e7a4b),
+    linear-gradient(#1e7a4b, #1e7a4b),
+    linear-gradient(#1e7a4b, #1e7a4b);
+  background-size: 8px 1px, 8px 1px, 8px 1px;
+  background-position: 4px 5px, 4px 8px, 4px 11px;
+  background-repeat: no-repeat;
+  background-color: #e8f1ea;
+}
+
+/* ASSISTANT message — flows inline, no bubble */
+.cw-msg.assistant {
+  align-self: stretch;
+  display: flex; gap: 12px;
+  max-width: 100%;
+}
+.cw-msg.assistant .claude-avatar {
+  width: 26px; height: 26px;
+  background: #c65f2b;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 13px;
+  margin-top: 1px;
+  font-family: Georgia, serif;
+  font-style: italic;
+  letter-spacing: -0.04em;
+}
+.cw-msg.assistant .claude-body {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 3px 0 0;
+  font-size: 13.5px;
+  color: #1a1a1a;
+  position: relative;
+  min-width: 0;
+  letter-spacing: -0.005em;
+}
+.cw-msg.assistant .claude-body p { margin: 0 0 8px; }
+.cw-msg.assistant .claude-body p:last-child { margin-bottom: 0; }
+.cw-msg.assistant .claude-body code {
+  font-family: "SF Mono", Menlo, monospace; font-size: 12px;
+  background: rgba(198,95,43,0.08);
+  padding: 1.5px 5px; border-radius: 4px; color: #8a4418;
+  border: 1px solid rgba(198,95,43,0.14);
+}
+.cw-msg.assistant .claude-body strong { font-weight: 600; color: #0a0a0a; }
+
+.cw-thinking {
+  display: inline-flex; gap: 5px;
+  padding: 4px 2px;
+  align-items: center;
+}
+.cw-thinking span {
+  width: 6px; height: 6px; background: #c65f2b;
+  border-radius: 50%;
+  animation: cwdot 1.2s infinite ease-in-out;
+  opacity: 0.4;
+}
+.cw-thinking span:nth-child(2) { animation-delay: 0.15s; }
+.cw-thinking span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes cwdot {
+  0%, 80%, 100% { opacity: 0.25; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+
+.cw-gloss-tbl {
+  width: 100%; border-collapse: collapse;
+  font-size: 12px;
+  margin: 10px 0 6px;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.cw-gloss-tbl th, .cw-gloss-tbl td {
+  text-align: left; padding: 8px 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  vertical-align: top;
+}
+.cw-gloss-tbl tr:last-child td { border-bottom: none; }
+.cw-gloss-tbl th {
+  font-weight: 500; color: #595551;
+  background: rgba(0,0,0,0.025);
+  font-size: 10.5px; letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 7px 10px;
+}
+.cw-gloss-tbl tr.flagged td { background: #fff4e0; }
+.cw-gloss-tbl tr.resolved td { background: #eaf5ee; }
+.cw-gloss-tbl .note {
+  color: #8a4418; font-size: 11px; margin-top: 5px;
+  line-height: 1.45;
+  padding: 5px 8px; background: rgba(198,95,43,0.06);
+  border-left: 2px solid #c65f2b;
+  border-radius: 0 4px 4px 0;
+}
+.cw-gloss-tbl .note code { background: rgba(198,95,43,0.12); }
+.cw-gloss-tbl .resolved-note {
+  color: #1e7a4b; border-left-color: #1e7a4b;
+  background: rgba(30,122,75,0.06);
+}
+.cw-gloss-tbl .resolved-note code { background: rgba(30,122,75,0.12); color: #0f4a2b; }
+.cw-gloss-tbl .col-name {
+  font-weight: 500; color: #1a1a1a;
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: 11.5px;
+  background: rgba(0,0,0,0.04);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+}
+.cw-gloss-tbl .def {
+  font-size: 12.5px; color: #1a1a1a; line-height: 1.5;
+  letter-spacing: -0.005em;
+}
+
+.cw-composer {
+  padding: 10px 20px 18px;
+  background: #f5f4ef;
+}
+.cw-composer-inner {
+  display: flex; align-items: flex-end; gap: 8px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 16px;
+  padding: 10px 10px 10px 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  min-height: 48px;
+}
+.cw-composer-inner.focused { border-color: #c65f2b; }
+.cw-attach, .cw-send {
+  width: 28px; height: 28px; border: none;
+  background: transparent; color: #595551;
+  font-size: 15px; cursor: default;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.cw-attach {
+  background: #f0eee7; color: #4a4641;
+  font-size: 18px; font-weight: 400;
+}
+.cw-send {
+  background: #c65f2b; color: white;
+  border-radius: 50%; font-size: 14px; font-weight: 700;
+}
+.cw-input {
+  flex: 1; font-size: 13.5px; color: #1a1a1a;
+  min-height: 22px; display: flex; align-items: center; min-width: 0;
+  letter-spacing: -0.005em;
+}
+.cw-input .cw-placeholder { color: #95908a; }
+.cw-input .cw-typed { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cw-caret {
+  display: inline-block; width: 1.5px; height: 14px;
+  background: #1a1a1a; vertical-align: middle;
+  margin-left: 2px;
+  animation: cwcaret 0.8s infinite;
+}
+@keyframes cwcaret { 50% { opacity: 0; } }
+
+/* Red pen overlay */
+.cw-pen {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 4;
+}
+.cw-pen.show { opacity: 1; }
+
+/* Takeaway card */
+.cw-takeaway {
+  position: absolute; inset: 0;
+  background: rgba(251,247,238,0.97);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 16px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.5s ease;
+  z-index: 5;
+  padding: 0 20px;
+  text-align: center;
+}
+.cw-takeaway.show { opacity: 1; pointer-events: auto; }
+.cw-take-label {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-faint); font-weight: 600;
+}
+.cw-takeaway-inner { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.cw-take-pill {
+  font-family: var(--sans); font-weight: 700; font-size: 16px;
+  letter-spacing: 0.08em;
+  background: var(--ink); color: white;
+  padding: 11px 20px; border-radius: 12px;
+  opacity: 0; transform: translateY(10px);
+}
+.cw-takeaway.show .cw-take-pill { animation: cwpill 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) forwards; }
+.cw-takeaway.show .cw-take-pill.p2 { animation-delay: 0.15s; background: #a85d12; }
+.cw-takeaway.show .cw-take-pill.p3 { animation-delay: 0.3s; background: var(--good); }
+.cw-take-arrow { font-size: 22px; color: var(--ink-dim); opacity: 0; }
+.cw-takeaway.show .cw-take-arrow { animation: cwpill 0.4s forwards 0.1s; }
+.cw-takeaway.show .cw-take-arrow.a2 { animation-delay: 0.25s; }
+@keyframes cwpill { to { opacity: 1; transform: translateY(0); } }
+.cw-take-line {
+  font-family: var(--serif); font-style: italic; font-size: 19px;
+  color: var(--ink-soft); margin-top: 2px;
+  opacity: 0;
+}
+.cw-takeaway.show .cw-take-line { animation: cwpill 0.5s forwards 0.5s; }
+.cw-take-next {
+  margin-top: 12px; font-size: 12px; color: var(--ink-dim);
+  opacity: 0;
+}
+.cw-takeaway.show .cw-take-next { animation: cwpill 0.5s forwards 0.8s; }
+.cw-take-next .arrow { color: var(--good); font-weight: 700; margin-right: 5px; }
+
+/* modern_move data-line hidden state works via HTML class too */
+.board [data-line] {
+  opacity: 0;
+  transition: opacity 0.45s ease-out;
+}
+.board [data-line].show {
+  opacity: 1;
+}
+
+/* Post-POU "modern move" button */
+.pou .modern-cta {
+  display: none;
+  background: linear-gradient(135deg, #da7756 0%, #b0492c 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font: 700 13.5px/1 var(--sans);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(218,119,86,0.3);
+  align-items: center; gap: 8px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.pou .modern-cta.show { display: inline-flex; }
+.pou .modern-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(218,119,86,0.38); }
+.pou .modern-cta::before {
+  content: ""; width: 10px; height: 10px; border-radius: 50%; background: white; opacity: 0.9;
+}
+
+/* ---------- Google Sheets clone (csv scene) ---------- */
+.gs-stage {
+  position: absolute; inset: 0;
+  background: #ffffff;
+  display: flex; flex-direction: column;
+  font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color: #202124;
+  overflow: hidden;
+  font-size: 13px;
+}
+.gs-topbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 14px 4px;
+  background: #ffffff;
+  border-bottom: 1px solid transparent;
+}
+.gs-fileicon {
+  width: 22px; height: 26px;
+  background: #0f9d58;
+  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 11px; font-weight: 700;
+  flex-shrink: 0;
+  position: relative;
+}
+.gs-fileicon::before {
+  content: ""; position: absolute; top: 0; right: 0;
+  width: 6px; height: 6px;
+  background: linear-gradient(225deg, #ffffff 50%, transparent 50%);
+}
+.gs-fileinfo { flex: 1; min-width: 0; }
+.gs-filename {
+  font-size: 15px; color: #202124;
+  letter-spacing: -0.005em; font-weight: 400;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.gs-filename .gs-star { color: #dadce0; font-size: 14px; }
+.gs-filename .gs-folder { color: #5f6368; font-size: 13px; }
+.gs-filestatus { font-size: 11.5px; color: #5f6368; margin-top: 1px; }
+.gs-topactions { display: flex; gap: 8px; align-items: center; }
+.gs-share {
+  background: #c2e7ff; color: #001d35;
+  padding: 8px 16px; border-radius: 20px;
+  font-size: 13px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.gs-share::before { content: "🔒"; font-size: 11px; }
+
+.gs-menu {
+  display: flex; gap: 2px;
+  padding: 0 14px 4px;
+  background: #ffffff;
+  font-size: 12.5px;
+  color: #444;
+}
+.gs-menu span {
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: #444;
+}
+
+.gs-toolbar {
+  display: flex; align-items: center; gap: 2px;
+  padding: 2px 10px 4px;
+  background: #f0f4f9;
+  border-top: 1px solid #e0e0e0;
+  margin: 4px 10px 0;
+  border-radius: 22px;
+  height: 36px;
+}
+.gs-tool {
+  height: 28px; min-width: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 13px; color: #444746;
+  padding: 0 6px;
+  border-radius: 4px;
+}
+.gs-tool.bold { font-weight: 700; }
+.gs-tool.italic { font-style: italic; }
+.gs-tooldiv { width: 1px; height: 18px; background: #c4c7c5; margin: 0 4px; }
+
+.gs-cellbar {
+  display: flex; align-items: center; gap: 4px;
+  padding: 6px 12px;
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+}
+.gs-cellref {
+  font-size: 12px; color: #444746;
+  padding: 4px 10px;
+  border: 1px solid #dadce0; border-radius: 4px;
+  min-width: 60px; text-align: center;
+  background: #ffffff;
+}
+.gs-fx {
+  font-family: "Roboto Serif", Georgia, serif;
+  font-style: italic;
+  color: #5f6368;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+.gs-formula {
+  font-size: 13px; color: #202124;
+  padding: 4px 0;
+}
+
+.gs-grid {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background: #ffffff;
+  min-height: 0;
+}
+.gs-table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+  font-size: 12px;
+}
+.gs-table th, .gs-table td {
+  border: 1px solid #e0e0e0;
+  padding: 3px 8px;
+  height: 22px;
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: "Roboto", Arial, sans-serif;
+}
+.gs-table thead th {
+  background: #f8f9fa;
+  color: #5f6368;
+  font-weight: 500;
+  font-size: 11.5px;
+  text-align: center;
+  height: 22px;
+  border-bottom: 1px solid #c0c4c9;
+}
+.gs-table .gs-rownum {
+  background: #f8f9fa;
+  color: #5f6368;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 400;
+  width: 44px;
+  border-right: 1px solid #c0c4c9;
+}
+.gs-table tr.header-row td {
+  background: #ffffff;
+  font-family: "Roboto Mono", "SF Mono", monospace;
+  font-size: 11.5px;
+  color: #202124;
+  font-weight: 500;
+}
+.gs-table tr.header-row td.highlight {
+  background: #fef7e0;
+  border-color: #f9ab00;
+}
+.gs-table td.data {
+  color: #202124;
+  font-family: "Roboto", Arial, sans-serif;
+}
+.gs-table td.mono {
+  font-family: "Roboto Mono", "SF Mono", monospace;
+  font-size: 11px;
+  color: #3c4043;
+}
+.gs-table td.selected {
+  outline: 2px solid #1a73e8;
+  outline-offset: -2px;
+  background: #e8f0fe;
+}
+
+/* column width ratios via nth-child on cells */
+.gs-table col.c-num { width: 44px; }
+.gs-table col.c-a { width: 9%; }
+.gs-table col.c-b { width: 20%; }
+.gs-table col.c-c { width: 15%; }
+.gs-table col.c-d { width: 17%; }
+.gs-table col.c-e { width: 12%; }
+.gs-table col.c-f { width: 11%; }
+.gs-table col.c-g { width: auto; }
+
+/* Question-mark confusion overlay on line 4 */
+.gs-confused {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  font-family: "Bradley Hand", cursive;
+  font-size: 22px;
+  color: #d93025;
+  font-weight: 700;
+  transform: rotate(-5deg);
+  z-index: 4;
+}
+.gs-confused.show { opacity: 1; }
+
+.gs-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 5px 12px;
+  background: #ffffff;
+  border-top: 1px solid #e0e0e0;
+  font-size: 11.5px;
+  color: #5f6368;
+}
+.gs-tabs { display: flex; gap: 2px; align-items: center; }
+.gs-tab {
+  padding: 4px 14px; font-size: 11.5px; color: #5f6368;
+  border-top: 2px solid transparent; border-radius: 0;
+  display: flex; align-items: center; gap: 6px;
+}
+.gs-tab.active {
+  background: #ffffff; color: #202124; font-weight: 500;
+  border-top-color: #0f9d58;
+  box-shadow: 0 -2px 0 #0f9d58 inset;
+}
+.gs-tab-add { color: #5f6368; padding: 4px 8px; font-size: 13px; }
+.gs-rowcount {
+  font-size: 11.5px; color: #5f6368;
+  background: transparent;
+  padding: 3px 10px;
+  border-radius: 4px;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.gs-rowcount.flash { background: #fef7e0; color: #b05e00; font-weight: 500; }
+
+/* ---------- Column-confusion view (trap scene, Sheets-focus) ---------- */
+.tr-stage {
+  position: absolute; inset: 0;
+  background: #f5f4ef;
+  display: flex; flex-direction: column;
+  font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color: #202124;
+  overflow: hidden;
+  padding: 0;
+}
+.tr-breadcrumb {
+  padding: 10px 18px;
+  font-size: 12px;
+  color: #5f6368;
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex; align-items: center; gap: 8px;
+}
+.tr-breadcrumb .tr-sheeticon {
+  width: 16px; height: 18px;
+  background: #0f9d58; border-radius: 2px; flex-shrink: 0;
+  position: relative;
+}
+.tr-breadcrumb .tr-sheeticon::before {
+  content: ""; position: absolute; top: 0; right: 0;
+  width: 5px; height: 5px;
+  background: linear-gradient(225deg, #ffffff 50%, transparent 50%);
+}
+.tr-breadcrumb .tr-file { color: #202124; font-weight: 500; }
+.tr-breadcrumb .tr-sep { color: #9aa0a6; }
+.tr-breadcrumb .tr-active { color: #5f6368; }
+
+.tr-body {
+  flex: 1; overflow: hidden;
+  padding: 36px 24px 18px;
+  display: flex; flex-direction: column;
+  min-height: 0;
+  position: relative;
+}
+.tr-hint {
+  font-size: 11.5px; color: #9aa0a6;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 14px;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.tr-hint.show { opacity: 1; }
+
+.tr-header-row {
+  display: grid;
+  grid-template-columns: 0.9fr 1.7fr 1.3fr 1.6fr;
+  gap: 2px;
+  background: #ffffff;
+  border: 1px solid #c0c4c9;
+  border-radius: 4px;
+  padding: 0;
+  overflow: hidden;
+}
+.tr-header-cell {
+  padding: 14px 14px;
+  background: #f8f9fa;
+  border-right: 1px solid #dadce0;
+  font-family: "Roboto Mono", "SF Mono", monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: #202124;
+  text-align: center;
+  position: relative;
+  transition: background 0.35s ease, color 0.35s ease;
+}
+.tr-header-cell:last-child { border-right: none; }
+.tr-header-cell.highlight {
+  background: #fef7e0;
+  color: #b45309;
+}
+.tr-header-cell.highlight::after {
+  content: ""; position: absolute; inset: -2px;
+  border: 2px solid #f9ab00;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.tr-guess-row {
+  display: grid;
+  grid-template-columns: 0.9fr 1.7fr 1.3fr 1.6fr;
+  gap: 2px;
+  margin-top: 20px;
+  min-height: 110px;
+}
+.tr-guess-cell {
+  padding: 8px 10px;
+  text-align: center;
+  font-family: "Bradley Hand", "Segoe Print", "Marker Felt", cursive;
+  font-size: 19px;
+  color: #3c4043;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  line-height: 1.35;
+  font-style: italic;
+}
+.tr-guess-cell.show { opacity: 1; transform: translateY(0); }
+.tr-guess-cell.known { color: #1e7a4b; }
+.tr-guess-cell.unsure { color: #b45309; }
+.tr-guess-cell .tr-q { color: #d93025; font-weight: 700; }
+.tr-arrow {
+  display: block;
+  width: 2px; height: 22px;
+  background: #9aa0a6;
+  margin: 0 auto 6px;
+  position: relative;
+  opacity: 0.5;
+}
+.tr-arrow::after {
+  content: "";
+  position: absolute;
+  left: -4px; bottom: -2px;
+  width: 10px; height: 10px;
+  border-right: 2px solid #9aa0a6;
+  border-bottom: 2px solid #9aa0a6;
+  transform: rotate(45deg);
+}
+
+.tr-thought {
+  margin-top: auto;
+  padding: 14px 18px;
+  font-family: "Bradley Hand", cursive;
+  font-style: italic;
+  font-size: 20px;
+  color: #5f6368;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.tr-thought.show { opacity: 1; }
+
+/* Marco overlay reused from Jupyter namespace — renamed to .tr-marco */
+.tr-marco {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.38);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 0 24px 32px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.45s ease;
+  z-index: 5;
+}
+.tr-marco.show { opacity: 1; }
+.tr-marco-card {
+  background: #0f1115;
+  border-radius: 16px;
+  padding: 18px 22px 20px;
+  max-width: 620px;
+  width: 100%;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  transform: translateY(20px);
+  transition: transform 0.45s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+.tr-marco.show .tr-marco-card { transform: translateY(0); }
+.tr-marco-speaker {
+  color: #f9d76e; font-size: 10.5px; letter-spacing: 0.14em;
+  font-weight: 700; margin-bottom: 8px;
+}
+.tr-marco-quote {
+  color: #ffffff;
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+.tr-marco-quote code {
+  font-family: "SF Mono", Menlo, monospace;
+  font-style: normal;
+  color: #f9d76e;
+  background: rgba(249,215,110,0.12);
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-size: 18px;
+}
+
+/* ---------- (legacy) Jupyter styles kept as no-op stubs ---------- */
+.jp-stage {
+  position: absolute; inset: 0;
+  background: #ffffff;
+  display: none;
+}
+.jp-topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding: 8px 14px;
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+}
+.jp-logo {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  color: #f37626;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.jp-logo::before {
+  content: "◉"; color: #767677; font-size: 16px; margin-right: 6px;
+}
+.jp-filename {
+  font-size: 15px; color: #000;
+  font-weight: 500;
+}
+.jp-filename .jp-unsaved { color: #f37626; font-size: 13px; margin-left: 4px; }
+.jp-status {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: #767677;
+}
+.jp-status .jp-kernel-ok { color: #4a9b4a; font-size: 11px; }
+.jp-logout {
+  font-size: 12px; color: #000;
+  padding: 3px 10px; border: 1px solid #dcdcdc;
+  border-radius: 3px; background: #f7f7f7;
+}
+
+.jp-menu {
+  display: flex; gap: 16px;
+  padding: 4px 14px;
+  background: #ffffff;
+  font-size: 13px;
+  color: #000;
+  border-bottom: 1px solid #e6e6e6;
+}
+.jp-menu span { padding: 2px 0; }
+
+.jp-toolbar {
+  display: flex; align-items: center; gap: 1px;
+  padding: 4px 8px;
+  background: #ffffff;
+  border-bottom: 1px solid #e6e6e6;
+}
+.jp-tool {
+  height: 26px; min-width: 30px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12px; color: #333;
+  padding: 0 7px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: #fafafa;
+  border: 1px solid #dcdcdc;
+  margin-right: -1px;
+}
+.jp-tool-run {
+  padding: 0 10px; color: #333; font-size: 12px;
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #fafafa; border: 1px solid #dcdcdc;
+  height: 26px; border-radius: 2px;
+}
+.jp-tool-run::before { content: "▶"; font-size: 9px; color: #333; }
+.jp-tooldiv { width: 1px; height: 18px; background: #dcdcdc; margin: 0 8px; }
+.jp-celltype {
+  height: 26px; padding: 0 8px;
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #fafafa; border: 1px solid #dcdcdc; border-radius: 2px;
+  font-size: 12px; color: #333;
+  min-width: 64px;
+  margin-left: 6px;
+}
+.jp-celltype::after { content: "▾"; font-size: 10px; color: #666; margin-left: auto; }
+
+.jp-notebook {
+  flex: 1;
+  overflow: hidden;
+  padding: 18px 20px;
+  background: #ffffff;
+  min-height: 0;
+  position: relative;
+}
+
+.jp-cell {
+  display: flex; gap: 0;
+  margin-bottom: 10px;
+  border: 1px solid transparent;
+  position: relative;
+}
+.jp-cell.focused {
+  border-left: 3px solid #42a5f5;
+}
+.jp-cell.about-to-run {
+  border-left: 3px solid #d32f2f;
+  background: rgba(211,47,47,0.02);
+}
+.jp-cell.about-to-run::before {
+  content: ""; position: absolute; inset: 0;
+  background: rgba(211,47,47,0.06);
+  pointer-events: none;
+}
+.jp-prompt {
+  width: 88px;
+  flex-shrink: 0;
+  padding: 8px 10px 8px 8px;
+  font-family: "Menlo", "Monaco", monospace;
+  font-size: 12px;
+  color: #1976d2;
+  text-align: right;
+  font-weight: 500;
+}
+.jp-prompt-num { color: #1976d2; }
+.jp-prompt.empty .jp-prompt-num { color: #9e9e9e; }
+.jp-cellbody {
+  flex: 1;
+  background: #f7f7f7;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+  padding: 8px 12px;
+  overflow: hidden;
+  position: relative;
+  min-width: 0;
+}
+.jp-cellbody .jp-cursor {
+  display: inline-block;
+  width: 2px; height: 14px;
+  background: #000;
+  vertical-align: middle;
+  animation: jpcaret 1s infinite;
+}
+@keyframes jpcaret { 50% { opacity: 0; } }
+.jp-code {
+  margin: 0;
+  font-family: "Menlo", "Monaco", "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #000;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.jp-code .tok-kw { color: #008000; font-weight: 500; }
+.jp-code .tok-fn { color: #000; }
+.jp-code .tok-str { color: #ba2121; }
+.jp-code .tok-num { color: #080; }
+.jp-code .tok-attr { color: #000; }
+.jp-code .tok-dot { color: #666; }
+
+.jp-warn-overlay {
+  position: absolute;
+  left: 88px; right: 0;
+  margin-top: 4px;
+  padding: 8px 12px;
+  background: rgba(211,47,47,0.08);
+  border: 1px solid rgba(211,47,47,0.25);
+  border-radius: 4px;
+  color: #b71c1c;
+  font-size: 12.5px;
+  font-style: italic;
+  display: flex; align-items: center; gap: 8px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 3;
+}
+.jp-warn-overlay.show { opacity: 1; }
+.jp-warn-overlay::before { content: "⚠"; color: #d32f2f; font-style: normal; }
+
+/* Marco's interruption — overlay with dimming */
+.jp-marco {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 0 24px 32px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.45s ease;
+  z-index: 5;
+}
+.jp-marco.show { opacity: 1; }
+.jp-marco-card {
+  background: #0f1115;
+  border-radius: 16px;
+  padding: 18px 22px 20px;
+  max-width: 580px;
+  width: 100%;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  transform: translateY(20px);
+  transition: transform 0.45s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+.jp-marco.show .jp-marco-card { transform: translateY(0); }
+.jp-marco-speaker {
+  color: #f9d76e; font-size: 10.5px; letter-spacing: 0.14em;
+  font-weight: 700; margin-bottom: 8px;
+}
+.jp-marco-quote {
+  color: #ffffff;
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+.jp-marco-quote code {
+  font-family: "SF Mono", Menlo, monospace;
+  font-style: normal;
+  color: #f9d76e;
+  background: rgba(249,215,110,0.12);
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-size: 18px;
+}
+
+/* ---------- L2-specific extensions ---------- */
+
+.gs-count-result {
+  position: absolute;
+  right: 22px; top: 92px;
+  background: #ffffff;
+  border: 2px solid #dadce0;
+  border-radius: 10px;
+  padding: 12px 16px 14px;
+  min-width: 210px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  z-index: 2;
+  transition: border-color 0.4s ease, background 0.4s ease, box-shadow 0.4s ease;
+}
+.gs-count-result.flash { border-color: #f9ab00; background: #fef7e0; }
+.gs-count-result.conflict {
+  border-color: #b6311d;
+  background: #fbe8e4;
+  animation: gsShake 0.35s ease-in-out 1;
+}
+.gs-count-result.clean { opacity: 0; transition: opacity 0.5s ease; }
+.gs-count-result.clean.show {
+  opacity: 1; border-color: #0f9d58; background: #e6f4ec;
+  box-shadow: 0 4px 20px rgba(15,157,88,0.15);
+}
+@keyframes gsShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+.gs-count-label {
+  font-family: "Roboto Mono", "SF Mono", monospace;
+  font-size: 11px; color: #5f6368; margin-bottom: 4px;
+}
+.gs-count-value {
+  font-family: "Roboto Serif", Georgia, serif;
+  font-size: 36px; font-weight: 500; color: #202124;
+  letter-spacing: -0.01em;
+}
+.gs-count-note { font-size: 11.5px; margin-top: 4px; font-style: italic; }
+
+.gs-ops-stickynote {
+  position: absolute;
+  right: 22px; top: 210px;
+  width: 200px;
+  background: #fef7e0;
+  border: 1px solid #f9ab00;
+  border-left: 4px solid #f9ab00;
+  border-radius: 4px;
+  padding: 12px 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  z-index: 2;
+  opacity: 0;
+  transform: translateY(10px) rotate(-2deg);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  font-family: "Bradley Hand", "Segoe Print", cursive;
+}
+.gs-ops-stickynote.show { opacity: 1; transform: translateY(0) rotate(-2deg); }
+.gs-sticky-label {
+  font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #a85d12; font-weight: 600; margin-bottom: 4px;
+  font-family: var(--sans);
+}
+.gs-sticky-body { font-size: 17px; color: #3d2804; font-style: italic; line-height: 1.3; }
+.gs-sticky-body b { font-style: normal; font-weight: 700; color: #1a73e8; font-size: 19px; }
+
+.gs-aha {
+  position: absolute;
+  right: 22px; top: 150px;
+  background: #fef7e0;
+  border: 1px solid #f9ab00;
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 6px 20px rgba(249,171,0,0.2);
+  z-index: 2;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  max-width: 220px;
+}
+.gs-aha.show { opacity: 1; transform: translateY(0); }
+.gs-aha-label {
+  font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #a85d12; font-weight: 700; margin-bottom: 4px;
+}
+.gs-aha-body {
+  font-size: 14px; color: #3d2804;
+  font-family: "Bradley Hand", cursive; font-style: italic; line-height: 1.35;
+}
+
+.gs-marco-card {
+  position: absolute;
+  right: 22px; bottom: 60px;
+  background: #0f1115;
+  border-radius: 14px;
+  padding: 14px 16px;
+  max-width: 280px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  z-index: 3;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.gs-marco-card.show { opacity: 1; transform: translateY(0); }
+.gs-marco-card .gs-marco-speaker {
+  color: #f9d76e; font-size: 10px; letter-spacing: 0.14em;
+  font-weight: 700; margin-bottom: 6px;
+}
+.gs-marco-card .gs-marco-quote {
+  color: #ffffff;
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-style: italic; font-size: 15px; line-height: 1.35;
+}
+
+.gs-table tr.gs-dupe-highlight td,
+.gs-table tr.gs-dupe-pair td { background: #fef7e0; }
+
+/* PIP mode — body transform */
+body.pip-mode .frame { max-width: 100vw; padding: 0; height: 100vh; }
+body.pip-mode .topbar,
+body.pip-mode .rail,
+body.pip-mode .bottombar { display: none; }
+body.pip-mode .stage {
+  grid-template-columns: 1fr; padding: 0; gap: 0; height: 100vh;
+}
+body.pip-mode .board-wrap {
+  border-radius: 0; border: none; box-shadow: none; background: #f5f4ef;
+}
+body.pip-mode .board-wrap::before { display: none; }
+body.pip-mode .board .tag,
+body.pip-mode .board .scene-title { display: none; }
+
+.pip-stage {
+  position: absolute; inset: 0;
+  background: #f5f4ef; overflow: hidden;
+}
+.pip-cowork { position: absolute; inset: 0; border-radius: 0; }
+
+.cw-connector-chip {
+  display: flex; align-items: center; gap: 8px;
+  margin: 2px 0 8px;
+  padding: 6px 8px;
+  background: #33312c;
+  border-radius: 8px;
+  font-size: 11.5px; color: #d8d4c8;
+}
+.cw-connector-icon {
+  width: 16px; height: 16px; border-radius: 4px;
+  color: white; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; font-size: 10px;
+}
+.cw-connector-text { flex: 1; }
+.cw-connector-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: #4a9b4a;
+  box-shadow: 0 0 0 2px rgba(74,155,74,0.2);
+}
+
+.cw-composer-attach-row { padding: 0 14px 6px; }
+.cw-csv-chip.attached {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12.5px; color: #1a1a1a; font-weight: 500;
+}
+.cw-csv-chip.attached .cw-chip-meta {
+  color: #5f5f5f; font-size: 11px;
+  border-left: 1px solid rgba(0,0,0,0.1);
+  padding-left: 10px;
+}
+
+.cw-input-real {
+  flex: 1;
+  font: 13.5px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  color: #1a1a1a;
+  background: transparent; border: none; outline: none; resize: none;
+  padding: 3px 0; letter-spacing: -0.005em; max-height: 120px;
+}
+.cw-input-real::placeholder { color: #95908a; }
+.cw-send { cursor: pointer; transition: background 0.15s ease; }
+.cw-send:hover { background: #a04418; }
+.cw-composer-hint {
+  padding: 6px 14px 0; font-size: 11px; color: #8e8a80; font-style: italic;
+}
+
+.claude-rendered p { margin: 0 0 8px; }
+.claude-rendered p:last-child { margin-bottom: 0; }
+.claude-rendered ul { margin: 6px 0 8px; padding-left: 20px; list-style: disc; }
+.claude-rendered li { margin-bottom: 4px; }
+.claude-rendered code {
+  font-family: "SF Mono", Menlo, monospace; font-size: 11.5px;
+  background: rgba(198,95,43,0.08);
+  padding: 1.5px 5px; border-radius: 4px; color: #8a4418;
+  border: 1px solid rgba(198,95,43,0.14);
+}
+.claude-rendered strong { font-weight: 600; color: #0a0a0a; }
+
+/* Avery's PIP — floating bottom-right */
+.avery-pip {
+  position: fixed;
+  right: 22px; bottom: 22px;
+  width: 320px;
+  background: #0f1115;
+  border-radius: 18px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.06);
+  z-index: 20;
+  padding: 14px 14px 12px;
+  font-family: var(--sans); color: #ffffff;
+  transform: translateY(20px); opacity: 0;
+  animation: pipSlideIn 0.5s cubic-bezier(0.2, 1.3, 0.4, 1) forwards;
+}
+@keyframes pipSlideIn { to { opacity: 1; transform: translateY(0); } }
+.avery-pip-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.avery-pip-status {
+  font-size: 10.5px; letter-spacing: 0.08em; color: #b3ae9e; font-weight: 500;
+  display: flex; align-items: center; gap: 6px; text-transform: uppercase;
+}
+.avery-pip-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: #3fb489;
+  box-shadow: 0 0 8px rgba(63,180,137,0.6);
+  animation: pipPulse 1.6s ease-in-out infinite;
+}
+@keyframes pipPulse { 50% { opacity: 0.5; } }
+.avery-pip-expand {
+  background: transparent; border: none; color: #8a857a;
+  font-size: 14px; cursor: pointer; padding: 0 4px;
+}
+.avery-pip-face {
+  display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px;
+}
+.avery-pip-portrait {
+  width: 56px; height: 56px; border-radius: 50%;
+  flex-shrink: 0; overflow: hidden;
+  box-shadow: 0 0 0 2px rgba(63,180,137,0.3);
+}
+.avery-pip-portrait svg { width: 100%; height: 100%; display: block; }
+.avery-pip-speech {
+  flex: 1;
+  background: #1d1c19;
+  border-radius: 12px;
+  padding: 9px 12px;
+  font-size: 13px; line-height: 1.4; color: #f0ecdf;
+  position: relative; min-height: 44px;
+  display: flex; align-items: center;
+}
+.avery-pip-speech::before {
+  content: ""; position: absolute;
+  left: -6px; top: 16px; width: 12px; height: 12px;
+  background: #1d1c19; transform: rotate(45deg);
+}
+.avery-pip-speech-text b { color: #f9d76e; font-weight: 600; }
+
+.avery-pip-progress {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 10px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.avery-pip-step {
+  font-size: 11.5px; color: #8a857a;
+  display: flex; align-items: center; gap: 8px;
+  padding: 2px 4px; border-radius: 6px;
+}
+.avery-pip-step.done { color: #a8e6c8; }
+.avery-pip-checkmark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px;
+  border: 1px solid #3a3832; border-radius: 50%;
+  font-size: 10px; color: #8a857a;
+}
+.avery-pip-step.done .avery-pip-checkmark {
+  background: #3fb489; border-color: #3fb489; color: #0b3b28; font-weight: 700;
+}
+
+.avery-pip-upload {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  animation: pipUploadIn 0.5s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+@keyframes pipUploadIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.avery-pip-upload-label {
+  font-size: 11px; color: #f9d76e;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  font-weight: 600; margin-bottom: 6px;
+}
+.avery-pip-upload-zone {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 16px 12px;
+  background: #1d1c19;
+  border: 1.5px dashed #3a3832;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.avery-pip-upload-zone:hover,
+.avery-pip-upload-zone.drag {
+  border-color: #f9d76e; background: #26241f;
+}
+.avery-pip-upload-icon {
+  width: 28px; height: 28px;
+  background: #f9d76e; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #0f1115; font-weight: 700; font-size: 14px;
+}
+.avery-pip-upload-text { font-size: 12px; color: #b3ae9e; }
+.avery-pip-upload-text span { color: #f9d76e; font-weight: 600; }
+
+#handoffDownload { cursor: pointer; transition: opacity 0.2s ease; }
+#handoffDownload:hover { opacity: 0.85; }
+
+/* POU mini-game for L2 — spot the wrong row */
+.pou .row-table {
+  width: 100%; border-collapse: collapse;
+  font-family: "SF Mono", Menlo, monospace; font-size: 12px;
+  margin: 6px 0 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.pou .row-table th, .pou .row-table td {
+  padding: 8px 10px; text-align: left;
+  border-bottom: 1px solid rgba(15,17,21,0.06);
+}
+.pou .row-table tr:last-child td { border-bottom: none; }
+.pou .row-table th {
+  background: #faf8f3;
+  font-size: 10.5px; letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  text-transform: uppercase; font-weight: 500;
+}
+.pou .row-pick {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.pou .row-pick:hover { background: #faf8f3; }
+.pou .row-pick.correct td { background: var(--good-soft); color: var(--good); }
+.pou .row-pick.wrong td { background: var(--bad-soft); color: var(--bad); }
+.pou .row-pick .rowmark {
+  display: inline-block; width: 18px; height: 18px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  line-height: 1;
+  font-size: 10px;
+  text-align: center;
+}
+.pou .row-pick.correct .rowmark { background: var(--good); color: white; border-color: var(--good); }
+.pou .row-pick.wrong .rowmark { background: var(--bad); color: white; border-color: var(--bad); }
+.pou .round-category {
+  display: inline-block;
+  background: #fef7e0;
+  color: #b45309;
+  padding: 3px 9px;
+  border-radius: 10px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .stage { grid-template-columns: 1fr; }
+  .options { grid-template-columns: 1fr; }
+  .cw-stage { grid-template-columns: 60px 1fr; }
+  .avery-pip { width: calc(100vw - 24px); right: 12px; bottom: 12px; }
+}
+
+/* ===== Foundations 7-step path indicator ===== */
+.foundations-track {
+  position: sticky; top: 0;
+  z-index: 50;
+  background: rgba(251, 247, 238, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(15, 17, 21, 0.08);
+  padding: 8px 20px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  font-size: 12px;
+}
+.ft-brand {
+  font-weight: 700; font-size: 12px;
+  color: #0f1115;
+  letter-spacing: -0.01em;
+  padding-right: 10px;
+  border-right: 1px solid rgba(15,17,21,0.12);
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 6px;
+}
+.ft-brand-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: linear-gradient(135deg, #c8f5df, #3fb489);
+}
+.ft-steps {
+  flex: 1;
+  display: flex; gap: 4px; align-items: center;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ft-steps::-webkit-scrollbar { display: none; }
+.ft-step {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 11.5px;
+  white-space: nowrap;
+  letter-spacing: -0.005em;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  border: 1px solid transparent;
+}
+.ft-step-num {
+  font-weight: 700; font-size: 10.5px;
+  letter-spacing: 0.02em;
+}
+.ft-step-title {
+  font-weight: 500; opacity: 0.8;
+}
+.ft-step:hover { transform: translateY(-1px); }
+.ft-step.done {
+  background: #e6f4ec; color: #0f4a2b;
+  border-color: rgba(30,122,75,0.22);
+}
+.ft-step.done:hover { background: #d7eedd; }
+.ft-step.current {
+  background: #0f1115; color: #ffffff;
+  border-color: #0f1115;
+}
+.ft-step.current .ft-step-title { opacity: 1; font-weight: 600; }
+.ft-step.upcoming {
+  background: transparent; color: #6b7280;
+  border-color: rgba(15,17,21,0.15);
+}
+.ft-step.upcoming:hover { color: #0f1115; border-color: rgba(15,17,21,0.32); }
+.ft-step-sep {
+  color: #cbd5e1; font-size: 10px;
+  user-select: none;
+}
+.ft-end {
+  font-size: 11px; color: #6b7280;
+  padding-left: 10px; border-left: 1px solid rgba(15,17,21,0.12);
+  white-space: nowrap;
+}
+.ft-end a {
+  color: #0f1115; text-decoration: none;
+  font-weight: 500;
+}
+.ft-end a:hover { text-decoration: underline; }
+
+/* Give the page a little top breathing room since the track is sticky */
+body > .frame { padding-top: 6px; }
+
+@media (max-width: 720px) {
+  .foundations-track { padding: 6px 10px; gap: 6px; font-size: 11px; }
+  .ft-brand { font-size: 11px; padding-right: 6px; }
+  .ft-step-title { display: none; }
+  .ft-end { display: none; }
+}
+
+</style>
+</head>
+<body>
+<!-- zero-foundations-track:start -->
+<nav class="foundations-track" aria-label="Foundations curriculum progress">
+  <div class="ft-brand"><span class="ft-brand-dot"></span>Zero · Foundations</div>
+  <div class="ft-steps">
+    <a class="ft-step done" href="ZERO-L0-Concept-CostReduction-v3.html" title="The brief" aria-label="L0 — The brief (completed)"><span class="ft-step-num">L0</span><span class="ft-step-title">the brief</span></a>
+    <a class="ft-step done" href="ZERO-L1-Concept-UnderstandData-v1.html" title="Understanding data" aria-label="L1 — Understanding data (completed)"><span class="ft-step-num">L1</span><span class="ft-step-title">understanding data</span></a>
+    <a class="ft-step current" href="ZERO-L2-Concept-CleanData-v1.html" title="Cleaning data" aria-label="L2 — Cleaning data (current)"><span class="ft-step-num">L2</span><span class="ft-step-title">cleaning data</span></a>
+    <a class="ft-step upcoming" href="ZERO-L3-Concept-FiveWhy-v3.html" title="The right question" aria-label="L3 — The right question"><span class="ft-step-num">L3</span><span class="ft-step-title">the right question</span></a>
+    <a class="ft-step upcoming" href="ZERO-L4-Concept-EvidenceOrTheater-v1.html" title="Evidence or theater" aria-label="L4 — Evidence or theater"><span class="ft-step-num">L4</span><span class="ft-step-title">evidence or theater</span></a>
+    <a class="ft-step upcoming" href="ZERO-L5-Concept-FindingToRecommendation-v1.html" title="Finding → recommendation" aria-label="L5 — Finding → recommendation"><span class="ft-step-num">L5</span><span class="ft-step-title">finding → recommendation</span></a>
+    <a class="ft-step upcoming" href="ZERO-L6-Concept-ContainerIsTheFight-v1.html" title="The container" aria-label="L6 — The container"><span class="ft-step-num">L6</span><span class="ft-step-title">the container</span></a>
+  </div>
+  <div class="ft-end"><a href="index.html">↗ index</a></div>
+</nav>
+<!-- zero-foundations-track:end -->
+
+
+<div class="frame">
+
+  <div class="topbar">
+    <span class="crumb">Foundations · See · Cleaning the data</span>
+    <span class="title">L2 · Cleaning the data <span class="ital">— spot the wrong rows. remove, fix, or flag.</span></span>
+    <span class="spacer"></span>
+    <span class="chip">v1 · Day 2 late afternoon · live Cowork + PIP</span>
+    <div class="mode-toggle" id="modeToggle">
+      <button data-mode="auto" class="on">Auto</button>
+      <button data-mode="manual">Manual</button>
+    </div>
+    <button class="sound-btn" id="soundBtn" title="Mute / unmute">🔊 Sound on</button>
+  </div>
+
+  <div class="stage">
+
+    <!-- LEFT: Avery + subtitle -->
+    <div class="rail">
+      <div class="avery-card">
+        <div class="portrait" id="portrait">
+          <div class="ring"></div>
+          <img id="averyImg" src="ZERO-L0-assets/img/avery.jpg" alt="Avery" style="display:none"/>
+          <div class="fallback" id="averyFallback">
+            <svg viewBox="0 0 180 180" aria-label="Avery">
+              <defs>
+                <linearGradient id="averyGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+                  <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <rect width="180" height="180" fill="url(#averyGrad)"/>
+              <text x="90" y="118" font-family="Iowan Old Style, Georgia, serif" font-size="100" font-style="italic" font-weight="400" text-anchor="middle" fill="#0b3b28">A</text>
+            </svg>
+          </div>
+        </div>
+        <div class="avery-name">Avery</div>
+        <div class="avery-role">Your Foundations guide</div>
+      </div>
+
+      <div class="subtitle-card">
+        <div class="subtitle-row">
+          <div class="subtitle-label" id="sceneLabel">Scene 1 / 8</div>
+          <div class="subtitle-linechip" id="lineChip">Line 1 / 3</div>
+        </div>
+        <div class="speaker-chip" id="speakerChip" style="display:none">MARCO · MENTOR, Uber</div>
+        <div class="subtitle-text" id="subtitle">—</div>
+        <div class="manual-hint" id="manualHint" style="display:none">
+          Manual mode — tap <strong>Next</strong> (or <kbd>→</kbd>) for the next line.
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Whiteboard -->
+    <div class="board-wrap">
+      <div class="tag" id="boardTag">Day 2 · Uber</div>
+      <div class="scene-title" id="boardSceneTitle"></div>
+      <div class="board" id="board"></div>
+
+      <div class="xp-burst" id="xpBurst">+20 XP · Translate before you analyze</div>
+      <div class="preload-notice" id="preloadNotice">Loading voice…</div>
+
+      <div class="pou" id="pou">
+        <div class="sheet">
+          <div class="head-row">
+            <div class="label">Proof of understanding · Spot the wrong row</div>
+            <span class="round-category" id="roundCategory">Duplicate</span>
+            <div class="round-dots" id="roundDots">
+              <span class="dot on"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+          <h2 id="pouH2">Round <span id="roundN">1</span> of 4</h2>
+          <div class="col-prompt" id="pouPrompt">— loading round —</div>
+          <div class="data-slice" id="dataSlice">—</div>
+          <div class="feedback" id="pouFeedback"></div>
+          <div class="summary" id="pouSummary"></div>
+          <div class="actions">
+            <button class="btn primary" id="pouNext" style="display:none">Next round →</button>
+            <button class="btn primary" id="pouFinish" style="display:none">Finish</button>
+            <button class="btn primary" id="pouContinue" style="display:none">Continue — try it with Claude →</button>
+            <button class="btn" id="pouSkip">Skip</button>
+            <span class="spacer"></span>
+            <button class="btn" id="pouReplay">↻ Replay L2</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottombar">
+    <div class="bottom-left">
+      <button class="btn ghost" id="btnPrev" title="Prev line (←)">← Prev</button>
+      <button class="btn primary" id="btnPlay" title="Play/Pause (Space)">▶ Play</button>
+      <button class="btn ghost" id="btnNext" title="Next line (→)">Next →</button>
+      <span class="scene-pos" id="scenePos">1·1</span>
+    </div>
+    <div class="scrub">
+      <div class="scrub-track" id="scrubTrack">
+        <div class="scrub-fill" id="scrubFill"></div>
+      </div>
+      <div class="scrub-label" id="scrubLabel">0:00 / 1:56</div>
+    </div>
+    <div class="hints">
+      <span><kbd>Space</kbd> play</span>
+      <span><kbd>←</kbd> <kbd>→</kbd> line</span>
+      <span><kbd>M</kbd> mode</span>
+      <span><kbd>R</kbd> replay</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(() => {
+
+const VB_W = 1200, VB_H = 700;
+const AUDIO_DIR = 'ZERO-L2-assets/audio';
+
+// Gemini API — used for live AI in the PIP/Cowork scene. Cheapest Gemini tier.
+// DEMO ONLY. Rotate before any public sharing.
+const GEMINI_API_KEY = 'AIzaSyAAPQZzB1RQFjqhqjnXMPdLLjRMt2kVGOg';
+const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+
+// === line manifest (from ElevenLabs generation, Avery voice kdnRe2koJdOK4Ovxn2DI) ===
+const MANIFEST = {"scenes":[{"id":"bridge","lines":[{"file":"bridge-01.mp3","text":"I had the glossary. I could read every column. Still Day Two \u2014 late afternoon.","speaker":"avery","duration":8.359},{"file":"bridge-02.mp3","text":"Then I pulled the first real number. Total tickets, Q2.","speaker":"avery","duration":3.788},{"file":"bridge-03.mp3","text":"And it was wrong.","speaker":"avery","duration":0.679}]},{"id":"count","lines":[{"file":"count-01.mp3","text":"Sixty-three thousand, one hundred twenty-eight tickets.","speaker":"avery","duration":3.318},{"file":"count-02.mp3","text":"I stare at it. Ops told me Q2 was around fifty thousand.","speaker":"avery","duration":3.474},{"file":"count-03.mp3","text":"Off by thirteen thousand. That's not rounding. Something's wrong.","speaker":"avery","duration":5.878}]},{"id":"gut_check","lines":[{"file":"gut_check-01.mp3","text":"Here's a rule. When your number disagrees with a trusted prior \u2014","speaker":"avery","duration":4.362},{"file":"gut_check-02.mp3","text":"The number is usually wrong. Not the prior.","speaker":"avery","duration":3.082}]},{"id":"find_dupes","lines":[{"file":"find_dupes-01.mp3","text":"I scroll. Start hunting for patterns.","speaker":"avery","duration":2.691},{"file":"find_dupes-02.mp3","text":"Two rows. Same ticket ID. Different close dates.","speaker":"avery","duration":3.631},{"file":"find_dupes-03.mp3","text":"Every ticket that got reopened was counted twice.","speaker":"avery","duration":2.351}]},{"id":"toolkit","lines":[{"file":"toolkit-01.mp3","text":"Every messy dataset has four kinds of wrong rows.","speaker":"avery","duration":3.239},{"file":"toolkit-02.mp3","text":"Duplicates, like mine. Impossibles \u2014 a close date before the open date. Nulls where something should be. And rows from outside your window.","speaker":"avery","duration":11.546},{"file":"toolkit-03.mp3","text":"Your job. Spot them. Decide. Remove, fix, or flag.","speaker":"avery","duration":5.068}]},{"id":"resolution","lines":[{"file":"resolution-01.mp3","text":"I dedupe. Fifteen percent of the file was dupes.","speaker":"avery","duration":3.239},{"file":"resolution-02.mp3","text":"New count: fifty-three thousand, four hundred twelve. Matches Ops.","speaker":"avery","duration":4.754},{"file":"resolution-03.mp3","text":"Marco walks past. Good catch, he says. You almost walked in with the bad number.","speaker":"avery","duration":4.676}]},{"id":"pou","lines":[{"file":"pou-01.mp3","text":"Your turn.","speaker":"avery","duration":0.601},{"file":"pou-02.mp3","text":"I'll show you a few rows from an Airbnb refund slice. Spot what's wrong with each one.","speaker":"avery","duration":4.049}]},{"id":"handoff","lines":[{"file":"handoff-01.mp3","text":"Nice. You did that by hand.","speaker":"avery","duration":1.489},{"file":"handoff-02.mp3","text":"But here's the thing. You can't eyeball forty thousand rows.","speaker":"avery","duration":4.127},{"file":"handoff-03.mp3","text":"This is where Claude earns its keep. I'm sending you a messy file. Open it in Claude. Ask it to find what's wrong.","speaker":"avery","duration":6.609}]},{"id":"pip","lines":[{"file":"pip-01.mp3","text":"I'll be watching. Ask Claude to scan the sheet for anomalies.","speaker":"avery","duration":3.318},{"file":"pip-02.mp3","text":"When you see what's wrong \u2014 decide. Dupes go. Impossibles go.","speaker":"avery","duration":4.519},{"file":"pip-03.mp3","text":"Once it's clean \u2014 send the file back to me.","speaker":"avery","duration":2.194}]},{"id":"close","lines":[{"file":"close-01.mp3","text":"Fifty-three thousand, four hundred twelve. Same number I got \u2014 in thirty seconds.","speaker":"avery","duration":5.251},{"file":"close-02.mp3","text":"That's the trade. Claude scans. You decide. On to what you do with clean data.","speaker":"avery","duration":6.113}]}]};
+
+// === subtitle overrides (HTML-rich, emphasis, code) ===
+const SUBTITLE_OVERRIDES = {
+  "bridge-01.mp3":      'I had the glossary. I could read every column. <em>Still Day 2 — late afternoon.</em>',
+  "bridge-02.mp3":      'Then I pulled the first real number. <em>Total tickets, Q2.</em>',
+  "bridge-03.mp3":      'And it was <em>wrong.</em>',
+  "count-01.mp3":       '<em>63,128</em> tickets.',
+  "count-02.mp3":       'I stare at it. Ops told me Q2 was <em>around 50,000.</em>',
+  "count-03.mp3":       'Off by <em>13,000.</em> That\'s not rounding. <em>Something\'s wrong.</em>',
+  "gut_check-01.mp3":   "Here's a rule. When your number disagrees with a <em>trusted prior</em> —",
+  "gut_check-02.mp3":   'The <em>number</em> is usually wrong. Not the prior.',
+  "find_dupes-01.mp3":  'I scroll. Start hunting for patterns.',
+  "find_dupes-02.mp3":  'Two rows. <em>Same ticket ID.</em> Different close dates.',
+  "find_dupes-03.mp3":  'Every ticket that got reopened was <em>counted twice.</em>',
+  "toolkit-01.mp3":     'Every messy dataset has <em>four kinds</em> of wrong rows.',
+  "toolkit-02.mp3":     '<em>Duplicates</em>, like mine. <em>Impossibles</em> — a close date before the open date. <em>Nulls</em> where something should be. And rows from <em>outside your window</em>.',
+  "toolkit-03.mp3":     'Your job. Spot them. Decide. <em>Remove, fix, or flag.</em>',
+  "resolution-01.mp3":  'I dedupe. <em>15%</em> of the file was dupes.',
+  "resolution-02.mp3":  'New count: <em>53,412.</em> Matches Ops.',
+  "resolution-03.mp3":  'Marco walks past. <span class="ital">"Good catch. You almost walked in with the bad number."</span>',
+  "pou-01.mp3":         '<em>Your turn.</em>',
+  "pou-02.mp3":         "I'll show you a few rows from an Airbnb refund slice. <em>Spot what's wrong</em> with each one.",
+  "handoff-01.mp3":     '<em>Nice.</em> You did that by hand.',
+  "handoff-02.mp3":     "But — here's the thing. You can't eyeball <em>40,000 rows.</em>",
+  "handoff-03.mp3":     "This is where <em>Claude</em> earns its keep. I'm sending you a messy file. Open it in Claude. Ask it to find what's wrong.",
+  "pip-01.mp3":         "<em>I'll be watching.</em> Ask Claude to scan the sheet for anomalies.",
+  "pip-02.mp3":         "When you see what's wrong — <em>decide.</em> Dupes go. Impossibles go.",
+  "pip-03.mp3":         "Once it's clean — <em>send the file back to me.</em>",
+  "close-01.mp3":       '<em>53,412.</em> Same number I got — in thirty seconds.',
+  "close-02.mp3":       "That's the trade. Claude scans. <em>You decide.</em> On to what you do with clean data.",
+};
+
+const SPEAKER_LABEL = {
+  marco: 'MARCO · MENTOR, Uber',
+};
+
+// === scene metadata + SVG/HTML renderers (L2) ===
+const SCENES = {
+  bridge: {
+    title: 'From translate to clean', tag: 'Day 2 · late afternoon',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text faint" font-size="16" letter-spacing="0.2em" x="100" y="95">CHAPTER 3 · DAY 2 · LATE AFTERNOON</text>
+        <g class="pop">
+          <rect x="140" y="150" width="420" height="180" rx="14" fill="#fffbf0" stroke="#a85d12" stroke-width="1.5"/>
+          <text class="wb-text warn" font-size="15" letter-spacing="0.14em" x="160" y="180">AVERY'S GLOSSARY · from L1</text>
+          <text class="wb-mono" font-size="14" x="160" y="214">tkt_closed_dt_v2</text>
+          <text class="wb-mono" font-size="14" x="160" y="238">rider_seg_enc</text>
+          <text class="wb-mono" font-size="14" x="160" y="262">supp_contact_flag_3</text>
+          <text class="wb-text dim" font-size="15" font-style="italic" x="160" y="300">✓  I could read every column now.</text>
+        </g>
+      </g>
+      <g data-line="2">
+        <text class="wb-text dim" x="640" y="205" font-size="20" font-style="italic">so I asked the first real question —</text>
+        <g class="pop">
+          <rect x="640" y="230" width="440" height="120" rx="18" fill="#0f1115"/>
+          <text text-anchor="middle" fill="#ffffff" font-family="Iowan Old Style, Georgia, serif" font-style="italic" font-size="22" x="860" y="278">"how many tickets did</text>
+          <text text-anchor="middle" fill="#ffffff" font-family="Iowan Old Style, Georgia, serif" font-style="italic" font-size="22" x="860" y="310">we get in Q2?"</text>
+        </g>
+      </g>
+      <g data-line="3">
+        <g class="pop">
+          <text class="wb-text red" text-anchor="middle" font-size="130" font-weight="700" x="600" y="550" font-style="italic">wrong.</text>
+        </g>
+        <line class="draw" x1="340" y1="585" x2="860" y2="585" stroke="#b6311d" stroke-width="6" stroke-linecap="round" style="--dash: 530"/>
+      </g>
+    `
+  },
+
+  count: {
+    title: 'The bad number', tag: 'Google Sheets · COUNTA',
+    html: () => `
+      <div class="gs-stage">
+        <div class="gs-topbar">
+          <div class="gs-fileicon">≡</div>
+          <div class="gs-fileinfo">
+            <div class="gs-filename">rider_support_tickets_q2 <span class="gs-star">☆</span> <span class="gs-folder">🗀 Finance › Q2 exports</span></div>
+            <div class="gs-filestatus">Shared by <b>jorge@uber.com</b> · Saved to Drive · Last edited 2 hours ago</div>
+          </div>
+          <div class="gs-topactions"><div class="gs-share">Share</div></div>
+        </div>
+        <div class="gs-menu">
+          <span>File</span><span>Edit</span><span>View</span><span>Insert</span>
+          <span>Format</span><span>Data</span><span>Tools</span><span>Extensions</span><span>Help</span>
+        </div>
+        <div class="gs-toolbar">
+          <div class="gs-tool">↶</div><div class="gs-tool">↷</div><div class="gs-tool">🖨</div>
+          <div class="gs-tooldiv"></div>
+          <div class="gs-tool">100%</div>
+          <div class="gs-tooldiv"></div>
+          <div class="gs-tool">$</div><div class="gs-tool">%</div><div class="gs-tool">123</div>
+          <div class="gs-tooldiv"></div>
+          <div class="gs-tool bold">B</div><div class="gs-tool italic">I</div><div class="gs-tool">U</div>
+          <div class="gs-tooldiv"></div>
+          <div class="gs-tool">fx</div>
+        </div>
+        <div class="gs-cellbar">
+          <div class="gs-cellref" id="gsCellRefCount">J1</div>
+          <div class="gs-fx">fx</div>
+          <div class="gs-formula" id="gsFormulaCount" style="font-family:'SF Mono',Menlo,monospace;font-size:13px;color:#1a73e8"></div>
+        </div>
+        <div class="gs-grid" id="gsGridCount">
+          <table class="gs-table">
+            <colgroup>
+              <col class="c-num"><col class="c-a"><col class="c-b"><col class="c-c">
+              <col class="c-d"><col class="c-e"><col class="c-f"><col class="c-g">
+            </colgroup>
+            <thead>
+              <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th></tr>
+            </thead>
+            <tbody id="gsBodyCount"></tbody>
+          </table>
+          <div class="gs-count-result" id="gsCountResult">
+            <div class="gs-count-label">=COUNTA(A:A)</div>
+            <div class="gs-count-value" id="gsCountValue">—</div>
+            <div class="gs-count-note" id="gsCountNote"></div>
+          </div>
+          <div class="gs-ops-stickynote" id="gsOpsNote">
+            <div class="gs-sticky-label">from Ops</div>
+            <div class="gs-sticky-body">"Q2 was around <b>50k</b>"</div>
+          </div>
+        </div>
+        <div class="gs-footer">
+          <div class="gs-tabs"><div class="gs-tab active">rider_support_q2 ▾</div><div class="gs-tab-add">+</div></div>
+          <div class="gs-rowcount">—</div>
+        </div>
+      </div>
+    `
+  },
+
+  gut_check: {
+    title: 'A rule I learned', tag: 'Concept',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text" font-size="38" x="120" y="130" font-style="italic">when your number disagrees with a trusted prior —</text>
+        <g class="pop">
+          <rect x="180" y="240" width="300" height="200" rx="18" fill="#ffffff" stroke="#0f1115" stroke-width="2.5"/>
+          <text class="wb-text faint" font-size="14" letter-spacing="0.14em" x="330" y="272" text-anchor="middle">YOUR NUMBER</text>
+          <text class="wb-text" font-size="56" font-weight="700" x="330" y="360" text-anchor="middle" font-style="italic">63,128</text>
+        </g>
+        <text class="wb-text" font-size="56" x="540" y="358" text-anchor="middle" font-weight="700">≠</text>
+        <g class="pop">
+          <rect x="620" y="240" width="300" height="200" rx="18" fill="#ffffff" stroke="#0f1115" stroke-width="2.5"/>
+          <text class="wb-text faint" font-size="14" letter-spacing="0.14em" x="770" y="272" text-anchor="middle">TRUSTED PRIOR</text>
+          <text class="wb-text" font-size="42" font-weight="700" x="770" y="350" text-anchor="middle" font-style="italic">~50,000</text>
+          <text class="wb-text dim" font-size="14" font-style="italic" x="770" y="388" text-anchor="middle">(ops said so)</text>
+        </g>
+      </g>
+      <g data-line="2">
+        <g class="pop">
+          <ellipse class="draw" cx="330" cy="340" rx="185" ry="125" fill="none" stroke="#b6311d" stroke-width="5" stroke-linecap="round" stroke-dasharray="6 7" style="--dash: 1400"/>
+          <text class="wb-text red" font-size="22" font-style="italic" x="120" y="520">← the number is usually wrong.</text>
+          <text class="wb-text dim" font-size="18" font-style="italic" x="620" y="520">(not the prior)</text>
+        </g>
+      </g>
+    `
+  },
+
+  find_dupes: {
+    title: 'Finding the duplicates', tag: 'Google Sheets · filtering',
+    html: () => `
+      <div class="gs-stage">
+        <div class="gs-topbar">
+          <div class="gs-fileicon">≡</div>
+          <div class="gs-fileinfo">
+            <div class="gs-filename">rider_support_tickets_q2 <span class="gs-star">☆</span></div>
+            <div class="gs-filestatus">Filtered by: duplicate ticket IDs · 4,234 matching rows</div>
+          </div>
+          <div class="gs-topactions"><div class="gs-share">Share</div></div>
+        </div>
+        <div class="gs-menu">
+          <span>File</span><span>Edit</span><span>View</span><span>Insert</span>
+          <span>Format</span><span>Data</span><span>Tools</span><span>Extensions</span><span>Help</span>
+        </div>
+        <div class="gs-toolbar">
+          <div class="gs-tool">↶</div><div class="gs-tool">↷</div>
+          <div class="gs-tooldiv"></div>
+          <div class="gs-tool">100%</div>
+          <div class="gs-tooldiv"></div>
+          <div class="gs-tool">Data ▾</div>
+          <div class="gs-tooldiv"></div>
+          <div class="gs-tool" style="background:#fef7e0;color:#b45309;font-weight:600">▼ filter: dupe tkt_id</div>
+        </div>
+        <div class="gs-cellbar">
+          <div class="gs-cellref">B2847</div>
+          <div class="gs-fx">fx</div>
+          <div class="gs-formula" style="font-family:'SF Mono',Menlo,monospace;font-size:13px">23481</div>
+        </div>
+        <div class="gs-grid" id="gsGridDupes">
+          <table class="gs-table">
+            <colgroup>
+              <col class="c-num"><col class="c-a"><col class="c-b"><col class="c-c">
+              <col class="c-d"><col class="c-e"><col class="c-f"><col class="c-g">
+            </colgroup>
+            <thead>
+              <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th></tr>
+            </thead>
+            <tbody id="gsBodyDupes"></tbody>
+          </table>
+          <div class="gs-aha" id="gsAha">
+            <div class="gs-aha-label">same ticket</div>
+            <div class="gs-aha-body">reopened → counted twice</div>
+          </div>
+        </div>
+        <div class="gs-footer">
+          <div class="gs-tabs"><div class="gs-tab active">rider_support_q2 ▾</div></div>
+          <div class="gs-rowcount">4,234 rows with duplicate tkt_id</div>
+        </div>
+      </div>
+    `
+  },
+
+  toolkit: {
+    title: 'The four kinds of wrong rows', tag: 'Your toolkit',
+    svg: () => {
+      const boxes = [
+        { x: 120, y: 160, title: 'Duplicates', sub: 'same row, multiple times', ex: 'tkt_id: 23481 (×2)', color: '#b45309', bgColor: '#fef7e0' },
+        { x: 620, y: 160, title: 'Impossibles', sub: 'logically cannot be true', ex: 'close_dt < open_dt', color: '#b6311d', bgColor: '#fbe8e4' },
+        { x: 120, y: 400, title: 'Nulls', sub: 'missing where it matters', ex: 'close_dt: (blank)', color: '#0b3b28', bgColor: '#e6f4ec' },
+        { x: 620, y: 400, title: 'Wrong window', sub: "outside the period", ex: 'date: 2024-01-03', color: '#1a73e8', bgColor: '#e8f0fe' },
+      ];
+      return `
+        <g data-line="1">
+          <text class="wb-text" font-size="34" x="120" y="120" font-style="italic">every messy dataset has four kinds of wrong rows —</text>
+        </g>
+        <g data-line="2">
+          ${boxes.map(b => `
+            <g class="pop">
+              <rect x="${b.x}" y="${b.y}" width="420" height="210" rx="18" fill="${b.bgColor}" stroke="${b.color}" stroke-width="2.5"/>
+              <text class="wb-text" font-size="30" font-weight="700" x="${b.x + 22}" y="${b.y + 50}" fill="${b.color}">${b.title}</text>
+              <text class="wb-text dim" font-size="16" font-style="italic" x="${b.x + 22}" y="${b.y + 82}">— ${b.sub}</text>
+              <text class="wb-mono" font-size="15" x="${b.x + 22}" y="${b.y + 140}" fill="${b.color}">e.g. ${b.ex}</text>
+            </g>
+          `).join('')}
+        </g>
+        <g data-line="3">
+          <text class="wb-text" text-anchor="middle" font-size="26" x="600" y="660" font-style="italic">your job — spot them. decide. <tspan font-weight="700">remove, fix, or flag.</tspan></text>
+        </g>
+      `;
+    }
+  },
+
+  resolution: {
+    title: 'Clean count', tag: 'Google Sheets · after dedupe',
+    html: () => `
+      <div class="gs-stage">
+        <div class="gs-topbar">
+          <div class="gs-fileicon">≡</div>
+          <div class="gs-fileinfo">
+            <div class="gs-filename">rider_support_tickets_q2_<span style="color:#0f9d58">cleaned</span> <span class="gs-star">★</span></div>
+            <div class="gs-filestatus">Deduped · 4,234 rows removed · Saved to Drive · Last edited a moment ago</div>
+          </div>
+          <div class="gs-topactions"><div class="gs-share">Share</div></div>
+        </div>
+        <div class="gs-menu">
+          <span>File</span><span>Edit</span><span>View</span><span>Insert</span>
+          <span>Format</span><span>Data</span><span>Tools</span><span>Extensions</span><span>Help</span>
+        </div>
+        <div class="gs-toolbar">
+          <div class="gs-tool">↶</div><div class="gs-tool">↷</div>
+          <div class="gs-tooldiv"></div>
+          <div class="gs-tool">100%</div>
+          <div class="gs-tooldiv"></div>
+          <div class="gs-tool" style="background:#e6f4ec;color:#0f9d58;font-weight:600">✓ deduped</div>
+        </div>
+        <div class="gs-cellbar">
+          <div class="gs-cellref">J1</div>
+          <div class="gs-fx">fx</div>
+          <div class="gs-formula" style="font-family:'SF Mono',Menlo,monospace;font-size:13px;color:#1a73e8">=COUNTA(A:A)</div>
+        </div>
+        <div class="gs-grid" id="gsGridResolve">
+          <table class="gs-table">
+            <colgroup>
+              <col class="c-num"><col class="c-a"><col class="c-b"><col class="c-c">
+              <col class="c-d"><col class="c-e"><col class="c-f"><col class="c-g">
+            </colgroup>
+            <thead>
+              <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th></tr>
+            </thead>
+            <tbody id="gsBodyResolve"></tbody>
+          </table>
+          <div class="gs-count-result clean" id="gsCleanCountResult">
+            <div class="gs-count-label">=COUNTA(A:A)</div>
+            <div class="gs-count-value" id="gsCleanCountValue">—</div>
+            <div class="gs-count-note" id="gsCleanCountNote"></div>
+          </div>
+          <div class="gs-marco-card" id="gsMarcoCard">
+            <div class="gs-marco-speaker">MARCO · MENTOR</div>
+            <div class="gs-marco-quote">"Good catch. You almost walked in with the bad number."</div>
+          </div>
+        </div>
+        <div class="gs-footer">
+          <div class="gs-tabs"><div class="gs-tab active">rider_support_q2 ▾</div></div>
+          <div class="gs-rowcount" id="gsResolveRowcount">—</div>
+        </div>
+      </div>
+    `
+  },
+
+  pou: {
+    title: 'Your turn — spot the wrong rows', tag: 'POU · mini-game',
+    isPou: true,
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text dim" text-anchor="middle" x="600" y="330" font-size="22" font-style="italic">your turn →</text>
+      </g>
+      <g data-line="2">
+        <text class="wb-text dim" text-anchor="middle" x="600" y="370" font-size="16" font-style="italic">(four rows · one is wrong · find it)</text>
+      </g>
+    `
+  },
+
+  handoff: {
+    title: "Now with Claude's help", tag: 'Hands-on transition',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text green" text-anchor="middle" font-size="42" x="600" y="130" font-style="italic">nice — you did that by hand.</text>
+      </g>
+      <g data-line="2">
+        <g class="pop">
+          <rect x="200" y="200" width="800" height="120" rx="18" fill="#fff7e6" stroke="#a85d12" stroke-width="2"/>
+          <text class="wb-text warn" text-anchor="middle" font-size="22" font-style="italic" x="600" y="244">but —</text>
+          <text class="wb-text" text-anchor="middle" font-size="32" x="600" y="288" font-style="italic">you can't eyeball 40,000 rows.</text>
+        </g>
+      </g>
+      <g data-line="3">
+        <text class="wb-text" text-anchor="middle" font-size="22" x="600" y="390" font-style="italic">this is where Claude earns its keep.</text>
+        <g class="pop" id="handoffDownload">
+          <rect x="280" y="430" width="640" height="130" rx="18" fill="#0f1115"/>
+          <text fill="#9ca3af" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" letter-spacing="0.14em" x="600" y="462">DOWNLOAD · CSV · 40,128 rows · 2.4 MB</text>
+          <text fill="#ffffff" text-anchor="middle" font-family="Iowan Old Style, Georgia, serif" font-style="italic" font-size="26" x="600" y="502">rider_support_tickets_q2.csv</text>
+          <text fill="#f9d76e" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" x="600" y="534" letter-spacing="0.08em">↓  CLICK TO DOWNLOAD — OPENS CLAUDE</text>
+        </g>
+        <text class="wb-text dim" text-anchor="middle" font-size="15" x="600" y="600" font-style="italic">once downloaded, I'll shrink into a PIP and walk you through it.</text>
+      </g>
+    `
+  },
+
+  pip: {
+    title: 'Live — you and Claude', tag: 'Cowork · live Gemini',
+    isPip: true,
+    html: () => `
+      <div class="pip-stage">
+        <!-- Full Cowork takes over the board; Avery PIP floats bottom-right -->
+        <div class="cw-stage pip-cowork">
+          <aside class="cw-sidebar">
+            <div class="cw-brand">
+              <div class="cw-brand-mark">C</div>
+              <div><span class="cw-brand-text">Claude</span> <span class="cw-brand-sub">Cowork</span></div>
+            </div>
+            <div class="cw-new-btn">New chat<span class="cw-kbd">⌘N</span></div>
+            <div class="cw-search">Search chats</div>
+            <div class="cw-chatlist-label">Connected</div>
+            <div class="cw-connector-chip">
+              <span class="cw-connector-icon" style="background:#0f9d58">≡</span>
+              <span class="cw-connector-text">Google Sheets</span>
+              <span class="cw-connector-dot"></span>
+            </div>
+            <div class="cw-chatlist-label">Recents</div>
+            <ul class="cw-chatlist">
+              <li class="cw-chat-item active">rider_support_q2 cleanup</li>
+              <li class="cw-chat-item">L0 narrative review</li>
+              <li class="cw-chat-item">Homescreen title cards</li>
+              <li class="cw-chat-item">Tesla FTUX delivery</li>
+            </ul>
+            <div class="cw-footer">
+              <div class="cw-avatar-dot">A</div>
+              <div class="cw-user-info">
+                <div class="cw-user-name">Avery Chen</div>
+                <div class="cw-user-tier">Max plan</div>
+              </div>
+            </div>
+          </aside>
+          <main class="cw-main">
+            <header class="cw-header">
+              <div class="cw-title">rider_support_q2 cleanup</div>
+              <div class="cw-model">Claude Sonnet 4.6</div>
+            </header>
+            <div class="cw-messages" id="pipMsgs">
+              <div class="cw-msg assistant show" id="pipWelcome">
+                <div class="claude-avatar">C</div>
+                <div class="claude-body">
+                  <p>Hi Avery — I see you've attached <code>rider_support_tickets_q2.csv</code> (40,128 rows). What would you like me to look at?</p>
+                </div>
+              </div>
+            </div>
+            <div class="cw-composer" id="pipComposer">
+              <div class="cw-composer-attach-row" id="pipAttachRow">
+                <div class="cw-csv-chip attached">
+                  <span>📄 rider_support_tickets_q2.csv</span>
+                  <span class="cw-chip-meta">40,128 rows · 2.4 MB</span>
+                </div>
+              </div>
+              <div class="cw-composer-inner" id="pipComposerInner">
+                <div class="cw-attach">+</div>
+                <textarea class="cw-input-real" id="pipInput" placeholder="Ask Claude to check the sheet for anomalies..." rows="1"></textarea>
+                <button class="cw-send" id="pipSend" title="Send">↑</button>
+              </div>
+              <div class="cw-composer-hint" id="pipHint">Tip — try "check the sheet for any anomalies" or "what's wrong with this data?"</div>
+            </div>
+          </main>
+        </div>
+
+        <!-- Avery's PIP overlay (bottom-right) -->
+        <div class="avery-pip" id="averyPip">
+          <div class="avery-pip-header">
+            <div class="avery-pip-status"><span class="avery-pip-dot"></span> Avery is watching</div>
+            <button class="avery-pip-expand" id="averyPipExpand" title="Expand">⛶</button>
+          </div>
+          <div class="avery-pip-face">
+            <div class="avery-pip-portrait" id="averyPipPortrait">
+              <svg viewBox="0 0 120 120">
+                <defs>
+                  <linearGradient id="pipAveryGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#c8f5df"/>
+                    <stop offset="100%" stop-color="#3fb489"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="60" cy="60" r="58" fill="url(#pipAveryGrad)"/>
+                <text x="60" y="80" font-family="Iowan Old Style, Georgia, serif" font-size="56" font-style="italic" text-anchor="middle" fill="#0b3b28">A</text>
+              </svg>
+            </div>
+            <div class="avery-pip-speech" id="averyPipSpeech">
+              <div class="avery-pip-speech-text" id="averyPipSpeechText">—</div>
+            </div>
+          </div>
+          <div class="avery-pip-progress" id="averyPipProgress">
+            <div class="avery-pip-step" data-step="scan"><span class="avery-pip-checkmark">○</span> Ask Claude to scan</div>
+            <div class="avery-pip-step" data-step="review"><span class="avery-pip-checkmark">○</span> Review what it found</div>
+            <div class="avery-pip-step" data-step="clean"><span class="avery-pip-checkmark">○</span> Tell it what to remove</div>
+            <div class="avery-pip-step" data-step="upload"><span class="avery-pip-checkmark">○</span> Send the cleaned file back</div>
+          </div>
+          <div class="avery-pip-upload" id="averyPipUpload" style="display:none">
+            <div class="avery-pip-upload-label">Send cleaned file back to Avery</div>
+            <label class="avery-pip-upload-zone" for="averyUploadInput">
+              <div class="avery-pip-upload-icon">↑</div>
+              <div class="avery-pip-upload-text">Drop file or <span>click to upload</span></div>
+            </label>
+            <input type="file" id="averyUploadInput" style="display:none"/>
+          </div>
+        </div>
+      </div>
+    `
+  },
+
+  close: {
+    title: 'Closing the loop', tag: 'Next — L3',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text faint" text-anchor="middle" font-size="16" letter-spacing="0.2em" x="600" y="130">THE CLEAN COUNT</text>
+        <g class="pop">
+          <rect x="260" y="170" width="680" height="170" rx="22" fill="#e6f4ec" stroke="#1e7a4b" stroke-width="3"/>
+          <text class="wb-text green" text-anchor="middle" font-size="80" font-weight="700" x="600" y="270" font-style="italic">53,412</text>
+          <text class="wb-text green" text-anchor="middle" font-size="18" font-style="italic" x="600" y="310">✓ matches ops — same as my afternoon</text>
+        </g>
+      </g>
+      <g data-line="2">
+        <g class="pop">
+          <rect x="180" y="400" width="840" height="180" rx="18" fill="#fff7e6" stroke="#a85d12" stroke-width="2"/>
+          <text class="wb-text warn" text-anchor="middle" font-size="14" letter-spacing="0.14em" x="600" y="434">THE TRADE</text>
+          <text class="wb-text" text-anchor="middle" font-size="32" x="600" y="484" font-style="italic">Claude scans. <tspan font-weight="700">You decide.</tspan></text>
+          <text class="wb-text dim" text-anchor="middle" font-size="18" font-style="italic" x="600" y="528">thirty seconds instead of an afternoon.</text>
+          <text class="wb-text dim" text-anchor="middle" font-size="18" font-style="italic" x="600" y="554">but only because you knew what wrong looked like.</text>
+        </g>
+      </g>
+    `
+  },
+};
+
+
+// === POU — Spot-the-wrong-row mini-game (L2) ===
+// 4 rounds. Each shows a 4-row slice of an Airbnb refund dataset.
+// Exactly one row is "wrong." Learner picks the row number. Feedback explains why.
+const POU_ROUNDS = [
+  {
+    category: 'Duplicate',
+    headline: 'Round 1 / 4 — one of these rows shouldn\'t be here',
+    prompt: 'Four rows from <code>airbnb_refund_disputes_q2.csv</code>. Find the <em>duplicate</em>.',
+    headers: ['row', 'tkt_id', 'opened', 'refund_amt', 'status'],
+    rows: [
+      { idx: 1, data: ['RF-40821', '2026-05-12 09:12', '$142', 'resolved'] },
+      { idx: 2, data: ['RF-40822', '2026-05-12 09:41', '$38',  'resolved'] },
+      { idx: 3, data: ['RF-40821', '2026-05-12 09:12', '$142', 'resolved'] },
+      { idx: 4, data: ['RF-40823', '2026-05-12 10:03', '$205', 'pending'] },
+    ],
+    wrongIdx: 3,
+    notes: {
+      correct: '<code>RF-40821</code> appears in rows 1 and 3 with identical data — same ticket counted twice (likely a re-export artifact). Pick row 3 as the duplicate.',
+      wrong: 'This row looks fine on its own. The answer is a duplicate — one row here exactly matches another.',
+    },
+  },
+  {
+    category: 'Impossible',
+    headline: 'Round 2 / 4 — logically, one of these can\'t be true',
+    prompt: 'Look at the dates. One row has a <em>close timestamp earlier than the open timestamp</em>.',
+    headers: ['row', 'tkt_id', 'opened', 'closed', 'refund_amt'],
+    rows: [
+      { idx: 1, data: ['RF-40842', '2026-05-14 09:12', '2026-05-14 11:30', '$72'] },
+      { idx: 2, data: ['RF-40843', '2026-05-14 10:00', '2026-05-13 22:15', '$18'] },
+      { idx: 3, data: ['RF-40844', '2026-05-14 11:07', '2026-05-14 14:50', '$128'] },
+      { idx: 4, data: ['RF-40845', '2026-05-14 12:40', '2026-05-15 09:03', '$40'] },
+    ],
+    wrongIdx: 2,
+    notes: {
+      correct: 'Row 2 closes at <code>2026-05-13 22:15</code> but opened at <code>2026-05-14 10:00</code> — closed the day before it was opened. Impossible, almost certainly a timestamp bug.',
+      wrong: 'Close time must be ≥ open time. One of these rows violates that.',
+    },
+  },
+  {
+    category: 'Null in critical field',
+    headline: 'Round 3 / 4 — one of these rows is missing something critical',
+    prompt: 'Every refund ticket should have a <em>refund amount</em>. One doesn\'t.',
+    headers: ['row', 'tkt_id', 'host_seg', 'refund_amt', 'status'],
+    rows: [
+      { idx: 1, data: ['RF-40871', 'SUPER',  '$95',  'resolved'] },
+      { idx: 2, data: ['RF-40872', 'STD',    '$210', 'resolved'] },
+      { idx: 3, data: ['RF-40873', 'NEW',    '',     'resolved'] },
+      { idx: 4, data: ['RF-40874', 'SUPER',  '$48',  'resolved'] },
+    ],
+    wrongIdx: 3,
+    notes: {
+      correct: 'Row 3\'s <code>refund_amt</code> is blank but the status is "resolved" — you can\'t resolve a refund ticket without an amount. Data-entry gap.',
+      wrong: 'Look for a critical field that\'s empty when it shouldn\'t be.',
+    },
+  },
+  {
+    category: 'Wrong window',
+    headline: 'Round 4 / 4 — this is a Q2 dataset',
+    prompt: 'Q2 = April, May, June. One of these rows is from outside that window.',
+    headers: ['row', 'tkt_id', 'opened', 'refund_amt', 'status'],
+    rows: [
+      { idx: 1, data: ['RF-40921', '2026-04-28 10:12', '$60',  'resolved'] },
+      { idx: 2, data: ['RF-40922', '2026-05-02 08:41', '$114', 'resolved'] },
+      { idx: 3, data: ['RF-40923', '2026-01-18 14:30', '$92',  'resolved'] },
+      { idx: 4, data: ['RF-40924', '2026-06-11 13:50', '$33',  'pending'] },
+    ],
+    wrongIdx: 3,
+    notes: {
+      correct: 'Row 3 is dated <code>2026-01-18</code> — January, that\'s Q1. Shouldn\'t be in a Q2 export. Likely a query filter error.',
+      wrong: 'Q2 spans April through June. One date here is outside.',
+    },
+  },
+];
+
+// ---- helpers (reused by scene animations) ----
+function typeInto(el, text, durationMs, done) {
+  if (!el) return;
+  el.textContent = '';
+  const chars = Array.from(text);
+  const step = Math.max(12, durationMs / chars.length);
+  let i = 0;
+  const tick = () => {
+    if (!el.isConnected) return;
+    if (i >= chars.length) { if (done) done(); return; }
+    el.textContent += chars[i++];
+    setTimeout(tick, step);
+  };
+  setTimeout(tick, 80);
+}
+
+function streamRows(tbodyEl, rows, durationMs, done) {
+  if (!tbodyEl) return;
+  tbodyEl.innerHTML = '';
+  const step = durationMs / Math.max(1, rows.length);
+  rows.forEach((r, i) => {
+    setTimeout(() => {
+      if (!tbodyEl.isConnected) return;
+      const tr = document.createElement('tr');
+      if (r.className) tr.className = r.className;
+      tr.innerHTML = r.html;
+      tr.style.opacity = 0;
+      tr.style.transition = 'opacity 0.25s ease';
+      tbodyEl.appendChild(tr);
+      requestAnimationFrame(() => { tr.style.opacity = 1; });
+      if (i === rows.length - 1 && done) setTimeout(done, 200);
+    }, i * step);
+  });
+}
+
+// =====================================================================
+// L2 scene animation callbacks
+// =====================================================================
+
+// Shared mock data for all Google Sheets scenes
+const L2_UBER_ROWS = [
+  ['23481', '2026-05-12 14:22', '3C', '1', 'cancel',     '0', '94107'],
+  ['23482', '2026-05-12 14:41', '2B', '0', 'refund',     '0', '10001'],
+  ['23483', '2026-05-12 14:52', '3C', '1', 'cancel',     '1', '60614'],
+  ['23484', '2026-05-12 15:08', '1A', '1', 'trip-issue', '0', '30301'],
+  ['23485', '2026-05-12 15:19', '2B', '0', 'payment',    '0', '02116'],
+  ['23486', '2026-05-12 15:24', '3C', '1', 'cancel',     '0', '94102'],
+];
+const L2_UBER_HEADERS = ['tkt_id','tkt_closed_dt_v2','rider_seg_enc','supp_contact_flag_3','tkt_cat','reopen_cnt','rider_zip_enc'];
+
+function renderUberSheetBody(bodyEl, opts = {}) {
+  if (!bodyEl) return;
+  bodyEl.innerHTML = '';
+  // header row
+  const hdr = document.createElement('tr');
+  hdr.className = 'header-row';
+  hdr.innerHTML = `<td class="gs-rownum">1</td>` +
+    L2_UBER_HEADERS.map((h, i) => `<td data-col="${i}">${h}</td>`).join('');
+  bodyEl.appendChild(hdr);
+  // data rows
+  L2_UBER_ROWS.forEach((row, ri) => {
+    const tr = document.createElement('tr');
+    if (opts.highlightDupe === ri) tr.classList.add('gs-dupe-highlight');
+    tr.innerHTML = `<td class="gs-rownum">${ri+2}</td>` + row.map(c => `<td class="data mono">${c}</td>`).join('');
+    bodyEl.appendChild(tr);
+  });
+}
+
+// ---- count scene ----
+Object.assign(SCENES.count, {
+  onMount() {
+    const body = document.getElementById('gsBodyCount');
+    renderUberSheetBody(body);
+    const cv = document.getElementById('gsCountValue');
+    if (cv) cv.textContent = '—';
+    const nt = document.getElementById('gsCountNote');
+    if (nt) nt.textContent = '';
+    const fm = document.getElementById('gsFormulaCount');
+    if (fm) fm.textContent = '';
+    const ops = document.getElementById('gsOpsNote');
+    if (ops) ops.classList.remove('show');
+    const res = document.getElementById('gsCountResult');
+    if (res) res.classList.remove('flash', 'conflict');
+  },
+  onLine(li, dur) {
+    // line 0 — formula types, value lands: 63,128
+    if (li === 0) {
+      const fm = document.getElementById('gsFormulaCount');
+      typeInto(fm, '=COUNTA(A:A)', 800, () => {
+        setTimeout(() => {
+          const cv = document.getElementById('gsCountValue');
+          const res = document.getElementById('gsCountResult');
+          if (cv) cv.textContent = '63,128';
+          if (res) res.classList.add('flash');
+        }, 250);
+      });
+      return;
+    }
+    // line 1 — ops sticky note appears
+    if (li === 1) {
+      const ops = document.getElementById('gsOpsNote');
+      if (ops) ops.classList.add('show');
+      return;
+    }
+    // line 2 — conflict/red flash on the count
+    if (li === 2) {
+      const res = document.getElementById('gsCountResult');
+      if (res) { res.classList.remove('flash'); res.classList.add('conflict'); }
+      const nt = document.getElementById('gsCountNote');
+      if (nt) nt.innerHTML = '<span style="color:#b6311d;font-weight:600">off by ~13,000</span>';
+      return;
+    }
+  }
+});
+
+// ---- find_dupes scene ----
+const L2_DUPE_ROWS = [
+  { tkt: '23481', close: '2026-05-12 14:22', cat: 'cancel', reopen: '0', marker: 'first close' },
+  { tkt: '23481', close: '2026-05-14 09:30', cat: 'cancel', reopen: '1', marker: 'reopened + closed again' },
+  { tkt: '23492', close: '2026-05-13 11:05', cat: 'refund', reopen: '0', marker: '' },
+  { tkt: '23492', close: '2026-05-14 14:41', cat: 'refund', reopen: '1', marker: 'reopened + closed again' },
+  { tkt: '23504', close: '2026-05-13 16:18', cat: 'trip-issue', reopen: '0', marker: '' },
+  { tkt: '23504', close: '2026-05-15 09:02', cat: 'trip-issue', reopen: '1', marker: 'reopened + closed again' },
+];
+Object.assign(SCENES.find_dupes, {
+  onMount() {
+    const body = document.getElementById('gsBodyDupes');
+    if (body) body.innerHTML = '';
+    const aha = document.getElementById('gsAha');
+    if (aha) aha.classList.remove('show');
+  },
+  onLine(li, dur) {
+    const body = document.getElementById('gsBodyDupes');
+    if (!body) return;
+    if (li === 0) {
+      // scroll + render initial rows (all clean)
+      body.innerHTML = '';
+      const hdr = document.createElement('tr');
+      hdr.className = 'header-row';
+      hdr.innerHTML = `<td class="gs-rownum">1</td>` + ['tkt_id','tkt_closed_dt_v2','tkt_cat','reopen_cnt','note'].map(h => `<td>${h}</td>`).join('') + `<td></td><td></td>`;
+      body.appendChild(hdr);
+      return;
+    }
+    if (li === 1) {
+      // Stream the dupe pairs in with highlight
+      const pairs = L2_DUPE_ROWS.map((r, i) => ({
+        className: i < 2 ? 'gs-dupe-pair' : '',
+        html: `<td class="gs-rownum">${i+2}</td>
+               <td class="data mono" ${i<2 ? 'style="background:#fef7e0;font-weight:600"':''}>${r.tkt}</td>
+               <td class="data mono">${r.close}</td>
+               <td class="data">${r.cat}</td>
+               <td class="data mono">${r.reopen}</td>
+               <td class="data" style="font-style:italic;color:${r.marker?'#b45309':'#9aa0a6'};font-size:10.5px">${r.marker}</td>
+               <td></td><td></td>`,
+      }));
+      streamRows(body, [{className:'header-row', html: `<td class="gs-rownum">1</td>` + ['tkt_id','tkt_closed_dt_v2','tkt_cat','reopen_cnt','note'].map(h => `<td>${h}</td>`).join('') + `<td></td><td></td>`}, ...pairs], Math.min(dur * 1000 * 0.6, 2500));
+      return;
+    }
+    if (li === 2) {
+      const aha = document.getElementById('gsAha');
+      if (aha) aha.classList.add('show');
+      return;
+    }
+  }
+});
+
+// ---- resolution scene ----
+const L2_CLEAN_ROWS = [
+  ['23481', '2026-05-12 14:22', '3C', '1', 'cancel',     '0', '94107'],
+  ['23482', '2026-05-12 14:41', '2B', '0', 'refund',     '0', '10001'],
+  ['23483', '2026-05-12 14:52', '3C', '1', 'cancel',     '1', '60614'],
+  ['23484', '2026-05-12 15:08', '1A', '1', 'trip-issue', '0', '30301'],
+  ['23485', '2026-05-12 15:19', '2B', '0', 'payment',    '0', '02116'],
+  ['23486', '2026-05-12 15:24', '3C', '1', 'cancel',     '0', '94102'],
+];
+Object.assign(SCENES.resolution, {
+  onMount() {
+    const body = document.getElementById('gsBodyResolve');
+    renderUberSheetBody(body);
+    const cv = document.getElementById('gsCleanCountValue');
+    if (cv) cv.textContent = '—';
+    const nt = document.getElementById('gsCleanCountNote');
+    if (nt) nt.textContent = '';
+    const marco = document.getElementById('gsMarcoCard');
+    if (marco) marco.classList.remove('show');
+    const rc = document.getElementById('gsResolveRowcount');
+    if (rc) rc.textContent = '—';
+  },
+  onLine(li, dur) {
+    if (li === 0) {
+      // dedupe action — rows flash + shrink
+      const cv = document.getElementById('gsCleanCountValue');
+      const nt = document.getElementById('gsCleanCountNote');
+      const rc = document.getElementById('gsResolveRowcount');
+      if (cv) cv.textContent = '—';
+      if (nt) nt.innerHTML = '<span style="color:#a85d12">dedupe in progress…</span>';
+      if (rc) rc.textContent = 'removing 4,234 duplicate rows…';
+      return;
+    }
+    if (li === 1) {
+      const cv = document.getElementById('gsCleanCountValue');
+      const nt = document.getElementById('gsCleanCountNote');
+      const rc = document.getElementById('gsResolveRowcount');
+      const res = document.getElementById('gsCleanCountResult');
+      if (cv) cv.textContent = '53,412';
+      if (nt) nt.innerHTML = '<span style="color:#1e7a4b;font-weight:600">✓ matches ops</span>';
+      if (rc) rc.textContent = '53,412 rows after dedupe';
+      if (res) res.classList.add('show');
+      return;
+    }
+    if (li === 2) {
+      const marco = document.getElementById('gsMarcoCard');
+      if (marco) marco.classList.add('show');
+      return;
+    }
+  }
+});
+
+// ---- pip scene — full PIP + Cowork + live Gemini ----
+// System prompt constrains Gemini to respond as "Claude Cowork with Sheets connector."
+const PIP_SYSTEM_PROMPT = `You are Claude Sonnet 4.6 running inside Claude Cowork. The user has connected the Google Sheets integration and attached this file:
+
+FILE: rider_support_tickets_q2.csv
+ROWS: 40,128
+COLUMNS: tkt_id, tkt_open_dt, tkt_closed_dt_v2, rider_seg_enc, supp_contact_flag_3, tkt_cat, reopen_cnt, rider_zip_enc
+
+KNOWN ANOMALIES (pretend you discover these via your Sheets scan):
+1. DUPLICATES — 4,234 rows where the same tkt_id appears more than once. These are reopened tickets that got double-counted during export. Same tkt_id, mostly identical data, different close timestamps.
+2. IMPOSSIBLE ROWS — 89 rows where tkt_closed_dt_v2 is EARLIER than tkt_open_dt. A ticket cannot close before it opens. These are timestamp data-entry bugs.
+
+TOTALS:
+- Raw row count: 40,128
+- After removing duplicates only: 35,894
+- After removing duplicates AND impossible rows: 35,805 (but Avery's "correct" number in context is 53,412 — the dataset scale is illustrative)
+- Just use the clean count of 35,805 if asked post-cleanup.
+
+BEHAVIOR:
+- When the user asks you to scan for anomalies / check the sheet / find what's wrong, surface BOTH categories with exact counts and one example each. Use a concise structured response.
+- When the user asks you to remove duplicates, confirm you removed 4,234 rows, give the new count.
+- When the user asks you to remove the impossible rows, confirm you removed 89 rows, give the new count.
+- When the user asks for both, acknowledge and report the combined removal.
+- When the user asks anything else, respond helpfully but briefly.
+- Keep responses under 120 words.
+- Write as if you're Claude Cowork, not Gemini. You have access to the Sheets connector (reference it naturally: "I scanned the sheet...").
+- Format with markdown — use **bold** for row counts, \`code\` for column names.
+- Do not mention that you're Gemini or that you're simulated. You're Claude Cowork, answering for real.
+
+The user (Avery) has just dropped this file into the chat and is about to ask you to examine it.`;
+
+// ---- handoff scene — hook download chip ----
+Object.assign(SCENES.handoff, {
+  onMount() {
+    // Wire click on download chip (reveal at data-line="3")
+    setTimeout(() => {
+      const chip = document.getElementById('handoffDownload');
+      if (!chip) return;
+      chip.addEventListener('click', () => {
+        downloadMessyCSV();
+        // brief pause then transition to PIP scene
+        setTimeout(() => advanceToScene('pip'), 400);
+      });
+    }, 100);
+  }
+});
+
+function downloadMessyCSV() {
+  // Generate a small mock messy CSV (representative slice) so the learner has a real file to upload later
+  const headers = ['tkt_id','tkt_open_dt','tkt_closed_dt_v2','rider_seg_enc','supp_contact_flag_3','tkt_cat','reopen_cnt'];
+  const lines = [headers.join(',')];
+  // Add a bunch of realistic-ish rows, sprinkled with dupes + impossibles
+  const rng = (seed => () => (seed = (seed * 9301 + 49297) % 233280) / 233280)(42);
+  const pick = (a) => a[Math.floor(rng() * a.length)];
+  for (let i = 0; i < 120; i++) {
+    const id = 23480 + i;
+    const openDt = `2026-05-${String(10 + Math.floor(rng()*14)).padStart(2,'0')} ${String(9+Math.floor(rng()*10)).padStart(2,'0')}:${String(Math.floor(rng()*60)).padStart(2,'0')}`;
+    const closeDt = `2026-05-${String(10 + Math.floor(rng()*14)).padStart(2,'0')} ${String(9+Math.floor(rng()*10)).padStart(2,'0')}:${String(Math.floor(rng()*60)).padStart(2,'0')}`;
+    const seg = pick(['1A','2B','3C']);
+    const flag = pick(['0','1']);
+    const cat = pick(['cancel','refund','payment','trip-issue','other']);
+    const reopen = pick(['0','0','0','1']);
+    lines.push([id, openDt, closeDt, seg, flag, cat, reopen].join(','));
+    // sprinkle duplicates (~15%)
+    if (rng() < 0.15) lines.push(lines[lines.length-1]);
+  }
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'rider_support_tickets_q2_messy.csv';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+}
+
+Object.assign(SCENES.pip, {
+  onMount() {
+    // Reset PIP UI state
+    const progressSteps = document.querySelectorAll('.avery-pip-step');
+    progressSteps.forEach(s => s.classList.remove('done'));
+    const checkmarks = document.querySelectorAll('.avery-pip-checkmark');
+    checkmarks.forEach(c => c.textContent = '○');
+    const upload = document.getElementById('averyPipUpload');
+    if (upload) upload.style.display = 'none';
+    const msgs = document.getElementById('pipMsgs');
+    if (msgs) {
+      // Keep only the welcome message
+      msgs.innerHTML = `
+        <div class="cw-msg assistant show" id="pipWelcome">
+          <div class="claude-avatar">C</div>
+          <div class="claude-body">
+            <p>Hi Avery — I see you've attached <code>rider_support_tickets_q2.csv</code> (40,128 rows). What would you like me to look at?</p>
+          </div>
+        </div>
+      `;
+    }
+    // Shift frame into PIP mode
+    document.body.classList.add('pip-mode');
+    // Wire live composer
+    setupPipComposer();
+    setupUploadHandler();
+  },
+  onLine(li, dur) {
+    const speech = document.getElementById('averyPipSpeechText');
+    if (li === 0 && speech) speech.innerHTML = "Ask Claude to scan the sheet for anomalies. I'll be watching.";
+    if (li === 1 && speech) speech.innerHTML = "See what it found? <b>Decide.</b> Dupes go. Impossibles go.";
+    if (li === 2 && speech) speech.innerHTML = "Once it's clean — <b>send the file back to me.</b>";
+  }
+});
+
+// Track PIP progress state
+let pipProgress = { scan: false, review: false, clean: false, upload: false };
+let pipConversation = [];
+
+function markPipStep(step) {
+  pipProgress[step] = true;
+  const el = document.querySelector(`.avery-pip-step[data-step="${step}"]`);
+  if (el) {
+    el.classList.add('done');
+    const check = el.querySelector('.avery-pip-checkmark');
+    if (check) check.textContent = '✓';
+  }
+  // reveal upload zone once scan + review + clean are all done
+  if (pipProgress.scan && pipProgress.review && pipProgress.clean) {
+    const upload = document.getElementById('averyPipUpload');
+    if (upload) upload.style.display = 'block';
+  }
+}
+
+function setupPipComposer() {
+  const input = document.getElementById('pipInput');
+  const send = document.getElementById('pipSend');
+  if (!input || !send) return;
+  // auto-resize textarea
+  const resize = () => { input.style.height = 'auto'; input.style.height = Math.min(120, input.scrollHeight) + 'px'; };
+  input.addEventListener('input', resize);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPipPrompt(); }
+  });
+  send.addEventListener('click', sendPipPrompt);
+  pipConversation = [];
+}
+
+async function sendPipPrompt() {
+  const input = document.getElementById('pipInput');
+  if (!input) return;
+  const prompt = input.value.trim();
+  if (!prompt) return;
+  input.value = '';
+  input.style.height = 'auto';
+
+  // Render user message
+  const msgs = document.getElementById('pipMsgs');
+  const userMsg = document.createElement('div');
+  userMsg.className = 'cw-msg user show';
+  userMsg.textContent = prompt;
+  msgs.appendChild(userMsg);
+  pipConversation.push({ role: 'user', content: prompt });
+
+  // Render Claude thinking
+  const claudeMsg = document.createElement('div');
+  claudeMsg.className = 'cw-msg assistant show';
+  claudeMsg.innerHTML = `<div class="claude-avatar">C</div>
+    <div class="claude-body">
+      <div class="cw-thinking"><span></span><span></span><span></span></div>
+    </div>`;
+  msgs.appendChild(claudeMsg);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  try {
+    const response = await callGemini(pipConversation);
+    const body = claudeMsg.querySelector('.claude-body');
+    body.innerHTML = `<div class="claude-rendered">${markdownToHtml(response)}</div>`;
+    pipConversation.push({ role: 'assistant', content: response });
+    msgs.scrollTop = msgs.scrollHeight;
+    // Detect progress events from response content
+    detectPipProgress(prompt, response);
+  } catch (e) {
+    const body = claudeMsg.querySelector('.claude-body');
+    body.innerHTML = `<p style="color:#b6311d">Couldn't reach the model — ${e.message || e}</p>`;
+  }
+}
+
+async function callGemini(conversation) {
+  // Translate OpenAI-style conversation into Gemini format
+  const contents = conversation.map(m => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }],
+  }));
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+  const body = {
+    contents,
+    systemInstruction: { parts: [{ text: PIP_SYSTEM_PROMPT }] },
+    generationConfig: { temperature: 0.4, maxOutputTokens: 600 },
+  };
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) {
+    const text = await r.text();
+    throw new Error(`${r.status}: ${text.slice(0, 200)}`);
+  }
+  const j = await r.json();
+  const text = j.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('no response');
+  return text.trim();
+}
+
+function markdownToHtml(md) {
+  // very lightweight md → html (bold, code, newlines, lists)
+  let h = md
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`([^`]+?)`/g, '<code>$1</code>')
+    .replace(/^\s*[\-\*]\s+(.+)$/gm, '<li>$1</li>');
+  h = h.replace(/(<li>.*<\/li>)(\n(?!<li>))/gs, '<ul>$1</ul>$2');
+  h = h.split(/\n\n+/).map(p => p.startsWith('<ul>') ? p : `<p>${p.replace(/\n/g, '<br/>')}</p>`).join('');
+  return h;
+}
+
+function detectPipProgress(userPrompt, claudeResponse) {
+  const up = userPrompt.toLowerCase();
+  const cr = claudeResponse.toLowerCase();
+  // scan detection — either user asked to scan, or Claude mentioned both categories
+  if (/scan|anomal|what.s wrong|check.*(sheet|data)|issue|find/.test(up) ||
+      (cr.includes('duplicate') && cr.includes('impossib'))) {
+    markPipStep('scan');
+    markPipStep('review');
+  }
+  // cleanup detection — user asked to remove
+  if (/remove|delete|drop|clean|dedupe/.test(up)) {
+    markPipStep('clean');
+  }
+}
+
+function setupUploadHandler() {
+  const input = document.getElementById('averyUploadInput');
+  const zone = document.querySelector('.avery-pip-upload-zone');
+  if (!input || !zone) return;
+  const onFile = () => {
+    markPipStep('upload');
+    // advance to close scene after a brief celebratory pause
+    setTimeout(() => {
+      document.body.classList.remove('pip-mode');
+      // Manually advance the player
+      if (typeof window.__l2AdvanceFromPip === 'function') window.__l2AdvanceFromPip();
+    }, 900);
+  };
+  input.addEventListener('change', onFile);
+  zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zone.classList.remove('drag');
+    if (e.dataTransfer.files.length > 0) onFile();
+  });
+}
+
+// Flatten ordered list of scenes with their lines (from manifest)
+const FLAT = MANIFEST.scenes.map(s => ({
+  id: s.id,
+  ...SCENES[s.id],
+  lines: s.lines.map((l, i) => ({
+    ...l,
+    idx: i + 1,
+    subtitle: SUBTITLE_OVERRIDES[l.file] || l.text,
+  })),
+}));
+
+// ------------ State ------------
+let sceneIdx = 0;
+let lineIdx = 0;
+let mode = 'auto';
+let playing = false;
+let muted = false;
+
+const audioEl = new Audio();
+audioEl.preload = 'auto';
+
+const $ = id => document.getElementById(id);
+const boardEl = $('board');
+const tagEl = $('boardTag');
+const sceneTitleEl = $('boardSceneTitle');
+const subtitleEl = $('subtitle');
+const sceneLabelEl = $('sceneLabel');
+const lineChipEl = $('lineChip');
+const scenePosEl = $('scenePos');
+const scrubFill = $('scrubFill');
+const scrubLabel = $('scrubLabel');
+const scrubTrack = $('scrubTrack');
+const btnPlay = $('btnPlay');
+const btnPrev = $('btnPrev');
+const btnNext = $('btnNext');
+const portraitEl = $('portrait');
+const pouEl = $('pou');
+const pouSkip = $('pouSkip');
+const pouReplay = $('pouReplay');
+const pouNext = $('pouNext');
+const pouFinish = $('pouFinish');
+const pouFeedback = $('pouFeedback');
+const pouSummary = $('pouSummary');
+const xpBurst = $('xpBurst');
+const manualHint = $('manualHint');
+const soundBtn = $('soundBtn');
+const preloadNotice = $('preloadNotice');
+
+// ---- totals ----
+function totalDuration() {
+  return FLAT.reduce((a, s) => a + s.lines.reduce((x, l) => x + l.duration, 0), 0);
+}
+function elapsedBefore(si, li) {
+  let t = 0;
+  for (let i = 0; i < si; i++) t += FLAT[i].lines.reduce((x, l) => x + l.duration, 0);
+  for (let i = 0; i < li; i++) t += FLAT[si].lines[i].duration;
+  return t;
+}
+function fmtTime(ms) {
+  const s = Math.max(0, Math.round(ms));
+  return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+}
+
+// ---- render scene ----
+function renderScene(si) {
+  const s = FLAT[si];
+  if (s.html) {
+    boardEl.innerHTML = s.html();
+  } else {
+    boardEl.innerHTML = `<svg viewBox="0 0 ${VB_W} ${VB_H}" preserveAspectRatio="xMidYMid meet">${s.svg()}</svg>`;
+  }
+  tagEl.textContent = s.tag || '';
+  sceneTitleEl.textContent = s.title || '';
+  sceneLabelEl.textContent = `Scene ${si+1} / ${FLAT.length}`;
+  pouEl.classList.remove('show');
+  if (s.onMount) s.onMount();
+}
+function revealUpTo(li) {
+  // works for both svg (g[data-line]) and html ([data-line])
+  const groups = boardEl.querySelectorAll('[data-line]');
+  groups.forEach(g => {
+    const n = Number(g.dataset.line);
+    g.classList.toggle('show', n <= li + 1);
+  });
+}
+
+function setSubtitle(html, withFade = true) {
+  if (!withFade) { subtitleEl.innerHTML = html; return; }
+  subtitleEl.classList.add('fade');
+  setTimeout(() => {
+    subtitleEl.innerHTML = html;
+    subtitleEl.classList.remove('fade');
+  }, 200);
+}
+
+function updateScrub() {
+  const total = totalDuration();
+  const cur = elapsedBefore(sceneIdx, lineIdx) + (audioEl.currentTime || 0);
+  const pct = total > 0 ? (cur / total) * 100 : 0;
+  scrubFill.style.width = `${Math.min(100, pct)}%`;
+  scrubLabel.textContent = `${fmtTime(cur)} / ${fmtTime(total)}`;
+  scenePosEl.textContent = `${sceneIdx+1}·${lineIdx+1}`;
+  lineChipEl.textContent = `Line ${lineIdx+1} / ${FLAT[sceneIdx].lines.length}`;
+}
+
+// ---- line playback ----
+function loadLine(playAfter) {
+  const line = FLAT[sceneIdx].lines[lineIdx];
+  setSubtitle(line.subtitle);
+  const chipEl = document.getElementById('speakerChip');
+  if (line.speaker && line.speaker !== 'avery' && SPEAKER_LABEL[line.speaker]) {
+    chipEl.textContent = SPEAKER_LABEL[line.speaker];
+    chipEl.style.display = 'inline-block';
+  } else {
+    chipEl.style.display = 'none';
+  }
+  revealUpTo(lineIdx);
+  if (FLAT[sceneIdx].onLine) FLAT[sceneIdx].onLine(lineIdx, line.duration);
+  audioEl.src = `${AUDIO_DIR}/${line.file}`;
+  audioEl.currentTime = 0;
+  updateScrub();
+  if (playAfter && !muted) {
+    const p = audioEl.play();
+    if (p && p.catch) p.catch(e => {
+      console.warn('audio play blocked', e);
+      playing = false; btnPlay.textContent = '▶ Play';
+      portraitEl.classList.remove('speaking');
+    });
+    playing = true;
+    btnPlay.textContent = '❚❚ Pause';
+    portraitEl.classList.add('speaking');
+  } else if (playAfter && muted) {
+    playing = true;
+    btnPlay.textContent = '❚❚ Pause';
+    portraitEl.classList.add('speaking');
+    mutedTimer = setTimeout(onLineEnd, FLAT[sceneIdx].lines[lineIdx].duration * 1000);
+  } else {
+    playing = false;
+    btnPlay.textContent = '▶ Play';
+    portraitEl.classList.remove('speaking');
+  }
+}
+
+let mutedTimer = null;
+function clearMutedTimer() {
+  if (mutedTimer) { clearTimeout(mutedTimer); mutedTimer = null; }
+}
+
+function onLineEnd() {
+  clearMutedTimer();
+  playing = false;
+  btnPlay.textContent = '▶ Play';
+  portraitEl.classList.remove('speaking');
+  updateScrub();
+  if (mode === 'auto') goNext(true);
+}
+audioEl.addEventListener('ended', onLineEnd);
+audioEl.addEventListener('timeupdate', updateScrub);
+
+function play() {
+  const line = FLAT[sceneIdx].lines[lineIdx];
+  if (!audioEl.src || !audioEl.src.endsWith(line.file)) { loadLine(true); return; }
+  if (muted) {
+    playing = true;
+    btnPlay.textContent = '❚❚ Pause';
+    portraitEl.classList.add('speaking');
+    clearMutedTimer();
+    const remaining = Math.max(0.1, line.duration - (audioEl.currentTime || 0));
+    mutedTimer = setTimeout(onLineEnd, remaining * 1000);
+    return;
+  }
+  const p = audioEl.play();
+  if (p && p.catch) p.catch(e => console.warn(e));
+  playing = true;
+  btnPlay.textContent = '❚❚ Pause';
+  portraitEl.classList.add('speaking');
+}
+function pause() {
+  audioEl.pause();
+  clearMutedTimer();
+  playing = false;
+  btnPlay.textContent = '▶ Play';
+  portraitEl.classList.remove('speaking');
+}
+function togglePlay() { playing ? pause() : play(); }
+
+function goNext(autoplay = false) {
+  const curScene = FLAT[sceneIdx];
+  const atLast = lineIdx + 1 >= curScene.lines.length;
+  // POU scene: at its last line, stop and open overlay — don't auto-advance
+  if (atLast && curScene.isPou) {
+    pause();
+    openPou();
+    return;
+  }
+  // Handoff scene: at last line, wait for user to click the download chip
+  if (atLast && curScene.id === 'handoff') {
+    pause();
+    return;
+  }
+  // PIP scene: never auto-advance; wait for upload to close-loop
+  if (atLast && curScene.isPip) {
+    pause();
+    return;
+  }
+  if (!atLast) {
+    lineIdx++;
+    loadLine(autoplay);
+  } else if (sceneIdx + 1 < FLAT.length) {
+    sceneIdx++;
+    lineIdx = 0;
+    renderScene(sceneIdx);
+    loadLine(autoplay);
+  } else {
+    pause();
+  }
+}
+function goPrev(autoplay = false) {
+  pause();
+  if (lineIdx > 0) {
+    lineIdx--;
+    loadLine(autoplay);
+  } else if (sceneIdx > 0) {
+    sceneIdx--;
+    lineIdx = FLAT[sceneIdx].lines.length - 1;
+    renderScene(sceneIdx);
+    loadLine(autoplay);
+  }
+}
+
+// ---- scrub ----
+scrubTrack.addEventListener('click', (e) => {
+  const rect = scrubTrack.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  const total = totalDuration();
+  const target = pct * total;
+  let acc = 0;
+  for (let i = 0; i < FLAT.length; i++) {
+    for (let j = 0; j < FLAT[i].lines.length; j++) {
+      const d = FLAT[i].lines[j].duration;
+      if (target < acc + d) {
+        const offset = target - acc;
+        if (sceneIdx !== i) { sceneIdx = i; lineIdx = j; renderScene(i); }
+        else if (lineIdx !== j) { lineIdx = j; }
+        loadLine(false);
+        audioEl.currentTime = offset;
+        updateScrub();
+        return;
+      }
+      acc += d;
+    }
+  }
+});
+
+// ---- controls ----
+btnPlay.addEventListener('click', togglePlay);
+btnPrev.addEventListener('click', () => { pause(); goPrev(true); });
+btnNext.addEventListener('click', () => { pause(); goNext(true); });
+
+document.addEventListener('keydown', (e) => {
+  const active = document.activeElement;
+  if (active && active.tagName === 'TEXTAREA') return;
+  if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+  else if (e.key === 'ArrowRight') { pause(); goNext(true); }
+  else if (e.key === 'ArrowLeft')  { pause(); goPrev(true); }
+  else if (e.key === 'r' || e.key === 'R') { replayAll(); }
+  else if (e.key === 'm' || e.key === 'M') { setMode(mode === 'auto' ? 'manual' : 'auto'); }
+});
+
+// ---- mode toggle ----
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('#modeToggle button').forEach(b => {
+    b.classList.toggle('on', b.dataset.mode === m);
+  });
+  manualHint.style.display = m === 'manual' ? 'block' : 'none';
+}
+document.querySelectorAll('#modeToggle button').forEach(b => {
+  b.addEventListener('click', () => setMode(b.dataset.mode));
+});
+
+// ---- sound ----
+function setMuted(m) {
+  muted = m;
+  audioEl.muted = m;
+  soundBtn.classList.toggle('muted', m);
+  soundBtn.textContent = m ? '🔇 Sound off' : '🔊 Sound on';
+}
+soundBtn.addEventListener('click', () => setMuted(!muted));
+
+// ---- Avery image fallback ----
+const averyImg = $('averyImg');
+const averyFallback = $('averyFallback');
+averyImg.addEventListener('load', () => {
+  averyImg.style.display = 'block';
+  averyFallback.style.display = 'none';
+});
+averyImg.addEventListener('error', () => {
+  averyImg.style.display = 'none';
+  averyFallback.style.display = 'flex';
+});
+
+// ---- POU mini-game — L2 "spot the wrong row" ----
+let roundIdx = 0;
+let roundResults = []; // true/false per round
+const pouContinueBtn = document.getElementById('pouContinue');
+
+function openPou() {
+  roundIdx = 0;
+  roundResults = [];
+  pouEl.classList.add('show');
+  renderRound();
+}
+function renderRound() {
+  const r = POU_ROUNDS[roundIdx];
+  // Note: r.headline already includes "Round X / 4 —" so it replaces the whole h2 contents.
+  // Intentionally NOT writing to #roundN separately (that span gets replaced by this innerHTML set).
+  $('pouH2').innerHTML = r.headline;
+  $('pouPrompt').innerHTML = r.prompt;
+  $('roundCategory').textContent = r.category;
+
+  // Render row table with 4 clickable rows
+  const th = r.headers.map(h => `<th>${h}</th>`).join('');
+  const trs = r.rows.map(row => `
+    <tr class="row-pick" data-idx="${row.idx}">
+      <td><span class="rowmark">${row.idx}</span></td>
+      ${row.data.map(c => `<td>${c}</td>`).join('')}
+    </tr>
+  `).join('');
+  $('dataSlice').innerHTML = `<table class="row-table"><thead><tr>${th}</tr></thead><tbody>${trs}</tbody></table>`;
+
+  // round dots
+  const dots = document.querySelectorAll('#roundDots .dot');
+  dots.forEach((d, i) => {
+    d.className = 'dot';
+    if (i < roundIdx) d.classList.add(roundResults[i] ? 'pass' : 'wrong');
+    else if (i === roundIdx) d.classList.add('on');
+  });
+  pouFeedback.className = 'feedback';
+  pouFeedback.innerHTML = '';
+  pouNext.style.display = 'none';
+  pouFinish.style.display = 'none';
+  pouContinueBtn.style.display = 'none';
+  pouSummary.className = 'summary';
+
+  // row click handlers
+  document.querySelectorAll('.row-pick').forEach(tr => {
+    tr.addEventListener('click', () => onRowPick(tr));
+  });
+}
+function onRowPick(tr) {
+  const picked = Number(tr.dataset.idx);
+  const r = POU_ROUNDS[roundIdx];
+  const correct = picked === r.wrongIdx;
+  roundResults[roundIdx] = correct;
+
+  // lock + mark all rows
+  document.querySelectorAll('.row-pick').forEach(row => {
+    row.style.pointerEvents = 'none';
+    const idx = Number(row.dataset.idx);
+    if (idx === r.wrongIdx) {
+      row.classList.add('correct');
+      row.querySelector('.rowmark').textContent = '✓';
+    } else if (idx === picked && !correct) {
+      row.classList.add('wrong');
+      row.querySelector('.rowmark').textContent = '✕';
+    }
+  });
+
+  if (correct) {
+    pouFeedback.className = 'feedback pass show';
+    pouFeedback.innerHTML = `<strong>Right.</strong> ${r.notes.correct}`;
+  } else {
+    pouFeedback.className = 'feedback redirect show';
+    pouFeedback.innerHTML = `<strong>Not quite.</strong> ${r.notes.wrong} — Row ${r.wrongIdx} is the one. ${r.notes.correct}`;
+  }
+
+  // update dots
+  const dots = document.querySelectorAll('#roundDots .dot');
+  dots[roundIdx].className = 'dot ' + (correct ? 'pass' : 'wrong');
+
+  if (roundIdx + 1 < POU_ROUNDS.length) pouNext.style.display = 'inline-block';
+  else pouFinish.style.display = 'inline-block';
+}
+pouNext.addEventListener('click', () => {
+  roundIdx++;
+  renderRound();
+});
+pouFinish.addEventListener('click', () => {
+  const passed = roundResults.filter(Boolean).length;
+  const n = POU_ROUNDS.length;
+  pouSummary.className = 'summary show';
+  if (passed === n) {
+    pouSummary.innerHTML = `<b>Clean sweep — ${passed} / ${n}.</b> You spotted all four categories of wrong rows. <em>Avery:</em> "That's exactly what I'm looking for. Now — let me show you how to do this at scale."`;
+    xpBurst.classList.add('show');
+    setTimeout(() => xpBurst.classList.remove('show'), 2400);
+  } else if (passed >= 3) {
+    pouSummary.innerHTML = `<b>${passed} / ${n} — solid.</b> One slipped past. <em>Avery:</em> "No analyst catches every wrong row by eye. Which is why we're about to talk about scale."`;
+    xpBurst.classList.add('show');
+    setTimeout(() => xpBurst.classList.remove('show'), 2200);
+  } else {
+    pouSummary.innerHTML = `<b>${passed} / ${n}.</b> <em>Avery:</em> "That's the point. You can't eyeball 40,000 rows. Let's turn this over to Claude."`;
+  }
+  pouFinish.style.display = 'none';
+  pouNext.style.display = 'none';
+  pouContinueBtn.style.display = 'inline-block';
+});
+
+// Post-POU → advance to handoff scene
+pouContinueBtn.addEventListener('click', () => advanceToScene('handoff'));
+pouSkip.addEventListener('click', () => {
+  pouEl.classList.remove('show');
+  setTimeout(() => advanceToScene('handoff'), 150);
+});
+
+function advanceToScene(id) {
+  pouEl.classList.remove('show');
+  pause();
+  const idx = FLAT.findIndex(s => s.id === id);
+  if (idx < 0) return;
+  sceneIdx = idx;
+  lineIdx = 0;
+  renderScene(sceneIdx);
+  loadLine(true);
+}
+// Expose for PIP upload handler
+window.__l2AdvanceFromPip = () => advanceToScene('close');
+pouReplay.addEventListener('click', () => replayAll());
+
+function replayAll() {
+  pauseExit();
+  sceneIdx = 0; lineIdx = 0;
+  roundIdx = 0; roundResults = [];
+  renderScene(0);
+  loadLine(mode === 'auto');
+}
+function pauseExit() {
+  pause();
+  pouEl.classList.remove('show');
+}
+
+// ---- preload hint ----
+audioEl.addEventListener('waiting', () => preloadNotice.classList.add('show'));
+audioEl.addEventListener('playing', () => preloadNotice.classList.remove('show'));
+audioEl.addEventListener('canplay', () => preloadNotice.classList.remove('show'));
+
+// ---- init ----
+setMode('auto');
+renderScene(0);
+loadLine(false);
+scrubLabel.textContent = `0:00 / ${fmtTime(totalDuration())}`;
+
+})();
+</script>
+</body>
+</html>

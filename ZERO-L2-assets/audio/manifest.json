@@ -1,0 +1,216 @@
+{
+  "scenes": [
+    {
+      "id": "bridge",
+      "lines": [
+        {
+          "file": "bridge-01.mp3",
+          "text": "I had the glossary. I could read every column. Still Day Two — late afternoon.",
+          "speaker": "avery",
+          "duration": 8.359
+        },
+        {
+          "file": "bridge-02.mp3",
+          "text": "Then I pulled the first real number. Total tickets, Q2.",
+          "speaker": "avery",
+          "duration": 3.788
+        },
+        {
+          "file": "bridge-03.mp3",
+          "text": "And it was wrong.",
+          "speaker": "avery",
+          "duration": 0.679
+        }
+      ]
+    },
+    {
+      "id": "count",
+      "lines": [
+        {
+          "file": "count-01.mp3",
+          "text": "Sixty-three thousand, one hundred twenty-eight tickets.",
+          "speaker": "avery",
+          "duration": 3.318
+        },
+        {
+          "file": "count-02.mp3",
+          "text": "I stare at it. Ops told me Q2 was around fifty thousand.",
+          "speaker": "avery",
+          "duration": 3.474
+        },
+        {
+          "file": "count-03.mp3",
+          "text": "Off by thirteen thousand. That's not rounding. Something's wrong.",
+          "speaker": "avery",
+          "duration": 5.878
+        }
+      ]
+    },
+    {
+      "id": "gut_check",
+      "lines": [
+        {
+          "file": "gut_check-01.mp3",
+          "text": "Here's a rule. When your number disagrees with a trusted prior —",
+          "speaker": "avery",
+          "duration": 4.362
+        },
+        {
+          "file": "gut_check-02.mp3",
+          "text": "The number is usually wrong. Not the prior.",
+          "speaker": "avery",
+          "duration": 3.082
+        }
+      ]
+    },
+    {
+      "id": "find_dupes",
+      "lines": [
+        {
+          "file": "find_dupes-01.mp3",
+          "text": "I scroll. Start hunting for patterns.",
+          "speaker": "avery",
+          "duration": 2.691
+        },
+        {
+          "file": "find_dupes-02.mp3",
+          "text": "Two rows. Same ticket ID. Different close dates.",
+          "speaker": "avery",
+          "duration": 3.631
+        },
+        {
+          "file": "find_dupes-03.mp3",
+          "text": "Every ticket that got reopened was counted twice.",
+          "speaker": "avery",
+          "duration": 2.351
+        }
+      ]
+    },
+    {
+      "id": "toolkit",
+      "lines": [
+        {
+          "file": "toolkit-01.mp3",
+          "text": "Every messy dataset has four kinds of wrong rows.",
+          "speaker": "avery",
+          "duration": 3.239
+        },
+        {
+          "file": "toolkit-02.mp3",
+          "text": "Duplicates, like mine. Impossibles — a close date before the open date. Nulls where something should be. And rows from outside your window.",
+          "speaker": "avery",
+          "duration": 11.546
+        },
+        {
+          "file": "toolkit-03.mp3",
+          "text": "Your job. Spot them. Decide. Remove, fix, or flag.",
+          "speaker": "avery",
+          "duration": 5.068
+        }
+      ]
+    },
+    {
+      "id": "resolution",
+      "lines": [
+        {
+          "file": "resolution-01.mp3",
+          "text": "I dedupe. Fifteen percent of the file was dupes.",
+          "speaker": "avery",
+          "duration": 3.239
+        },
+        {
+          "file": "resolution-02.mp3",
+          "text": "New count: fifty-three thousand, four hundred twelve. Matches Ops.",
+          "speaker": "avery",
+          "duration": 4.754
+        },
+        {
+          "file": "resolution-03.mp3",
+          "text": "Marco walks past. Good catch, he says. You almost walked in with the bad number.",
+          "speaker": "avery",
+          "duration": 4.676
+        }
+      ]
+    },
+    {
+      "id": "pou",
+      "lines": [
+        {
+          "file": "pou-01.mp3",
+          "text": "Your turn.",
+          "speaker": "avery",
+          "duration": 0.601
+        },
+        {
+          "file": "pou-02.mp3",
+          "text": "I'll show you a few rows from an Airbnb refund slice. Spot what's wrong with each one.",
+          "speaker": "avery",
+          "duration": 4.049
+        }
+      ]
+    },
+    {
+      "id": "handoff",
+      "lines": [
+        {
+          "file": "handoff-01.mp3",
+          "text": "Nice. You did that by hand.",
+          "speaker": "avery",
+          "duration": 1.489
+        },
+        {
+          "file": "handoff-02.mp3",
+          "text": "But here's the thing. You can't eyeball forty thousand rows.",
+          "speaker": "avery",
+          "duration": 4.127
+        },
+        {
+          "file": "handoff-03.mp3",
+          "text": "This is where Claude earns its keep. I'm sending you a messy file. Open it in Claude. Ask it to find what's wrong.",
+          "speaker": "avery",
+          "duration": 6.609
+        }
+      ]
+    },
+    {
+      "id": "pip",
+      "lines": [
+        {
+          "file": "pip-01.mp3",
+          "text": "I'll be watching. Ask Claude to scan the sheet for anomalies.",
+          "speaker": "avery",
+          "duration": 3.318
+        },
+        {
+          "file": "pip-02.mp3",
+          "text": "When you see what's wrong — decide. Dupes go. Impossibles go.",
+          "speaker": "avery",
+          "duration": 4.519
+        },
+        {
+          "file": "pip-03.mp3",
+          "text": "Once it's clean — send the file back to me.",
+          "speaker": "avery",
+          "duration": 2.194
+        }
+      ]
+    },
+    {
+      "id": "close",
+      "lines": [
+        {
+          "file": "close-01.mp3",
+          "text": "Fifty-three thousand, four hundred twelve. Same number I got — in thirty seconds.",
+          "speaker": "avery",
+          "duration": 5.251
+        },
+        {
+          "file": "close-02.mp3",
+          "text": "That's the trade. Claude scans. You decide. On to what you do with clean data.",
+          "speaker": "avery",
+          "duration": 6.113
+        }
+      ]
+    }
+  ]
+}

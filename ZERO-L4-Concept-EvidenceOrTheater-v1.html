@@ -1,0 +1,4463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Zero · L4 · Evidence or theater? (v1 · Day 3 · chart + stat + prose)</title>
+<style>
+:root {
+  --bg: #f4f5f7;
+  --card: #ffffff;
+  --paper: #fbf7ee;
+  --paper-grid: rgba(15,17,21,0.05);
+
+  --ink: #0f1115;
+  --ink-soft: #3d424d;
+  --ink-dim: #6b7280;
+  --ink-faint: #9ca3af;
+  --line: rgba(15,17,21,0.08);
+  --line-strong: rgba(15,17,21,0.16);
+
+  --good: #1e7a4b;
+  --good-soft: #e6f4ec;
+  --bad: #b6311d;
+  --bad-soft: #fbe8e4;
+  --warn: #a85d12;
+  --warn-soft: #fff5e6;
+
+  --radius-card: 14px;
+  --radius-chip: 999px;
+
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "SF Pro Text", sans-serif;
+  --mono: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --hand: "Bradley Hand", "Segoe Print", "Marker Felt", "Chalkduster", var(--serif);
+
+  --g-mint: linear-gradient(135deg, #c8f5df 0%, #86d9b5 55%, #3fb489 100%);
+
+  --shadow-card: 0 1px 2px rgba(15,17,21,0.04), 0 6px 20px rgba(15,17,21,0.06);
+  --shadow-stage: 0 8px 40px rgba(15,17,21,0.10), 0 1px 2px rgba(15,17,21,0.04);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: var(--sans); }
+body {
+  font-size: 15px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.frame {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 22px 24px 18px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Top ---------- */
+.topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.topbar .crumb { font-size: 12px; color: var(--ink-dim); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
+.topbar .title { font-size: 14px; color: var(--ink); font-weight: 600; }
+.topbar .title .ital { font-family: var(--serif); font-style: italic; font-weight: 400; }
+.topbar .spacer { flex: 1; }
+.topbar .chip {
+  font-size: 11.5px; padding: 5px 10px;
+  border-radius: var(--radius-chip);
+  background: var(--card); border: 1px solid var(--line); color: var(--ink-soft);
+}
+
+.mode-toggle {
+  display: inline-flex; align-items: center;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: 3px;
+  gap: 2px;
+}
+.mode-toggle button {
+  font: 600 11.5px/1 var(--sans);
+  border: none;
+  background: transparent;
+  color: var(--ink-soft);
+  padding: 6px 12px;
+  border-radius: var(--radius-chip);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+.mode-toggle button.on {
+  background: var(--ink); color: #fff;
+}
+
+.sound-btn {
+  font: 600 11.5px/1 var(--sans);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: 7px 12px;
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+.sound-btn.muted { color: var(--ink-faint); }
+
+/* ---------- Stage ---------- */
+.stage {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 22px;
+  padding-top: 18px;
+  min-height: 0;
+}
+
+.rail {
+  display: flex; flex-direction: column; gap: 16px;
+  min-height: 0;
+}
+
+.avery-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px;
+}
+
+.portrait {
+  position: relative;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: var(--g-mint);
+  box-shadow: 0 4px 16px rgba(63,180,137,0.22), inset 0 2px 4px rgba(255,255,255,0.6);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  transition: box-shadow 0.3s;
+}
+.portrait::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px rgba(255,255,255,0.55);
+  pointer-events: none;
+  z-index: 2;
+}
+.portrait img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.portrait .fallback {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.portrait .fallback svg { width: 100%; height: 100%; display: block; }
+
+.portrait .ring {
+  position: absolute; inset: -10px;
+  border-radius: 50%;
+  border: 2px solid rgba(63,180,137,0.38);
+  opacity: 0;
+}
+.portrait.speaking .ring {
+  animation: pulse 1.5s ease-out infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(0.92); opacity: 0.55; }
+  70% { transform: scale(1.15); opacity: 0; }
+  100% { opacity: 0; }
+}
+.portrait.speaking {
+  box-shadow: 0 6px 22px rgba(63,180,137,0.32), 0 0 0 4px rgba(63,180,137,0.15), inset 0 2px 4px rgba(255,255,255,0.6);
+}
+
+.avery-name { font-size: 14px; font-weight: 600; color: var(--ink); margin-top: 6px; }
+.avery-role { font-size: 12px; color: var(--ink-dim); }
+
+.subtitle-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 18px 20px 20px;
+  box-shadow: var(--shadow-card);
+  min-height: 170px;
+  display: flex; flex-direction: column; gap: 8px;
+  flex: 1;
+}
+.subtitle-row {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.subtitle-label {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-faint); font-weight: 600;
+}
+.subtitle-linechip {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-faint); font-weight: 600;
+}
+.speaker-chip {
+  display: inline-block; align-self: flex-start;
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: var(--radius-chip);
+  background: #0f1115; color: #f9d76e;
+  border: 1px solid #0f1115;
+  margin-bottom: 4px;
+  animation: chipIn 0.35s ease both;
+}
+@keyframes chipIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.subtitle-text {
+  font-size: 17px; line-height: 1.55; color: var(--ink);
+  font-family: var(--serif);
+  letter-spacing: -0.005em;
+  transition: opacity 0.25s ease;
+}
+.subtitle-text.fade { opacity: 0; }
+.subtitle-text .ital { font-style: italic; color: var(--ink-soft); }
+.subtitle-text em { font-style: normal; font-weight: 700; font-family: var(--sans); font-size: 15.5px; color: var(--ink); }
+.subtitle-text code { font-family: var(--mono); font-size: 14px; background: #f4f1e6; padding: 1px 5px; border-radius: 4px; color: #0f1115; }
+
+.manual-hint {
+  margin-top: auto;
+  font-size: 11.5px; color: var(--ink-dim);
+  padding: 8px 10px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 10px;
+}
+
+/* ---------- Board ---------- */
+.board-wrap {
+  position: relative;
+  background: var(--paper);
+  border-radius: 22px;
+  border: 1px solid rgba(15,17,21,0.06);
+  box-shadow: var(--shadow-stage);
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.board-wrap::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(to right, var(--paper-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--paper-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  opacity: 0.7;
+}
+.board {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+.board > svg {  /* direct-child only — nested SVGs render inline */
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+}
+.board .tag {
+  position: absolute;
+  top: 14px; left: 16px;
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-dim); font-weight: 600;
+  background: rgba(255,255,255,0.7);
+  padding: 5px 10px; border-radius: var(--radius-chip);
+  border: 1px solid var(--line);
+  z-index: 3;
+}
+.board .scene-title {
+  position: absolute;
+  top: 14px; right: 16px;
+  font-size: 11.5px;
+  color: var(--ink-soft); font-weight: 600;
+  font-family: var(--sans);
+  z-index: 3;
+}
+
+/* SVG line-reveal system */
+.board svg g[data-line] {
+  opacity: 0;
+  transition: opacity 0.45s ease-out;
+}
+.board svg g[data-line].show {
+  opacity: 1;
+}
+/* stroke draw-in */
+.board svg .draw {
+  stroke-dasharray: var(--dash, 1200);
+  stroke-dashoffset: var(--dash, 1200);
+}
+.board svg g[data-line].show .draw {
+  animation: draw 1.0s ease-out 0.1s forwards;
+}
+@keyframes draw { to { stroke-dashoffset: 0; } }
+/* pop */
+.board svg .pop {
+  transform-origin: center;
+  transform-box: fill-box;
+  transform: scale(0.88);
+}
+.board svg g[data-line].show .pop {
+  animation: popin 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) forwards;
+}
+@keyframes popin { to { transform: scale(1); } }
+
+.wb-text { font-family: var(--hand); fill: var(--ink); }
+.wb-text.dim { fill: var(--ink-soft); }
+.wb-text.faint { fill: var(--ink-faint); }
+.wb-text.red { fill: var(--bad); }
+.wb-text.green { fill: var(--good); }
+.wb-text.warn { fill: var(--warn); }
+.wb-mono { font-family: var(--mono); fill: var(--ink); }
+.wb-mono.faint { fill: var(--ink-faint); }
+
+/* ---------- Bottom ---------- */
+.bottombar {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 18px;
+  align-items: center;
+}
+.btn {
+  font: 500 13px/1 var(--sans);
+  background: var(--card); color: var(--ink);
+  border: 1px solid var(--line); border-radius: var(--radius-chip);
+  padding: 9px 14px; cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.btn:hover { background: #fff; border-color: var(--line-strong); }
+.btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+.btn.primary:hover { background: #000; }
+.btn.ghost { background: transparent; border-color: var(--line); }
+
+.bottom-left { display: flex; gap: 6px; align-items: center; }
+.scene-pos {
+  font-size: 11.5px; color: var(--ink-dim); font-weight: 600;
+  padding: 0 4px; font-variant-numeric: tabular-nums;
+}
+
+.scrub {
+  display: flex; align-items: center; gap: 12px;
+}
+.scrub-track {
+  flex: 1;
+  position: relative;
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(15,17,21,0.08);
+  cursor: pointer;
+}
+.scrub-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  border-radius: 4px;
+  background: var(--ink);
+  width: 0%;
+  transition: width 0.1s linear;
+}
+.scrub-marker {
+  position: absolute; top: -3px; width: 2px; height: 12px;
+  background: rgba(15,17,21,0.25);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.scrub-marker.active { background: var(--ink); }
+.scrub-label {
+  min-width: 110px;
+  font-size: 11.5px; color: var(--ink-dim); font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.hints {
+  display: flex; gap: 14px; font-size: 11px; color: var(--ink-faint);
+}
+.hints kbd {
+  font-family: var(--sans);
+  background: var(--card); border: 1px solid var(--line);
+  padding: 2px 6px; border-radius: 6px; font-size: 10.5px; color: var(--ink-soft);
+}
+
+/* ---------- POU — mini-game ---------- */
+.pou {
+  position: absolute; inset: 0;
+  z-index: 5;
+  background: linear-gradient(180deg, rgba(251,247,238,0.94), rgba(251,247,238,0.98));
+  backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 28px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease-out;
+}
+.pou.show { opacity: 1; pointer-events: auto; }
+.pou .sheet {
+  max-width: 780px; width: 100%;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow-stage);
+  padding: 22px 26px 24px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.pou .head-row { display: flex; align-items: center; gap: 12px; }
+.pou .label {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-faint); font-weight: 600;
+}
+.pou .round-dots { display: flex; gap: 6px; margin-left: auto; }
+.pou .round-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
+.pou .round-dots .dot.on { background: var(--ink); }
+.pou .round-dots .dot.pass { background: var(--good); }
+.pou .round-dots .dot.wrong { background: var(--bad); }
+
+.pou h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+.pou h2 .ital { font-style: italic; }
+
+.data-slice {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.data-slice table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 620px;
+}
+.data-slice th, .data-slice td {
+  text-align: left;
+  padding: 4px 10px 4px 0;
+  border-bottom: 1px dashed rgba(15,17,21,0.08);
+}
+.data-slice th { color: var(--ink-soft); font-weight: 600; }
+.data-slice td { color: var(--ink); }
+.data-slice th.focus, .data-slice td.focus {
+  background: #fff4c9;
+  border-radius: 4px;
+}
+.data-slice th.focus {
+  color: var(--ink);
+}
+
+.col-prompt {
+  font-size: 14.5px;
+  color: var(--ink-soft);
+  font-family: var(--serif);
+  font-style: italic;
+}
+.col-prompt code {
+  font-family: var(--mono);
+  font-style: normal;
+  background: #fff4c9;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--ink);
+  font-size: 13.5px;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.opt {
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: 14px/1.45 var(--sans);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
+  position: relative;
+}
+.opt:hover { background: #fafafa; border-color: var(--line-strong); }
+.opt.selected { border-color: var(--ink); background: #fafafa; }
+.opt.correct { background: var(--good-soft); border-color: rgba(30,122,75,0.35); color: var(--good); }
+.opt.wrong { background: var(--bad-soft); border-color: rgba(182,49,29,0.28); color: var(--bad); }
+.opt.disabled { pointer-events: none; opacity: 0.55; }
+.opt .mark {
+  position: absolute; right: 12px; top: 12px; font-size: 16px; font-weight: 700;
+}
+
+.feedback {
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 13.5px;
+  display: none;
+}
+.feedback.show { display: block; }
+.feedback.pass { background: var(--good-soft); color: var(--good); border: 1px solid rgba(30,122,75,0.25); }
+.feedback.soft { background: var(--warn-soft); color: var(--warn); border: 1px solid rgba(168,93,18,0.22); }
+.feedback.redirect { background: var(--bad-soft); color: var(--bad); border: 1px solid rgba(182,49,29,0.22); }
+
+.actions { display: flex; gap: 10px; align-items: center; }
+.actions .spacer { flex: 1; }
+
+.summary {
+  display: none;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--ink);
+  font-family: var(--serif);
+}
+.summary.show { display: block; }
+.summary b { font-family: var(--sans); }
+
+.xp-burst {
+  position: absolute; top: 18px; right: 18px;
+  background: var(--g-mint);
+  color: #0b3b28;
+  font-weight: 700; font-size: 13px;
+  padding: 8px 14px; border-radius: var(--radius-chip);
+  box-shadow: 0 6px 18px rgba(63,180,137,0.32);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 6;
+}
+.xp-burst.show { opacity: 1; transform: translateY(0); }
+
+.preload-notice {
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  font-size: 11.5px; color: var(--ink-dim);
+  background: rgba(255,255,255,0.85); border: 1px solid var(--line);
+  padding: 6px 12px; border-radius: var(--radius-chip);
+  z-index: 4;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.preload-notice.show { opacity: 1; }
+
+/* ---------- Cowork simulated UI (modern_move scene) ---------- */
+/* Visual target: real Claude Cowork — warm off-white canvas,
+   dark warm sidebar, assistant replies flow as body text (no bubble),
+   user messages get a rounded pill-bubble. */
+.cw-stage {
+  position: absolute; inset: 0;
+  background: #f5f4ef;
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  color: #1a1a1a;
+  overflow: hidden;
+  border-radius: 0;
+}
+.cw-sidebar {
+  background: #262521;
+  color: #d8d4c8;
+  padding: 12px 10px 10px;
+  display: flex; flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+.cw-brand {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 8px 10px;
+}
+.cw-brand .cw-brand-mark {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: #c65f2b;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: #fff; font-size: 12px; letter-spacing: -0.02em;
+  flex-shrink: 0;
+}
+.cw-brand .cw-brand-text {
+  font-size: 13px; font-weight: 600; color: #e8e4d7; letter-spacing: -0.01em;
+}
+.cw-brand .cw-brand-sub {
+  font-size: 10px; font-weight: 400; color: #8a857a; margin-left: 4px;
+  letter-spacing: 0.02em;
+}
+.cw-new-btn {
+  background: #33312c;
+  color: #e8e4d7;
+  border: 1px solid #3e3c35;
+  padding: 8px 10px; font-size: 12px; font-weight: 500;
+  border-radius: 8px; text-align: left;
+  display: flex; align-items: center; gap: 8px;
+  letter-spacing: -0.01em;
+}
+.cw-new-btn::before {
+  content: ""; width: 14px; height: 14px;
+  background:
+    linear-gradient(#8a857a, #8a857a) center / 10px 1.5px no-repeat,
+    linear-gradient(#8a857a, #8a857a) center / 1.5px 10px no-repeat;
+}
+.cw-new-btn .cw-kbd {
+  margin-left: auto; font-size: 10px; color: #8a857a;
+  border: 1px solid #3e3c35; padding: 1px 5px; border-radius: 4px;
+}
+.cw-search {
+  background: transparent;
+  color: #8a857a; font-size: 12px;
+  padding: 7px 10px;
+  display: flex; align-items: center; gap: 8px;
+  border-radius: 8px;
+}
+.cw-search::before {
+  content: ""; width: 13px; height: 13px; flex-shrink: 0;
+  background: radial-gradient(circle at 45% 45%, transparent 3.5px, #8a857a 3.5px, #8a857a 5px, transparent 5px);
+  mask: radial-gradient(circle at 45% 45%, transparent 3.5px, black 3.5px, black 5px, transparent 5px);
+  border-radius: 50%;
+  /* simplified search glass */
+}
+.cw-search-ico { width: 13px; height: 13px; flex-shrink: 0; color: #8a857a; }
+.cw-chatlist { list-style: none; margin: 4px 0; padding: 0; display: flex; flex-direction: column; gap: 1px; }
+.cw-chatlist-label {
+  font-size: 10.5px; color: #8a857a;
+  padding: 10px 10px 4px; letter-spacing: 0.04em;
+  font-weight: 500;
+}
+.cw-chat-item {
+  font-size: 12px; padding: 7px 10px; border-radius: 7px;
+  color: #b3ae9e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  letter-spacing: -0.005em;
+}
+.cw-chat-item.active { background: #33312c; color: #f0ecdf; }
+.cw-footer {
+  margin-top: auto;
+  padding: 10px 4px 4px;
+  display: flex; gap: 9px; align-items: center;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.cw-avatar-dot {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, #c8f5df, #3fb489);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12.5px; font-weight: 700; color: #0b3b28;
+  flex-shrink: 0;
+}
+.cw-user-info { flex: 1; min-width: 0; }
+.cw-user-name { font-size: 12px; color: #e8e4d7; font-weight: 500; letter-spacing: -0.01em; }
+.cw-user-tier { font-size: 10.5px; color: #8a857a; }
+
+.cw-main {
+  display: flex; flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: #f5f4ef;
+}
+.cw-header {
+  padding: 10px 18px 10px;
+  display: flex; justify-content: space-between; align-items: center;
+  background: #f5f4ef;
+  z-index: 2;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+.cw-title {
+  font-size: 13px; font-weight: 500; color: #1a1a1a;
+  letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 6px;
+}
+.cw-title::before {
+  content: "★"; font-size: 11px; color: #c0baa6; opacity: 0.6;
+}
+.cw-model {
+  font-size: 11.5px; color: #595551;
+  background: transparent;
+  padding: 3px 4px; border-radius: 6px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.cw-model::after {
+  content: "⌄"; font-size: 11px; color: #95908a; margin-left: 1px;
+}
+
+.cw-messages {
+  flex: 1; overflow: hidden;
+  padding: 20px 20px 10px;
+  display: flex; flex-direction: column; gap: 18px;
+  min-height: 0;
+  position: relative;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #1a1a1a;
+}
+
+.cw-msg {
+  opacity: 0; transform: translateY(4px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.cw-msg.show { opacity: 1; transform: translateY(0); }
+
+/* USER message — rounded pill bubble, right-aligned */
+.cw-msg.user {
+  align-self: flex-end;
+  background: #eae5d5;
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 13.5px;
+  color: #1a1a1a;
+  line-height: 1.45;
+  max-width: 80%;
+  letter-spacing: -0.005em;
+}
+.cw-msg.user .cw-csv-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.08);
+  padding: 6px 10px 6px 8px; border-radius: 10px;
+  font-size: 11.5px;
+  margin-bottom: 8px;
+  color: #4a4641;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.cw-msg.user .cw-csv-chip::before {
+  content: ""; width: 16px; height: 16px; flex-shrink: 0;
+  background: #e8f1ea;
+  border-radius: 4px;
+  display: inline-block;
+  background-image:
+    linear-gradient(#1e7a4b, #1e7a4b),
+    linear-gradient(#1e7a4b, #1e7a4b),
+    linear-gradient(#1e7a4b, #1e7a4b);
+  background-size: 8px 1px, 8px 1px, 8px 1px;
+  background-position: 4px 5px, 4px 8px, 4px 11px;
+  background-repeat: no-repeat;
+  background-color: #e8f1ea;
+}
+
+/* ASSISTANT message — flows inline, no bubble */
+.cw-msg.assistant {
+  align-self: stretch;
+  display: flex; gap: 12px;
+  max-width: 100%;
+}
+.cw-msg.assistant .claude-avatar {
+  width: 26px; height: 26px;
+  background: #c65f2b;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 13px;
+  margin-top: 1px;
+  font-family: Georgia, serif;
+  font-style: italic;
+  letter-spacing: -0.04em;
+}
+.cw-msg.assistant .claude-body {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 3px 0 0;
+  font-size: 13.5px;
+  color: #1a1a1a;
+  position: relative;
+  min-width: 0;
+  letter-spacing: -0.005em;
+}
+.cw-msg.assistant .claude-body p { margin: 0 0 8px; }
+.cw-msg.assistant .claude-body p:last-child { margin-bottom: 0; }
+.cw-msg.assistant .claude-body code {
+  font-family: "SF Mono", Menlo, monospace; font-size: 12px;
+  background: rgba(198,95,43,0.08);
+  padding: 1.5px 5px; border-radius: 4px; color: #8a4418;
+  border: 1px solid rgba(198,95,43,0.14);
+}
+.cw-msg.assistant .claude-body strong { font-weight: 600; color: #0a0a0a; }
+
+.cw-thinking {
+  display: inline-flex; gap: 5px;
+  padding: 4px 2px;
+  align-items: center;
+}
+.cw-thinking span {
+  width: 6px; height: 6px; background: #c65f2b;
+  border-radius: 50%;
+  animation: cwdot 1.2s infinite ease-in-out;
+  opacity: 0.4;
+}
+.cw-thinking span:nth-child(2) { animation-delay: 0.15s; }
+.cw-thinking span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes cwdot {
+  0%, 80%, 100% { opacity: 0.25; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+
+.cw-gloss-tbl {
+  width: 100%; border-collapse: collapse;
+  font-size: 12px;
+  margin: 10px 0 6px;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.cw-gloss-tbl th, .cw-gloss-tbl td {
+  text-align: left; padding: 8px 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  vertical-align: top;
+}
+.cw-gloss-tbl tr:last-child td { border-bottom: none; }
+.cw-gloss-tbl th {
+  font-weight: 500; color: #595551;
+  background: rgba(0,0,0,0.025);
+  font-size: 10.5px; letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 7px 10px;
+}
+.cw-gloss-tbl tr.flagged td { background: #fff4e0; }
+.cw-gloss-tbl tr.resolved td { background: #eaf5ee; }
+.cw-gloss-tbl .note {
+  color: #8a4418; font-size: 11px; margin-top: 5px;
+  line-height: 1.45;
+  padding: 5px 8px; background: rgba(198,95,43,0.06);
+  border-left: 2px solid #c65f2b;
+  border-radius: 0 4px 4px 0;
+}
+.cw-gloss-tbl .note code { background: rgba(198,95,43,0.12); }
+.cw-gloss-tbl .resolved-note {
+  color: #1e7a4b; border-left-color: #1e7a4b;
+  background: rgba(30,122,75,0.06);
+}
+.cw-gloss-tbl .resolved-note code { background: rgba(30,122,75,0.12); color: #0f4a2b; }
+.cw-gloss-tbl .col-name {
+  font-weight: 500; color: #1a1a1a;
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: 11.5px;
+  background: rgba(0,0,0,0.04);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+}
+.cw-gloss-tbl .def {
+  font-size: 12.5px; color: #1a1a1a; line-height: 1.5;
+  letter-spacing: -0.005em;
+}
+
+.cw-composer {
+  padding: 10px 20px 18px;
+  background: #f5f4ef;
+}
+.cw-composer-inner {
+  display: flex; align-items: flex-end; gap: 8px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 16px;
+  padding: 10px 10px 10px 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  min-height: 48px;
+}
+.cw-composer-inner.focused { border-color: #c65f2b; }
+.cw-attach, .cw-send {
+  width: 28px; height: 28px; border: none;
+  background: transparent; color: #595551;
+  font-size: 15px; cursor: default;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.cw-attach {
+  background: #f0eee7; color: #4a4641;
+  font-size: 18px; font-weight: 400;
+}
+.cw-send {
+  background: #c65f2b; color: white;
+  border-radius: 50%; font-size: 14px; font-weight: 700;
+}
+.cw-input {
+  flex: 1; font-size: 13.5px; color: #1a1a1a;
+  min-height: 22px; display: flex; align-items: center; min-width: 0;
+  letter-spacing: -0.005em;
+}
+.cw-input .cw-placeholder { color: #95908a; }
+.cw-input .cw-typed { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cw-caret {
+  display: inline-block; width: 1.5px; height: 14px;
+  background: #1a1a1a; vertical-align: middle;
+  margin-left: 2px;
+  animation: cwcaret 0.8s infinite;
+}
+@keyframes cwcaret { 50% { opacity: 0; } }
+
+/* Red pen overlay */
+.cw-pen {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 4;
+}
+.cw-pen.show { opacity: 1; }
+
+/* Takeaway card */
+.cw-takeaway {
+  position: absolute; inset: 0;
+  background: rgba(251,247,238,0.97);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 16px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.5s ease;
+  z-index: 5;
+  padding: 0 20px;
+  text-align: center;
+}
+.cw-takeaway.show { opacity: 1; pointer-events: auto; }
+.cw-take-label {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-faint); font-weight: 600;
+}
+.cw-takeaway-inner { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.cw-take-pill {
+  font-family: var(--sans); font-weight: 700; font-size: 16px;
+  letter-spacing: 0.08em;
+  background: var(--ink); color: white;
+  padding: 11px 20px; border-radius: 12px;
+  opacity: 0; transform: translateY(10px);
+}
+.cw-takeaway.show .cw-take-pill { animation: cwpill 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) forwards; }
+.cw-takeaway.show .cw-take-pill.p2 { animation-delay: 0.15s; background: #a85d12; }
+.cw-takeaway.show .cw-take-pill.p3 { animation-delay: 0.3s; background: var(--good); }
+.cw-take-arrow { font-size: 22px; color: var(--ink-dim); opacity: 0; }
+.cw-takeaway.show .cw-take-arrow { animation: cwpill 0.4s forwards 0.1s; }
+.cw-takeaway.show .cw-take-arrow.a2 { animation-delay: 0.25s; }
+@keyframes cwpill { to { opacity: 1; transform: translateY(0); } }
+.cw-take-line {
+  font-family: var(--serif); font-style: italic; font-size: 19px;
+  color: var(--ink-soft); margin-top: 2px;
+  opacity: 0;
+}
+.cw-takeaway.show .cw-take-line { animation: cwpill 0.5s forwards 0.5s; }
+.cw-take-next {
+  margin-top: 12px; font-size: 12px; color: var(--ink-dim);
+  opacity: 0;
+}
+.cw-takeaway.show .cw-take-next { animation: cwpill 0.5s forwards 0.8s; }
+.cw-take-next .arrow { color: var(--good); font-weight: 700; margin-right: 5px; }
+
+/* modern_move data-line hidden state works via HTML class too */
+.board [data-line] {
+  opacity: 0;
+  transition: opacity 0.45s ease-out;
+}
+.board [data-line].show {
+  opacity: 1;
+}
+
+/* Post-POU "modern move" button */
+.pou .modern-cta {
+  display: none;
+  background: linear-gradient(135deg, #da7756 0%, #b0492c 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font: 700 13.5px/1 var(--sans);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(218,119,86,0.3);
+  align-items: center; gap: 8px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.pou .modern-cta.show { display: inline-flex; }
+.pou .modern-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(218,119,86,0.38); }
+.pou .modern-cta::before {
+  content: ""; width: 10px; height: 10px; border-radius: 50%; background: white; opacity: 0.9;
+}
+
+/* ---------- Google Sheets clone (csv scene) ---------- */
+.gs-stage {
+  position: absolute; inset: 0;
+  background: #ffffff;
+  display: flex; flex-direction: column;
+  font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color: #202124;
+  overflow: hidden;
+  font-size: 13px;
+}
+.gs-topbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 14px 4px;
+  background: #ffffff;
+  border-bottom: 1px solid transparent;
+}
+.gs-fileicon {
+  width: 22px; height: 26px;
+  background: #0f9d58;
+  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 11px; font-weight: 700;
+  flex-shrink: 0;
+  position: relative;
+}
+.gs-fileicon::before {
+  content: ""; position: absolute; top: 0; right: 0;
+  width: 6px; height: 6px;
+  background: linear-gradient(225deg, #ffffff 50%, transparent 50%);
+}
+.gs-fileinfo { flex: 1; min-width: 0; }
+.gs-filename {
+  font-size: 15px; color: #202124;
+  letter-spacing: -0.005em; font-weight: 400;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.gs-filename .gs-star { color: #dadce0; font-size: 14px; }
+.gs-filename .gs-folder { color: #5f6368; font-size: 13px; }
+.gs-filestatus { font-size: 11.5px; color: #5f6368; margin-top: 1px; }
+.gs-topactions { display: flex; gap: 8px; align-items: center; }
+.gs-share {
+  background: #c2e7ff; color: #001d35;
+  padding: 8px 16px; border-radius: 20px;
+  font-size: 13px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.gs-share::before { content: "🔒"; font-size: 11px; }
+
+.gs-menu {
+  display: flex; gap: 2px;
+  padding: 0 14px 4px;
+  background: #ffffff;
+  font-size: 12.5px;
+  color: #444;
+}
+.gs-menu span {
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: #444;
+}
+
+.gs-toolbar {
+  display: flex; align-items: center; gap: 2px;
+  padding: 2px 10px 4px;
+  background: #f0f4f9;
+  border-top: 1px solid #e0e0e0;
+  margin: 4px 10px 0;
+  border-radius: 22px;
+  height: 36px;
+}
+.gs-tool {
+  height: 28px; min-width: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 13px; color: #444746;
+  padding: 0 6px;
+  border-radius: 4px;
+}
+.gs-tool.bold { font-weight: 700; }
+.gs-tool.italic { font-style: italic; }
+.gs-tooldiv { width: 1px; height: 18px; background: #c4c7c5; margin: 0 4px; }
+
+.gs-cellbar {
+  display: flex; align-items: center; gap: 4px;
+  padding: 6px 12px;
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+}
+.gs-cellref {
+  font-size: 12px; color: #444746;
+  padding: 4px 10px;
+  border: 1px solid #dadce0; border-radius: 4px;
+  min-width: 60px; text-align: center;
+  background: #ffffff;
+}
+.gs-fx {
+  font-family: "Roboto Serif", Georgia, serif;
+  font-style: italic;
+  color: #5f6368;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+.gs-formula {
+  font-size: 13px; color: #202124;
+  padding: 4px 0;
+}
+
+.gs-grid {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background: #ffffff;
+  min-height: 0;
+}
+.gs-table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+  font-size: 12px;
+}
+.gs-table th, .gs-table td {
+  border: 1px solid #e0e0e0;
+  padding: 3px 8px;
+  height: 22px;
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: "Roboto", Arial, sans-serif;
+}
+.gs-table thead th {
+  background: #f8f9fa;
+  color: #5f6368;
+  font-weight: 500;
+  font-size: 11.5px;
+  text-align: center;
+  height: 22px;
+  border-bottom: 1px solid #c0c4c9;
+}
+.gs-table .gs-rownum {
+  background: #f8f9fa;
+  color: #5f6368;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 400;
+  width: 44px;
+  border-right: 1px solid #c0c4c9;
+}
+.gs-table tr.header-row td {
+  background: #ffffff;
+  font-family: "Roboto Mono", "SF Mono", monospace;
+  font-size: 11.5px;
+  color: #202124;
+  font-weight: 500;
+}
+.gs-table tr.header-row td.highlight {
+  background: #fef7e0;
+  border-color: #f9ab00;
+}
+.gs-table td.data {
+  color: #202124;
+  font-family: "Roboto", Arial, sans-serif;
+}
+.gs-table td.mono {
+  font-family: "Roboto Mono", "SF Mono", monospace;
+  font-size: 11px;
+  color: #3c4043;
+}
+.gs-table td.selected {
+  outline: 2px solid #1a73e8;
+  outline-offset: -2px;
+  background: #e8f0fe;
+}
+
+/* column width ratios via nth-child on cells */
+.gs-table col.c-num { width: 44px; }
+.gs-table col.c-a { width: 9%; }
+.gs-table col.c-b { width: 20%; }
+.gs-table col.c-c { width: 15%; }
+.gs-table col.c-d { width: 17%; }
+.gs-table col.c-e { width: 12%; }
+.gs-table col.c-f { width: 11%; }
+.gs-table col.c-g { width: auto; }
+
+/* Question-mark confusion overlay on line 4 */
+.gs-confused {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  font-family: "Bradley Hand", cursive;
+  font-size: 22px;
+  color: #d93025;
+  font-weight: 700;
+  transform: rotate(-5deg);
+  z-index: 4;
+}
+.gs-confused.show { opacity: 1; }
+
+.gs-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 5px 12px;
+  background: #ffffff;
+  border-top: 1px solid #e0e0e0;
+  font-size: 11.5px;
+  color: #5f6368;
+}
+.gs-tabs { display: flex; gap: 2px; align-items: center; }
+.gs-tab {
+  padding: 4px 14px; font-size: 11.5px; color: #5f6368;
+  border-top: 2px solid transparent; border-radius: 0;
+  display: flex; align-items: center; gap: 6px;
+}
+.gs-tab.active {
+  background: #ffffff; color: #202124; font-weight: 500;
+  border-top-color: #0f9d58;
+  box-shadow: 0 -2px 0 #0f9d58 inset;
+}
+.gs-tab-add { color: #5f6368; padding: 4px 8px; font-size: 13px; }
+.gs-rowcount {
+  font-size: 11.5px; color: #5f6368;
+  background: transparent;
+  padding: 3px 10px;
+  border-radius: 4px;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.gs-rowcount.flash { background: #fef7e0; color: #b05e00; font-weight: 500; }
+
+/* ---------- Column-confusion view (trap scene, Sheets-focus) ---------- */
+.tr-stage {
+  position: absolute; inset: 0;
+  background: #f5f4ef;
+  display: flex; flex-direction: column;
+  font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color: #202124;
+  overflow: hidden;
+  padding: 0;
+}
+.tr-breadcrumb {
+  padding: 10px 18px;
+  font-size: 12px;
+  color: #5f6368;
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex; align-items: center; gap: 8px;
+}
+.tr-breadcrumb .tr-sheeticon {
+  width: 16px; height: 18px;
+  background: #0f9d58; border-radius: 2px; flex-shrink: 0;
+  position: relative;
+}
+.tr-breadcrumb .tr-sheeticon::before {
+  content: ""; position: absolute; top: 0; right: 0;
+  width: 5px; height: 5px;
+  background: linear-gradient(225deg, #ffffff 50%, transparent 50%);
+}
+.tr-breadcrumb .tr-file { color: #202124; font-weight: 500; }
+.tr-breadcrumb .tr-sep { color: #9aa0a6; }
+.tr-breadcrumb .tr-active { color: #5f6368; }
+
+.tr-body {
+  flex: 1; overflow: hidden;
+  padding: 36px 24px 18px;
+  display: flex; flex-direction: column;
+  min-height: 0;
+  position: relative;
+}
+.tr-hint {
+  font-size: 11.5px; color: #9aa0a6;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 14px;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.tr-hint.show { opacity: 1; }
+
+.tr-header-row {
+  display: grid;
+  grid-template-columns: 0.9fr 1.7fr 1.3fr 1.6fr;
+  gap: 2px;
+  background: #ffffff;
+  border: 1px solid #c0c4c9;
+  border-radius: 4px;
+  padding: 0;
+  overflow: hidden;
+}
+.tr-header-cell {
+  padding: 14px 14px;
+  background: #f8f9fa;
+  border-right: 1px solid #dadce0;
+  font-family: "Roboto Mono", "SF Mono", monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: #202124;
+  text-align: center;
+  position: relative;
+  transition: background 0.35s ease, color 0.35s ease;
+}
+.tr-header-cell:last-child { border-right: none; }
+.tr-header-cell.highlight {
+  background: #fef7e0;
+  color: #b45309;
+}
+.tr-header-cell.highlight::after {
+  content: ""; position: absolute; inset: -2px;
+  border: 2px solid #f9ab00;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.tr-guess-row {
+  display: grid;
+  grid-template-columns: 0.9fr 1.7fr 1.3fr 1.6fr;
+  gap: 2px;
+  margin-top: 20px;
+  min-height: 110px;
+}
+.tr-guess-cell {
+  padding: 8px 10px;
+  text-align: center;
+  font-family: "Bradley Hand", "Segoe Print", "Marker Felt", cursive;
+  font-size: 19px;
+  color: #3c4043;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  line-height: 1.35;
+  font-style: italic;
+}
+.tr-guess-cell.show { opacity: 1; transform: translateY(0); }
+.tr-guess-cell.known { color: #1e7a4b; }
+.tr-guess-cell.unsure { color: #b45309; }
+.tr-guess-cell .tr-q { color: #d93025; font-weight: 700; }
+.tr-arrow {
+  display: block;
+  width: 2px; height: 22px;
+  background: #9aa0a6;
+  margin: 0 auto 6px;
+  position: relative;
+  opacity: 0.5;
+}
+.tr-arrow::after {
+  content: "";
+  position: absolute;
+  left: -4px; bottom: -2px;
+  width: 10px; height: 10px;
+  border-right: 2px solid #9aa0a6;
+  border-bottom: 2px solid #9aa0a6;
+  transform: rotate(45deg);
+}
+
+.tr-thought {
+  margin-top: auto;
+  padding: 14px 18px;
+  font-family: "Bradley Hand", cursive;
+  font-style: italic;
+  font-size: 20px;
+  color: #5f6368;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.tr-thought.show { opacity: 1; }
+
+/* Marco overlay reused from Jupyter namespace — renamed to .tr-marco */
+.tr-marco {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.38);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 0 24px 32px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.45s ease;
+  z-index: 5;
+}
+.tr-marco.show { opacity: 1; }
+.tr-marco-card {
+  background: #0f1115;
+  border-radius: 16px;
+  padding: 18px 22px 20px;
+  max-width: 620px;
+  width: 100%;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  transform: translateY(20px);
+  transition: transform 0.45s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+.tr-marco.show .tr-marco-card { transform: translateY(0); }
+.tr-marco-speaker {
+  color: #f9d76e; font-size: 10.5px; letter-spacing: 0.14em;
+  font-weight: 700; margin-bottom: 8px;
+}
+.tr-marco-quote {
+  color: #ffffff;
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+.tr-marco-quote code {
+  font-family: "SF Mono", Menlo, monospace;
+  font-style: normal;
+  color: #f9d76e;
+  background: rgba(249,215,110,0.12);
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-size: 18px;
+}
+
+/* ---------- (legacy) Jupyter styles kept as no-op stubs ---------- */
+.jp-stage {
+  position: absolute; inset: 0;
+  background: #ffffff;
+  display: none;
+}
+.jp-topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding: 8px 14px;
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+}
+.jp-logo {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  color: #f37626;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.jp-logo::before {
+  content: "◉"; color: #767677; font-size: 16px; margin-right: 6px;
+}
+.jp-filename {
+  font-size: 15px; color: #000;
+  font-weight: 500;
+}
+.jp-filename .jp-unsaved { color: #f37626; font-size: 13px; margin-left: 4px; }
+.jp-status {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: #767677;
+}
+.jp-status .jp-kernel-ok { color: #4a9b4a; font-size: 11px; }
+.jp-logout {
+  font-size: 12px; color: #000;
+  padding: 3px 10px; border: 1px solid #dcdcdc;
+  border-radius: 3px; background: #f7f7f7;
+}
+
+.jp-menu {
+  display: flex; gap: 16px;
+  padding: 4px 14px;
+  background: #ffffff;
+  font-size: 13px;
+  color: #000;
+  border-bottom: 1px solid #e6e6e6;
+}
+.jp-menu span { padding: 2px 0; }
+
+.jp-toolbar {
+  display: flex; align-items: center; gap: 1px;
+  padding: 4px 8px;
+  background: #ffffff;
+  border-bottom: 1px solid #e6e6e6;
+}
+.jp-tool {
+  height: 26px; min-width: 30px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12px; color: #333;
+  padding: 0 7px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: #fafafa;
+  border: 1px solid #dcdcdc;
+  margin-right: -1px;
+}
+.jp-tool-run {
+  padding: 0 10px; color: #333; font-size: 12px;
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #fafafa; border: 1px solid #dcdcdc;
+  height: 26px; border-radius: 2px;
+}
+.jp-tool-run::before { content: "▶"; font-size: 9px; color: #333; }
+.jp-tooldiv { width: 1px; height: 18px; background: #dcdcdc; margin: 0 8px; }
+.jp-celltype {
+  height: 26px; padding: 0 8px;
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #fafafa; border: 1px solid #dcdcdc; border-radius: 2px;
+  font-size: 12px; color: #333;
+  min-width: 64px;
+  margin-left: 6px;
+}
+.jp-celltype::after { content: "▾"; font-size: 10px; color: #666; margin-left: auto; }
+
+.jp-notebook {
+  flex: 1;
+  overflow: hidden;
+  padding: 18px 20px;
+  background: #ffffff;
+  min-height: 0;
+  position: relative;
+}
+
+.jp-cell {
+  display: flex; gap: 0;
+  margin-bottom: 10px;
+  border: 1px solid transparent;
+  position: relative;
+}
+.jp-cell.focused {
+  border-left: 3px solid #42a5f5;
+}
+.jp-cell.about-to-run {
+  border-left: 3px solid #d32f2f;
+  background: rgba(211,47,47,0.02);
+}
+.jp-cell.about-to-run::before {
+  content: ""; position: absolute; inset: 0;
+  background: rgba(211,47,47,0.06);
+  pointer-events: none;
+}
+.jp-prompt {
+  width: 88px;
+  flex-shrink: 0;
+  padding: 8px 10px 8px 8px;
+  font-family: "Menlo", "Monaco", monospace;
+  font-size: 12px;
+  color: #1976d2;
+  text-align: right;
+  font-weight: 500;
+}
+.jp-prompt-num { color: #1976d2; }
+.jp-prompt.empty .jp-prompt-num { color: #9e9e9e; }
+.jp-cellbody {
+  flex: 1;
+  background: #f7f7f7;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+  padding: 8px 12px;
+  overflow: hidden;
+  position: relative;
+  min-width: 0;
+}
+.jp-cellbody .jp-cursor {
+  display: inline-block;
+  width: 2px; height: 14px;
+  background: #000;
+  vertical-align: middle;
+  animation: jpcaret 1s infinite;
+}
+@keyframes jpcaret { 50% { opacity: 0; } }
+.jp-code {
+  margin: 0;
+  font-family: "Menlo", "Monaco", "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #000;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.jp-code .tok-kw { color: #008000; font-weight: 500; }
+.jp-code .tok-fn { color: #000; }
+.jp-code .tok-str { color: #ba2121; }
+.jp-code .tok-num { color: #080; }
+.jp-code .tok-attr { color: #000; }
+.jp-code .tok-dot { color: #666; }
+
+.jp-warn-overlay {
+  position: absolute;
+  left: 88px; right: 0;
+  margin-top: 4px;
+  padding: 8px 12px;
+  background: rgba(211,47,47,0.08);
+  border: 1px solid rgba(211,47,47,0.25);
+  border-radius: 4px;
+  color: #b71c1c;
+  font-size: 12.5px;
+  font-style: italic;
+  display: flex; align-items: center; gap: 8px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 3;
+}
+.jp-warn-overlay.show { opacity: 1; }
+.jp-warn-overlay::before { content: "⚠"; color: #d32f2f; font-style: normal; }
+
+/* Marco's interruption — overlay with dimming */
+.jp-marco {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 0 24px 32px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.45s ease;
+  z-index: 5;
+}
+.jp-marco.show { opacity: 1; }
+.jp-marco-card {
+  background: #0f1115;
+  border-radius: 16px;
+  padding: 18px 22px 20px;
+  max-width: 580px;
+  width: 100%;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  transform: translateY(20px);
+  transition: transform 0.45s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+.jp-marco.show .jp-marco-card { transform: translateY(0); }
+.jp-marco-speaker {
+  color: #f9d76e; font-size: 10.5px; letter-spacing: 0.14em;
+  font-weight: 700; margin-bottom: 8px;
+}
+.jp-marco-quote {
+  color: #ffffff;
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+.jp-marco-quote code {
+  font-family: "SF Mono", Menlo, monospace;
+  font-style: normal;
+  color: #f9d76e;
+  background: rgba(249,215,110,0.12);
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-size: 18px;
+}
+
+/* ---------- L2-specific extensions ---------- */
+
+.gs-count-result {
+  position: absolute;
+  right: 22px; top: 92px;
+  background: #ffffff;
+  border: 2px solid #dadce0;
+  border-radius: 10px;
+  padding: 12px 16px 14px;
+  min-width: 210px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  z-index: 2;
+  transition: border-color 0.4s ease, background 0.4s ease, box-shadow 0.4s ease;
+}
+.gs-count-result.flash { border-color: #f9ab00; background: #fef7e0; }
+.gs-count-result.conflict {
+  border-color: #b6311d;
+  background: #fbe8e4;
+  animation: gsShake 0.35s ease-in-out 1;
+}
+.gs-count-result.clean { opacity: 0; transition: opacity 0.5s ease; }
+.gs-count-result.clean.show {
+  opacity: 1; border-color: #0f9d58; background: #e6f4ec;
+  box-shadow: 0 4px 20px rgba(15,157,88,0.15);
+}
+@keyframes gsShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+.gs-count-label {
+  font-family: "Roboto Mono", "SF Mono", monospace;
+  font-size: 11px; color: #5f6368; margin-bottom: 4px;
+}
+.gs-count-value {
+  font-family: "Roboto Serif", Georgia, serif;
+  font-size: 36px; font-weight: 500; color: #202124;
+  letter-spacing: -0.01em;
+}
+.gs-count-note { font-size: 11.5px; margin-top: 4px; font-style: italic; }
+
+.gs-ops-stickynote {
+  position: absolute;
+  right: 22px; top: 210px;
+  width: 200px;
+  background: #fef7e0;
+  border: 1px solid #f9ab00;
+  border-left: 4px solid #f9ab00;
+  border-radius: 4px;
+  padding: 12px 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  z-index: 2;
+  opacity: 0;
+  transform: translateY(10px) rotate(-2deg);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  font-family: "Bradley Hand", "Segoe Print", cursive;
+}
+.gs-ops-stickynote.show { opacity: 1; transform: translateY(0) rotate(-2deg); }
+.gs-sticky-label {
+  font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #a85d12; font-weight: 600; margin-bottom: 4px;
+  font-family: var(--sans);
+}
+.gs-sticky-body { font-size: 17px; color: #3d2804; font-style: italic; line-height: 1.3; }
+.gs-sticky-body b { font-style: normal; font-weight: 700; color: #1a73e8; font-size: 19px; }
+
+.gs-aha {
+  position: absolute;
+  right: 22px; top: 150px;
+  background: #fef7e0;
+  border: 1px solid #f9ab00;
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 6px 20px rgba(249,171,0,0.2);
+  z-index: 2;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  max-width: 220px;
+}
+.gs-aha.show { opacity: 1; transform: translateY(0); }
+.gs-aha-label {
+  font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #a85d12; font-weight: 700; margin-bottom: 4px;
+}
+.gs-aha-body {
+  font-size: 14px; color: #3d2804;
+  font-family: "Bradley Hand", cursive; font-style: italic; line-height: 1.35;
+}
+
+.gs-marco-card {
+  position: absolute;
+  right: 22px; bottom: 60px;
+  background: #0f1115;
+  border-radius: 14px;
+  padding: 14px 16px;
+  max-width: 280px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  z-index: 3;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.gs-marco-card.show { opacity: 1; transform: translateY(0); }
+.gs-marco-card .gs-marco-speaker {
+  color: #f9d76e; font-size: 10px; letter-spacing: 0.14em;
+  font-weight: 700; margin-bottom: 6px;
+}
+.gs-marco-card .gs-marco-quote {
+  color: #ffffff;
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-style: italic; font-size: 15px; line-height: 1.35;
+}
+
+.gs-table tr.gs-dupe-highlight td,
+.gs-table tr.gs-dupe-pair td { background: #fef7e0; }
+
+/* PIP mode — body transform */
+body.pip-mode .frame { max-width: 100vw; padding: 0; height: 100vh; }
+body.pip-mode .topbar,
+body.pip-mode .rail,
+body.pip-mode .bottombar { display: none; }
+body.pip-mode .stage {
+  grid-template-columns: 1fr; padding: 0; gap: 0; height: 100vh;
+}
+body.pip-mode .board-wrap {
+  border-radius: 0; border: none; box-shadow: none; background: #f5f4ef;
+}
+body.pip-mode .board-wrap::before { display: none; }
+body.pip-mode .board .tag,
+body.pip-mode .board .scene-title { display: none; }
+
+.pip-stage {
+  position: absolute; inset: 0;
+  background: #f5f4ef; overflow: hidden;
+}
+.pip-cowork { position: absolute; inset: 0; border-radius: 0; }
+
+.cw-connector-chip {
+  display: flex; align-items: center; gap: 8px;
+  margin: 2px 0 8px;
+  padding: 6px 8px;
+  background: #33312c;
+  border-radius: 8px;
+  font-size: 11.5px; color: #d8d4c8;
+}
+.cw-connector-icon {
+  width: 16px; height: 16px; border-radius: 4px;
+  color: white; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; font-size: 10px;
+}
+.cw-connector-text { flex: 1; }
+.cw-connector-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: #4a9b4a;
+  box-shadow: 0 0 0 2px rgba(74,155,74,0.2);
+}
+
+.cw-composer-attach-row { padding: 0 14px 6px; }
+.cw-csv-chip.attached {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12.5px; color: #1a1a1a; font-weight: 500;
+}
+.cw-csv-chip.attached .cw-chip-meta {
+  color: #5f5f5f; font-size: 11px;
+  border-left: 1px solid rgba(0,0,0,0.1);
+  padding-left: 10px;
+}
+
+.cw-input-real {
+  flex: 1;
+  font: 13.5px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  color: #1a1a1a;
+  background: transparent; border: none; outline: none; resize: none;
+  padding: 3px 0; letter-spacing: -0.005em; max-height: 120px;
+}
+.cw-input-real::placeholder { color: #95908a; }
+.cw-send { cursor: pointer; transition: background 0.15s ease; }
+.cw-send:hover { background: #a04418; }
+.cw-composer-hint {
+  padding: 6px 14px 0; font-size: 11px; color: #8e8a80; font-style: italic;
+}
+
+.claude-rendered p { margin: 0 0 8px; }
+.claude-rendered p:last-child { margin-bottom: 0; }
+.claude-rendered ul { margin: 6px 0 8px; padding-left: 20px; list-style: disc; }
+.claude-rendered li { margin-bottom: 4px; }
+.claude-rendered code {
+  font-family: "SF Mono", Menlo, monospace; font-size: 11.5px;
+  background: rgba(198,95,43,0.08);
+  padding: 1.5px 5px; border-radius: 4px; color: #8a4418;
+  border: 1px solid rgba(198,95,43,0.14);
+}
+.claude-rendered strong { font-weight: 600; color: #0a0a0a; }
+
+/* Avery's PIP — floating bottom-right */
+.avery-pip {
+  position: fixed;
+  right: 22px; bottom: 22px;
+  width: 320px;
+  background: #0f1115;
+  border-radius: 18px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.06);
+  z-index: 20;
+  padding: 14px 14px 12px;
+  font-family: var(--sans); color: #ffffff;
+  transform: translateY(20px); opacity: 0;
+  animation: pipSlideIn 0.5s cubic-bezier(0.2, 1.3, 0.4, 1) forwards;
+}
+@keyframes pipSlideIn { to { opacity: 1; transform: translateY(0); } }
+.avery-pip-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.avery-pip-status {
+  font-size: 10.5px; letter-spacing: 0.08em; color: #b3ae9e; font-weight: 500;
+  display: flex; align-items: center; gap: 6px; text-transform: uppercase;
+}
+.avery-pip-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: #3fb489;
+  box-shadow: 0 0 8px rgba(63,180,137,0.6);
+  animation: pipPulse 1.6s ease-in-out infinite;
+}
+@keyframes pipPulse { 50% { opacity: 0.5; } }
+.avery-pip-expand {
+  background: transparent; border: none; color: #8a857a;
+  font-size: 14px; cursor: pointer; padding: 0 4px;
+}
+.avery-pip-face {
+  display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px;
+}
+.avery-pip-portrait {
+  width: 56px; height: 56px; border-radius: 50%;
+  flex-shrink: 0; overflow: hidden;
+  box-shadow: 0 0 0 2px rgba(63,180,137,0.3);
+}
+.avery-pip-portrait svg { width: 100%; height: 100%; display: block; }
+.avery-pip-speech {
+  flex: 1;
+  background: #1d1c19;
+  border-radius: 12px;
+  padding: 9px 12px;
+  font-size: 13px; line-height: 1.4; color: #f0ecdf;
+  position: relative; min-height: 44px;
+  display: flex; align-items: center;
+}
+.avery-pip-speech::before {
+  content: ""; position: absolute;
+  left: -6px; top: 16px; width: 12px; height: 12px;
+  background: #1d1c19; transform: rotate(45deg);
+}
+.avery-pip-speech-text b { color: #f9d76e; font-weight: 600; }
+
+.avery-pip-progress {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 10px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.avery-pip-step {
+  font-size: 11.5px; color: #8a857a;
+  display: flex; align-items: center; gap: 8px;
+  padding: 2px 4px; border-radius: 6px;
+}
+.avery-pip-step.done { color: #a8e6c8; }
+.avery-pip-checkmark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px;
+  border: 1px solid #3a3832; border-radius: 50%;
+  font-size: 10px; color: #8a857a;
+}
+.avery-pip-step.done .avery-pip-checkmark {
+  background: #3fb489; border-color: #3fb489; color: #0b3b28; font-weight: 700;
+}
+
+.avery-pip-upload {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  animation: pipUploadIn 0.5s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+@keyframes pipUploadIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.avery-pip-upload-label {
+  font-size: 11px; color: #f9d76e;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  font-weight: 600; margin-bottom: 6px;
+}
+.avery-pip-upload-zone {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 16px 12px;
+  background: #1d1c19;
+  border: 1.5px dashed #3a3832;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.avery-pip-upload-zone:hover,
+.avery-pip-upload-zone.drag {
+  border-color: #f9d76e; background: #26241f;
+}
+.avery-pip-upload-icon {
+  width: 28px; height: 28px;
+  background: #f9d76e; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #0f1115; font-weight: 700; font-size: 14px;
+}
+.avery-pip-upload-text { font-size: 12px; color: #b3ae9e; }
+.avery-pip-upload-text span { color: #f9d76e; font-weight: 600; }
+
+#handoffDownload { cursor: pointer; transition: opacity 0.2s ease; }
+#handoffDownload:hover { opacity: 0.85; }
+
+/* Handoff HTML layout (L4) */
+.ho-stage {
+  position: absolute; inset: 0;
+  padding: 24px 36px;
+  background: var(--paper);
+  overflow-y: auto;
+  font-family: var(--sans);
+}
+.ho-lead .ho-lead-green {
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-style: italic; font-size: 32px; color: var(--good);
+  text-align: center; margin-bottom: 16px;
+}
+.ho-lead-warm {
+  background: #fff7e6;
+  border: 2px solid #a85d12;
+  border-radius: 14px;
+  padding: 12px 18px;
+  text-align: center;
+  max-width: 720px; margin: 0 auto 18px;
+}
+.ho-lead-warm-label {
+  font-size: 11px; letter-spacing: 0.14em; color: #a85d12;
+  font-weight: 700; display: block; margin-bottom: 4px;
+}
+.ho-lead-warm-body {
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-size: 18px; color: var(--ink); font-style: italic; line-height: 1.35;
+}
+.ho-lead-warm-body b { color: var(--bad); font-weight: 700; font-family: var(--sans); font-style: normal; }
+
+.ho-deck-wrap {
+  max-width: 720px; margin: 0 auto 18px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow-card);
+  padding: 14px 18px;
+}
+.ho-deck-filename {
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: 12px; color: var(--ink-soft);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 8px;
+}
+
+.ho-download-wrap {
+  max-width: 720px; margin: 0 auto;
+  text-align: center;
+}
+.ho-lead-hint {
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-style: italic; font-size: 16px; color: var(--ink-dim);
+  margin-bottom: 10px;
+}
+.ho-download-btn {
+  display: block; width: 100%;
+  background: #0f1115; color: #ffffff;
+  border: none; border-radius: 14px;
+  padding: 18px 24px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  font-family: var(--sans);
+}
+.ho-download-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+}
+.ho-download-caption {
+  font-size: 11px; letter-spacing: 0.14em; color: #9ca3af;
+  font-weight: 600; margin-bottom: 4px;
+}
+.ho-download-name {
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-style: italic; font-size: 20px; color: #ffffff;
+  margin-bottom: 6px;
+}
+.ho-download-cta {
+  font-size: 13px; color: #f9d76e;
+  font-weight: 600; letter-spacing: 0.04em;
+}
+
+/* POU mini-game for L2 — spot the wrong row */
+.pou .row-table {
+  width: 100%; border-collapse: collapse;
+  font-family: "SF Mono", Menlo, monospace; font-size: 12px;
+  margin: 6px 0 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.pou .row-table th, .pou .row-table td {
+  padding: 8px 10px; text-align: left;
+  border-bottom: 1px solid rgba(15,17,21,0.06);
+}
+.pou .row-table tr:last-child td { border-bottom: none; }
+.pou .row-table th {
+  background: #faf8f3;
+  font-size: 10.5px; letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  text-transform: uppercase; font-weight: 500;
+}
+.pou .row-pick {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.pou .row-pick:hover { background: #faf8f3; }
+.pou .row-pick.correct td { background: var(--good-soft); color: var(--good); }
+.pou .row-pick.wrong td { background: var(--bad-soft); color: var(--bad); }
+.pou .row-pick .rowmark {
+  display: inline-block; width: 18px; height: 18px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  line-height: 1;
+  font-size: 10px;
+  text-align: center;
+}
+.pou .row-pick.correct .rowmark { background: var(--good); color: white; border-color: var(--good); }
+.pou .row-pick.wrong .rowmark { background: var(--bad); color: white; border-color: var(--bad); }
+.pou .round-category {
+  display: inline-block;
+  background: #fef7e0;
+  color: #b45309;
+  padding: 3px 9px;
+  border-radius: 10px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---------- L4-specific extensions ---------- */
+
+/* Slack clone (sl-*) */
+.sl-stage {
+  position: absolute; inset: 0;
+  background: #ffffff;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  font-family: Lato, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #1d1c1d;
+  overflow: hidden;
+  font-size: 14px;
+}
+.sl-sidebar {
+  background: #3f0e40;
+  color: #d8c8d8;
+  padding: 8px 0;
+  overflow-y: auto;
+}
+.sl-ws-header {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 12px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.sl-ws-icon {
+  width: 36px; height: 36px; border-radius: 6px;
+  background: #ffffff;
+  display: flex; align-items: center; justify-content: center;
+  color: #3f0e40; font-weight: 800; font-size: 18px;
+  flex-shrink: 0;
+}
+.sl-ws-info { flex: 1; min-width: 0; }
+.sl-ws-name { font-size: 14px; color: #ffffff; font-weight: 700; }
+.sl-ws-user { font-size: 11.5px; color: #aab5b5; display: flex; align-items: center; gap: 5px; }
+.sl-ws-user::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #2bac76; }
+.sl-section-label {
+  font-size: 11.5px; color: #aab5b5; font-weight: 500;
+  padding: 14px 16px 4px;
+  display: flex; align-items: center; gap: 6px;
+}
+.sl-section-label::before { content: "▾"; font-size: 9px; color: #aab5b5; }
+.sl-channel {
+  padding: 4px 16px 4px 32px;
+  font-size: 14px; color: #c5b3c5;
+  cursor: default;
+  position: relative;
+}
+.sl-channel::before {
+  content: "#"; position: absolute; left: 16px; color: #c5b3c5;
+}
+.sl-channel:hover { background: #350d36; }
+.sl-dm {
+  padding: 4px 16px 4px 32px;
+  font-size: 14px; color: #c5b3c5;
+  cursor: default;
+  display: flex; align-items: center; gap: 6px;
+}
+.sl-dm-dot {
+  position: absolute; left: 18px;
+  width: 8px; height: 8px; border-radius: 50%;
+  border: 1.5px solid #c5b3c5;
+  background: transparent;
+}
+.sl-dm-dot.green {
+  background: #2bac76;
+  border-color: #2bac76;
+}
+.sl-dm.active {
+  background: #1164a3; color: #ffffff;
+}
+.sl-dm.active .sl-dm-dot { border-color: #ffffff; }
+.sl-dm.active .sl-dm-dot.green { background: #2bac76; border-color: #2bac76; }
+
+.sl-main {
+  display: flex; flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: #ffffff;
+}
+.sl-header {
+  padding: 10px 20px;
+  border-bottom: 1px solid #dddddd;
+}
+.sl-header-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 15px; font-weight: 700; color: #1d1c1d;
+}
+.sl-avatar {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: #ecb22e;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 12px;
+  flex-shrink: 0;
+}
+.sl-avatar.green { background: #2bac76; }
+.sl-header-status {
+  margin-left: auto; font-size: 12px; color: #616061; font-weight: 400;
+}
+
+.sl-thread {
+  flex: 1; overflow: hidden;
+  padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 14px;
+  min-height: 0;
+}
+.sl-msg {
+  display: flex; gap: 10px;
+  align-items: flex-start;
+}
+.sl-msg-avatar {
+  width: 36px; height: 36px; border-radius: 6px;
+  background: #ecb22e;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 14px;
+  flex-shrink: 0;
+}
+.sl-msg-avatar.green { background: #2bac76; }
+.sl-msg-body { flex: 1; min-width: 0; }
+.sl-msg-meta {
+  font-size: 13px; color: #616061; margin-bottom: 3px;
+}
+.sl-msg-meta b { color: #1d1c1d; font-weight: 700; }
+.sl-msg-text {
+  font-size: 14.5px; color: #1d1c1d; line-height: 1.45;
+}
+.sl-attachments {
+  margin-top: 8px; display: flex; flex-direction: column; gap: 6px;
+}
+.sl-att {
+  display: flex; align-items: center; gap: 10px;
+  border: 1px solid #dddddd; border-radius: 8px;
+  padding: 8px 12px;
+  max-width: 380px;
+  background: #fafafa;
+}
+.sl-att-thumb {
+  width: 34px; height: 34px; border-radius: 6px;
+  background: #eeeeee;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.sl-att-chart .sl-att-thumb { background: #e8f0fe; }
+.sl-att-doc .sl-att-thumb { background: #e6f4ec; }
+.sl-att-info { flex: 1; min-width: 0; }
+.sl-att-name { font-size: 13.5px; color: #1264a3; font-weight: 600; }
+.sl-att-meta { font-size: 11.5px; color: #616061; margin-top: 1px; }
+
+/* Chart viewer (cv-*) — chart_slip scene */
+.cv-stage {
+  position: absolute; inset: 0;
+  background: #f0eee6;
+  display: flex; flex-direction: column;
+  font-family: var(--sans);
+  overflow: hidden;
+}
+.cv-topbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px; color: var(--ink-soft);
+}
+.cv-file { font-family: "SF Mono", Menlo, monospace; font-weight: 500; color: var(--ink); }
+.cv-spacer { flex: 1; }
+.cv-meta { color: var(--ink-dim); }
+.cv-body {
+  flex: 1; min-height: 0;
+  display: flex; align-items: stretch; justify-content: center;
+  padding: 20px 28px;
+}
+.cv-chart-wrap {
+  position: relative; flex: 1;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 24px 28px;
+  box-shadow: var(--shadow-card);
+  display: flex; flex-direction: column;
+}
+.cv-chart-svg { width: 100%; height: 100%; min-height: 280px; }
+
+/* axis-highlight overlay — draws attention to the cropped y-axis */
+.cv-axis-highlight {
+  position: absolute;
+  left: 24px; top: 40px;
+  width: 110px; height: 340px;
+  border: 3px dashed #b6311d;
+  border-radius: 8px;
+  background: rgba(182,49,29,0.05);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+.cv-axis-highlight.show { opacity: 1; }
+.cv-axis-highlight::before {
+  content: "axis starts at 48,000 — not 0";
+  position: absolute; left: -10px; top: -26px;
+  font-family: "Bradley Hand", cursive;
+  font-size: 14px; color: #b6311d;
+  font-style: italic; white-space: nowrap;
+}
+
+/* numbers callout on chart scene */
+.cv-numbers-callout {
+  position: absolute;
+  right: 30px; top: 60px;
+  background: #fef7e0;
+  border: 1.5px solid #f9ab00;
+  border-radius: 10px;
+  padding: 14px 18px;
+  box-shadow: 0 6px 20px rgba(249,171,0,0.2);
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  min-width: 200px;
+}
+.cv-numbers-callout.show { opacity: 1; transform: translateY(0); }
+.cv-num-label {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #b45309; font-weight: 700; margin-bottom: 8px;
+}
+.cv-num-row {
+  display: flex; justify-content: space-between; gap: 10px;
+  font-size: 13px; color: #3d2804;
+  margin-bottom: 3px;
+}
+.cv-num-key { color: #7a5610; }
+.cv-num-val { font-family: "SF Mono", Menlo, monospace; font-weight: 600; }
+.cv-num-delta {
+  margin-top: 6px; padding-top: 6px;
+  border-top: 1px solid rgba(249,171,0,0.3);
+  font-size: 14px; color: #3d2804;
+}
+.cv-num-delta b { color: #b6311d; }
+
+/* test card on chart scene */
+.cv-test {
+  position: absolute;
+  right: 30px; bottom: 30px;
+  background: #0f1115;
+  color: white;
+  border-radius: 14px;
+  padding: 14px 18px;
+  max-width: 300px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.cv-test.show { opacity: 1; transform: translateY(0); }
+.cv-test-label {
+  font-size: 10.5px; letter-spacing: 0.14em; color: #f9d76e; font-weight: 700;
+  margin-bottom: 6px;
+}
+.cv-test-body {
+  font-family: "Iowan Old Style", Georgia, serif; font-style: italic;
+  font-size: 14.5px; line-height: 1.35;
+}
+.cv-test-body b { color: #f9d76e; }
+.cv-test-tag {
+  margin-top: 8px; padding-top: 6px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 11.5px; color: #aaa; font-style: normal;
+  font-family: var(--sans);
+}
+.cv-test-tag b { color: #ffffff; }
+
+/* Stat quote scene (sl-quote-*) */
+.sl-quote-stage {
+  position: absolute; inset: 0;
+  background: #f0eee6;
+  padding: 32px 40px;
+  display: flex; flex-direction: column; gap: 18px;
+  font-family: var(--sans);
+  overflow: hidden;
+}
+.sl-quote-top { }
+.sl-quote-label {
+  font-size: 11.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-dim); font-weight: 600;
+}
+.sl-quote-body {
+  background: #0f1115;
+  border-radius: 16px;
+  padding: 22px 28px;
+  color: #ffffff;
+  box-shadow: var(--shadow-stage);
+}
+.sl-stat-big {
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-style: italic; font-size: 26px; line-height: 1.3;
+  color: #ffffff;
+}
+.sl-stat-big b { color: #f9d76e; font-weight: 700; }
+.sl-pval { color: #aaa; font-size: 20px; }
+
+.sl-question, .sl-answer, .sl-scope, .sl-test {
+  opacity: 0; transform: translateY(8px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.sl-question.show, .sl-answer.show, .sl-scope.show, .sl-test.show {
+  opacity: 1; transform: translateY(0);
+}
+
+.sl-question {
+  display: flex; align-items: baseline; gap: 16px;
+  padding: 12px 20px;
+  background: #ffffff;
+  border-radius: 10px;
+  border-left: 4px solid #a85d12;
+}
+.sl-q-label {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #a85d12; font-weight: 700;
+  flex-shrink: 0;
+}
+.sl-q-text {
+  font-family: "Iowan Old Style", Georgia, serif; font-style: italic;
+  font-size: 18px; color: var(--ink);
+}
+
+.sl-answer {
+  background: #fef7e0;
+  border-radius: 10px;
+  padding: 12px 20px;
+  border-left: 4px solid #b45309;
+  display: flex; align-items: baseline; gap: 12px;
+}
+.sl-a-value {
+  font-size: 36px; font-weight: 700; color: #b6311d;
+  font-family: "Iowan Old Style", Georgia, serif; font-style: italic;
+}
+.sl-a-window { font-size: 14px; color: #7a5610; font-style: italic; }
+
+.sl-scope {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  gap: 14px; align-items: stretch;
+}
+.sl-scope-claim, .sl-scope-data {
+  background: #ffffff;
+  border: 2px solid var(--line-strong);
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: center;
+  position: relative;
+}
+.sl-scope-claim { border-color: #b6311d; background: #fbe8e4; }
+.sl-scope-data  { border-color: #0f4a2b; background: #e6f4ec; }
+.sl-scope-label {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  font-weight: 700; margin-bottom: 5px;
+}
+.sl-scope-claim .sl-scope-label { color: #b6311d; }
+.sl-scope-data .sl-scope-label { color: #0f4a2b; }
+.sl-scope-text {
+  font-family: "Iowan Old Style", Georgia, serif; font-style: italic;
+  font-size: 17px; color: var(--ink);
+  line-height: 1.3;
+}
+.sl-scope-icon { font-size: 26px; margin-top: 6px; }
+.sl-scope-vs {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--ink-dim); font-style: italic; font-weight: 600;
+}
+
+.sl-test {
+  background: #ffffff;
+  border: 1.5px dashed var(--line-strong);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-top: auto;
+}
+.sl-test-label {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #0f4a2b; font-weight: 700; margin-bottom: 5px;
+}
+.sl-test-body {
+  font-family: "Iowan Old Style", Georgia, serif; font-style: italic;
+  font-size: 17px; color: var(--ink);
+}
+.sl-test-body b { font-family: var(--sans); font-style: normal; font-weight: 700; color: #1a73e8; }
+.sl-test-tag {
+  display: block; margin-top: 6px;
+  font-size: 12px; color: var(--ink-dim); font-style: normal;
+  font-family: var(--sans);
+}
+.sl-test-tag b { color: var(--ink); }
+
+/* Prose comparison scene (pr-*) */
+.pr-stage {
+  position: absolute; inset: 0;
+  background: #f0eee6;
+  padding: 24px 32px 20px;
+  display: flex; flex-direction: column; gap: 18px;
+  font-family: var(--sans);
+  overflow: hidden;
+}
+.pr-top { font-size: 12.5px; color: var(--ink-dim); }
+.pr-file { font-family: "SF Mono", Menlo, monospace; color: var(--ink); font-weight: 500; }
+
+.pr-body {
+  flex: 1;
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  gap: 16px; align-items: stretch;
+  min-height: 0;
+}
+.pr-panel {
+  background: #ffffff;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: border-color 0.4s ease, transform 0.4s ease;
+}
+.pr-panel.emphasized.pr-bad { border-color: #b6311d; box-shadow: 0 0 0 4px rgba(182,49,29,0.08); }
+.pr-good { opacity: 0; transform: translateY(10px); transition: opacity 0.5s ease, transform 0.5s ease; }
+.pr-good.show { opacity: 1; transform: translateY(0); }
+.pr-arrow { font-size: 28px; color: var(--ink-dim); display: flex; align-items: center; opacity: 0; transition: opacity 0.5s ease; }
+.pr-arrow.show { opacity: 1; }
+
+.pr-panel-label {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-dim); font-weight: 700;
+}
+.pr-bad .pr-panel-label { color: #b6311d; }
+.pr-good .pr-panel-label { color: #0f4a2b; }
+.pr-panel-text {
+  font-family: "Iowan Old Style", Georgia, serif; font-style: italic;
+  font-size: 16px; line-height: 1.5; color: var(--ink);
+  flex: 1;
+}
+.pr-panel-text b { font-family: var(--sans); font-style: normal; font-weight: 700; color: var(--ink); }
+.pr-panel-text u { text-decoration: underline wavy #b6311d; text-underline-offset: 3px; }
+.pr-panel-flag {
+  margin-top: auto;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12.5px; font-weight: 600;
+  font-family: var(--sans); font-style: normal;
+}
+.pr-flag-bad { background: #fbe8e4; color: #b6311d; }
+.pr-flag-good { background: #e6f4ec; color: #0f4a2b; }
+
+.pr-test {
+  opacity: 0; transform: translateY(8px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  background: #0f1115; color: #ffffff;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 14px; line-height: 1.45;
+}
+.pr-test.show { opacity: 1; transform: translateY(0); }
+.pr-test-label {
+  font-size: 10.5px; letter-spacing: 0.14em; color: #f9d76e; font-weight: 700;
+  margin-bottom: 4px;
+}
+.pr-test-body {
+  font-family: "Iowan Old Style", Georgia, serif; font-style: italic;
+  font-size: 15px;
+}
+.pr-test-body b { color: #f9d76e; font-family: var(--sans); font-style: normal; }
+.pr-test-q {
+  display: block; margin-top: 4px;
+  font-size: 13px;
+}
+.pr-test-q b { color: #f9d76e; }
+
+/* PIP toolkit (Avery's scaffolded sharp questions) */
+.avery-pip-toolkit {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 10px 2px 0;
+  margin-top: 10px;
+  display: none;
+  flex-direction: column; gap: 5px;
+}
+.avery-pip-toolkit.show { display: flex; }
+.avery-pip-toolkit-label {
+  font-size: 10.5px; letter-spacing: 0.14em; color: #f9d76e;
+  font-weight: 700; margin-bottom: 4px;
+}
+.avery-pip-qbutton {
+  background: #1d1c19;
+  color: #e8e4d7;
+  border: 1px solid #3a3832;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 11.5px; font-family: var(--sans);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  line-height: 1.35;
+}
+.avery-pip-qbutton:hover {
+  background: #26241f;
+  border-color: #f9d76e;
+}
+
+/* ---------- Shared "deck mini" preview cards ---------- */
+.deck-mini {
+  background: #fbf7ee;
+  border: 1px solid rgba(168,93,18,0.22);
+  border-left: 3px solid #a85d12;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 8px 0;
+}
+.deck-mini-label {
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #a85d12; font-weight: 700; margin-bottom: 6px;
+  font-family: var(--sans);
+}
+.deck-mini-chart svg {
+  width: 100%; height: 110px; display: block;
+  background: #ffffff; border-radius: 6px;
+  padding: 4px;
+  box-sizing: border-box;
+}
+.deck-mini-stat {
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-size: 14.5px; color: var(--ink); font-style: italic; line-height: 1.4;
+}
+.deck-mini-stat b { color: #1a73e8; font-family: var(--sans); font-style: normal; font-weight: 700; }
+.deck-mini-stat .note {
+  display: block; margin-top: 4px;
+  font-size: 12px; color: var(--ink-dim); font-style: normal;
+  font-family: var(--sans);
+}
+.deck-mini-prose {
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-style: italic;
+  font-size: 13.5px; line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.deck-bundle {
+  display: flex; flex-direction: column; gap: 6px;
+  margin: 6px 0 14px;
+}
+
+/* POU inline chart (chart-literacy round — shows chart above options) */
+.pou .pou-chart-inline {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 2px rgba(15,17,21,0.04);
+}
+.pou .pou-chart-inline svg {
+  width: 100%; height: 180px;
+  display: block;
+}
+
+/* POU chart-compare mode (L4) */
+.pou .pou-chart-pair {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+.pou .pou-chart-pick {
+  background: #ffffff;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.pou .pou-chart-pick:hover {
+  border-color: var(--line-strong);
+  background: #faf8f3;
+}
+.pou .pou-chart-pick.correct {
+  border-color: var(--good);
+  background: var(--good-soft);
+}
+.pou .pou-chart-pick.wrong {
+  border-color: var(--bad);
+  background: var(--bad-soft);
+}
+.pou .pou-chart-pick .label {
+  font-size: 11px; font-weight: 600; color: var(--ink-soft);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex; align-items: center; gap: 6px;
+}
+.pou .pou-chart-pick .label .rowmark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px;
+  border: 1.5px solid var(--line-strong); border-radius: 50%;
+  font-size: 11px;
+}
+.pou .pou-chart-pick.correct .rowmark { background: var(--good); color: white; border-color: var(--good); }
+.pou .pou-chart-pick.wrong .rowmark { background: var(--bad); color: white; border-color: var(--bad); }
+.pou .pou-chart-pick .caption {
+  font-size: 11.5px; color: var(--ink-dim); font-family: "SF Mono", Menlo, monospace;
+  margin-top: 6px;
+}
+.pou .pou-chart-pick svg {
+  width: 100%; height: 140px;
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .stage { grid-template-columns: 1fr; }
+  .options { grid-template-columns: 1fr; }
+  .cw-stage { grid-template-columns: 60px 1fr; }
+  .avery-pip { width: calc(100vw - 24px); right: 12px; bottom: 12px; }
+  .pr-body { grid-template-columns: 1fr; }
+  .pou .pou-chart-pair { grid-template-columns: 1fr; }
+}
+
+/* ===== Foundations 7-step path indicator ===== */
+.foundations-track {
+  position: sticky; top: 0;
+  z-index: 50;
+  background: rgba(251, 247, 238, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(15, 17, 21, 0.08);
+  padding: 8px 20px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  font-size: 12px;
+}
+.ft-brand {
+  font-weight: 700; font-size: 12px;
+  color: #0f1115;
+  letter-spacing: -0.01em;
+  padding-right: 10px;
+  border-right: 1px solid rgba(15,17,21,0.12);
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 6px;
+}
+.ft-brand-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: linear-gradient(135deg, #c8f5df, #3fb489);
+}
+.ft-steps {
+  flex: 1;
+  display: flex; gap: 4px; align-items: center;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ft-steps::-webkit-scrollbar { display: none; }
+.ft-step {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 11.5px;
+  white-space: nowrap;
+  letter-spacing: -0.005em;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  border: 1px solid transparent;
+}
+.ft-step-num {
+  font-weight: 700; font-size: 10.5px;
+  letter-spacing: 0.02em;
+}
+.ft-step-title {
+  font-weight: 500; opacity: 0.8;
+}
+.ft-step:hover { transform: translateY(-1px); }
+.ft-step.done {
+  background: #e6f4ec; color: #0f4a2b;
+  border-color: rgba(30,122,75,0.22);
+}
+.ft-step.done:hover { background: #d7eedd; }
+.ft-step.current {
+  background: #0f1115; color: #ffffff;
+  border-color: #0f1115;
+}
+.ft-step.current .ft-step-title { opacity: 1; font-weight: 600; }
+.ft-step.upcoming {
+  background: transparent; color: #6b7280;
+  border-color: rgba(15,17,21,0.15);
+}
+.ft-step.upcoming:hover { color: #0f1115; border-color: rgba(15,17,21,0.32); }
+.ft-step-sep {
+  color: #cbd5e1; font-size: 10px;
+  user-select: none;
+}
+.ft-end {
+  font-size: 11px; color: #6b7280;
+  padding-left: 10px; border-left: 1px solid rgba(15,17,21,0.12);
+  white-space: nowrap;
+}
+.ft-end a {
+  color: #0f1115; text-decoration: none;
+  font-weight: 500;
+}
+.ft-end a:hover { text-decoration: underline; }
+
+/* Give the page a little top breathing room since the track is sticky */
+body > .frame { padding-top: 6px; }
+
+@media (max-width: 720px) {
+  .foundations-track { padding: 6px 10px; gap: 6px; font-size: 11px; }
+  .ft-brand { font-size: 11px; padding-right: 6px; }
+  .ft-step-title { display: none; }
+  .ft-end { display: none; }
+}
+
+</style>
+</head>
+<body>
+<!-- zero-foundations-track:start -->
+<nav class="foundations-track" aria-label="Foundations curriculum progress">
+  <div class="ft-brand"><span class="ft-brand-dot"></span>Zero · Foundations</div>
+  <div class="ft-steps">
+    <a class="ft-step done" href="ZERO-L0-Concept-CostReduction-v3.html" title="The brief" aria-label="L0 — The brief (completed)"><span class="ft-step-num">L0</span><span class="ft-step-title">the brief</span></a>
+    <a class="ft-step done" href="ZERO-L1-Concept-UnderstandData-v1.html" title="Understanding data" aria-label="L1 — Understanding data (completed)"><span class="ft-step-num">L1</span><span class="ft-step-title">understanding data</span></a>
+    <a class="ft-step done" href="ZERO-L2-Concept-CleanData-v1.html" title="Cleaning data" aria-label="L2 — Cleaning data (completed)"><span class="ft-step-num">L2</span><span class="ft-step-title">cleaning data</span></a>
+    <a class="ft-step done" href="ZERO-L3-Concept-FiveWhy-v3.html" title="The right question" aria-label="L3 — The right question (completed)"><span class="ft-step-num">L3</span><span class="ft-step-title">the right question</span></a>
+    <a class="ft-step current" href="ZERO-L4-Concept-EvidenceOrTheater-v1.html" title="Evidence or theater" aria-label="L4 — Evidence or theater (current)"><span class="ft-step-num">L4</span><span class="ft-step-title">evidence or theater</span></a>
+    <a class="ft-step upcoming" href="ZERO-L5-Concept-FindingToRecommendation-v1.html" title="Finding → recommendation" aria-label="L5 — Finding → recommendation"><span class="ft-step-num">L5</span><span class="ft-step-title">finding → recommendation</span></a>
+    <a class="ft-step upcoming" href="ZERO-L6-Concept-ContainerIsTheFight-v1.html" title="The container" aria-label="L6 — The container"><span class="ft-step-num">L6</span><span class="ft-step-title">the container</span></a>
+  </div>
+  <div class="ft-end"><a href="index.html">↗ index</a></div>
+</nav>
+<!-- zero-foundations-track:end -->
+
+
+<div class="frame">
+
+  <div class="topbar">
+    <span class="crumb">Foundations · Analyze · Evidence or theater</span>
+    <span class="title">L4 · Evidence or theater? <span class="ital">— does this look real, or is it just dressed up?</span></span>
+    <span class="spacer"></span>
+    <span class="chip">v1 · Day 3 · three faces of slop · live Cowork + PIP</span>
+    <div class="mode-toggle" id="modeToggle">
+      <button data-mode="auto" class="on">Auto</button>
+      <button data-mode="manual">Manual</button>
+    </div>
+    <button class="sound-btn" id="soundBtn" title="Mute / unmute">🔊 Sound on</button>
+  </div>
+
+  <div class="stage">
+
+    <!-- LEFT: Avery + subtitle -->
+    <div class="rail">
+      <div class="avery-card">
+        <div class="portrait" id="portrait">
+          <div class="ring"></div>
+          <img id="averyImg" src="ZERO-L0-assets/img/avery.jpg" alt="Avery" style="display:none"/>
+          <div class="fallback" id="averyFallback">
+            <svg viewBox="0 0 180 180" aria-label="Avery">
+              <defs>
+                <linearGradient id="averyGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+                  <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <rect width="180" height="180" fill="url(#averyGrad)"/>
+              <text x="90" y="118" font-family="Iowan Old Style, Georgia, serif" font-size="100" font-style="italic" font-weight="400" text-anchor="middle" fill="#0b3b28">A</text>
+            </svg>
+          </div>
+        </div>
+        <div class="avery-name">Avery</div>
+        <div class="avery-role">Your Foundations guide</div>
+      </div>
+
+      <div class="subtitle-card">
+        <div class="subtitle-row">
+          <div class="subtitle-label" id="sceneLabel">Scene 1 / 8</div>
+          <div class="subtitle-linechip" id="lineChip">Line 1 / 3</div>
+        </div>
+        <div class="speaker-chip" id="speakerChip" style="display:none">MARCO · MENTOR, Uber</div>
+        <div class="subtitle-text" id="subtitle">—</div>
+        <div class="manual-hint" id="manualHint" style="display:none">
+          Manual mode — tap <strong>Next</strong> (or <kbd>→</kbd>) for the next line.
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Whiteboard -->
+    <div class="board-wrap">
+      <div class="tag" id="boardTag">Day 2 · Uber</div>
+      <div class="scene-title" id="boardSceneTitle"></div>
+      <div class="board" id="board"></div>
+
+      <div class="xp-burst" id="xpBurst">+20 XP · Translate before you analyze</div>
+      <div class="preload-notice" id="preloadNotice">Loading voice…</div>
+
+      <div class="pou" id="pou">
+        <div class="sheet">
+          <div class="head-row">
+            <div class="label">Proof of understanding · Spot the wrong row</div>
+            <span class="round-category" id="roundCategory">Duplicate</span>
+            <div class="round-dots" id="roundDots">
+              <span class="dot on"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+          </div>
+          <h2 id="pouH2">Round <span id="roundN">1</span> of 4</h2>
+          <div class="col-prompt" id="pouPrompt">— loading round —</div>
+          <div class="data-slice" id="dataSlice">—</div>
+          <div class="feedback" id="pouFeedback"></div>
+          <div class="summary" id="pouSummary"></div>
+          <div class="actions">
+            <button class="btn primary" id="pouNext" style="display:none">Next round →</button>
+            <button class="btn primary" id="pouFinish" style="display:none">Finish</button>
+            <button class="btn primary" id="pouContinue" style="display:none">Continue — try it with Claude →</button>
+            <button class="btn" id="pouSkip">Skip</button>
+            <span class="spacer"></span>
+            <button class="btn" id="pouReplay">↻ Replay L2</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottombar">
+    <div class="bottom-left">
+      <button class="btn ghost" id="btnPrev" title="Prev line (←)">← Prev</button>
+      <button class="btn primary" id="btnPlay" title="Play/Pause (Space)">▶ Play</button>
+      <button class="btn ghost" id="btnNext" title="Next line (→)">Next →</button>
+      <span class="scene-pos" id="scenePos">1·1</span>
+    </div>
+    <div class="scrub">
+      <div class="scrub-track" id="scrubTrack">
+        <div class="scrub-fill" id="scrubFill"></div>
+      </div>
+      <div class="scrub-label" id="scrubLabel">0:00 / 1:56</div>
+    </div>
+    <div class="hints">
+      <span><kbd>Space</kbd> play</span>
+      <span><kbd>←</kbd> <kbd>→</kbd> line</span>
+      <span><kbd>M</kbd> mode</span>
+      <span><kbd>R</kbd> replay</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(() => {
+
+const VB_W = 1200, VB_H = 700;
+const AUDIO_DIR = 'ZERO-L4-assets/audio';
+
+// Gemini API — used for live AI in the PIP/Cowork scene. Cheapest Gemini tier.
+// DEMO ONLY. Rotate before any public sharing.
+const GEMINI_API_KEY = 'AIzaSyAAPQZzB1RQFjqhqjnXMPdLLjRMt2kVGOg';
+const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+
+// === line manifest (from ElevenLabs generation, Avery voice kdnRe2koJdOK4Ovxn2DI) ===
+const MANIFEST = {"scenes":[{"id":"bridge","lines":[{"file":"bridge-01.mp3","text":"Now I had the real question. Why did a UI change cause a support spike? I needed to see it.","speaker":"avery","duration":6.269},{"file":"bridge-02.mp3","text":"And I had seven minutes with Priya tomorrow. Whatever I brought her had to hold up.","speaker":"avery","duration":4.989}]},{"id":"request","lines":[{"file":"request-01.mp3","text":"I pinged Kenji, our analyst. Asked for the chart, the stat, and a one-paragraph summary.","speaker":"avery","duration":4.833},{"file":"request-02.mp3","text":"Hour later, he sends me the whole bundle. Looked ready to ship. But I'd learned to check before I trust.","speaker":"avery","duration":5.564}]},{"id":"chart_slip","lines":[{"file":"chart-01.mp3","text":"First thing \u2014 the chart. Cancel tickets versus the UI ship date.","speaker":"avery","duration":4.362},{"file":"chart-02.mp3","text":"What does your eye tell you? Huge spike, right? Looks like a cliff.","speaker":"avery","duration":5.486},{"file":"chart-03.mp3","text":"Now look at the actual numbers. About fifty thousand, up to fifty-three thousand. That's a six-percent bump.","speaker":"avery","duration":6.609},{"file":"chart-04.mp3","text":"The chart made a six-percent change look like a doubling. Priya would've spotted that in two seconds.","speaker":"avery","duration":5.486},{"file":"chart-05.mp3","text":"The name for this is a truncated axis. Forget the name. Remember the test. When your eye says one thing, and the numbers say another \u2014 something's off.","speaker":"avery","duration":8.124}]},{"id":"stat_slip","lines":[{"file":"stat-01.mp3","text":"Next \u2014 Kenji's headline claim. UI change drove a forty-seven percent increase. P less than point oh five.","speaker":"avery","duration":7.471},{"file":"stat-02.mp3","text":"Sounds definitive. But how much data did he actually look at?","speaker":"avery","duration":3.631},{"file":"stat-03.mp3","text":"Three weeks.","speaker":"avery","duration":0.758},{"file":"stat-04.mp3","text":"Think about it. Kenji's making a claim about millions of Uber riders, over the long run. With three weeks of post-ship data. It's like polling ten people and making a claim about a whole country.","speaker":"avery","duration":11.233},{"file":"stat-05.mp3","text":"Analysts call this sample size. The test is simpler \u2014 does the size of the data match the size of the claim you're making?","speaker":"avery","duration":7.628}]},{"id":"prose_slip","lines":[{"file":"prose-01.mp3","text":"Third piece \u2014 Kenji's summary paragraph. Listen.","speaker":"avery","duration":3.709},{"file":"prose-02.mp3","text":"Analysis indicates a statistically significant correlation between the December 14 deployment and a substantial increase in rider support engagement.","speaker":"avery","duration":8.908},{"file":"prose-03.mp3","text":"Sounds polished. But if Priya asked me \u2014 what's he recommending? \u2014 I couldn't tell her. It doesn't commit.","speaker":"avery","duration":7.889},{"file":"prose-04.mp3","text":"A real version: Revert the December 14 Cancel button change. Projected thirty-five percent ticket reduction. Forty engineering hours. Priya can sign that in thirty seconds.","speaker":"avery","duration":10.841},{"file":"prose-05.mp3","text":"This stuff \u2014 text that sounds smart but doesn't commit \u2014 we call it slop. Especially common now, because AI makes it easy to write. Test \u2014 can the reader do something with it?","speaker":"avery","duration":11.651}]},{"id":"taxonomy","lines":[{"file":"taxonomy-01.mp3","text":"Three forms. Same question underneath.","speaker":"avery","duration":2.194},{"file":"taxonomy-02.mp3","text":"Chart \u2014 does the visual match the numbers? Stat \u2014 does the data match the claim? Prose \u2014 can the reader act on it? When any of those break \u2014 it's slop.","speaker":"avery","duration":11.729}]},{"id":"resolution","lines":[{"file":"resolution-01.mp3","text":"I sent it back. Kenji rebuilt it.","speaker":"avery","duration":2.586},{"file":"resolution-02.mp3","text":"Chart honest from zero. Claim scaled to what we actually know. Prose committing to one recommendation. Still makes the case \u2014 now it holds up.","speaker":"avery","duration":9.639}]},{"id":"anchor","lines":[{"file":"anchor-01.mp3","text":"At Airbnb, someone will hand you a chart, a stat, and a summary. Don't nod.","speaker":"avery","duration":5.329},{"file":"anchor-02.mp3","text":"Visual against numbers. Data against claim. Prose against action. Those are the three checks. Every time.","speaker":"avery","duration":8.438}]},{"id":"pou","lines":[{"file":"pou-01.mp3","text":"Your turn.","speaker":"avery","duration":0.522},{"file":"pou-02.mp3","text":"Four situations. For each \u2014 tell me if the evidence holds up.","speaker":"avery","duration":3.553}]},{"id":"handoff","lines":[{"file":"handoff-01.mp3","text":"Nice. Now \u2014 here's a real one.","speaker":"avery","duration":3.239},{"file":"handoff-02.mp3","text":"A PM just sent you a product recommendation deck. Chart, stat, summary \u2014 the whole package.","speaker":"avery","duration":5.642},{"file":"handoff-03.mp3","text":"Before it goes up the chain \u2014 stress-test it with Claude. I'll walk you through how to ask.","speaker":"avery","duration":4.754}]},{"id":"pip","lines":[{"file":"pip-01.mp3","text":"First \u2014 try asking Claude your own way. Whatever feels natural.","speaker":"avery","duration":3.709},{"file":"pip-02.mp3","text":"See how vague your question got you a vague answer? Let me teach you the sharp ones.","speaker":"avery","duration":4.127},{"file":"pip-03.mp3","text":"Always put your claim in the question. What am I trying to say? What decision is someone making? Then ask Claude if the evidence actually holds.","speaker":"avery","duration":9.247},{"file":"pip-04.mp3","text":"Copy these questions. They're your toolkit. When you're done \u2014 send the fixed bundle back to me.","speaker":"avery","duration":5.564}]},{"id":"close","lines":[{"file":"close-01.mp3","text":"That's the move. You didn't need a statistics degree. You needed four questions.","speaker":"avery","duration":4.441},{"file":"close-02.mp3","text":"Honest chart. Real finding. Next \u2014 how do you turn it into something someone can actually act on?","speaker":"avery","duration":6.531}]}]};
+
+// === subtitle overrides (HTML-rich, emphasis, code) ===
+const SUBTITLE_OVERRIDES = {
+  "bridge-01.mp3":     'Now I had the real question. <em>Why did a UI change cause a support spike?</em> I needed to see it.',
+  "bridge-02.mp3":     'And I had <em>seven minutes with Priya</em> tomorrow. Whatever I brought her had to hold up.',
+  "request-01.mp3":    'I pinged <em>Kenji</em>, our analyst. Asked for the chart, the stat, and a one-paragraph summary.',
+  "request-02.mp3":    'Hour later — he sends me the whole bundle. Looked ready to ship. <em>But I\'d learned to check before I trust.</em>',
+  "chart-01.mp3":      'First — the chart. <em>Cancel tickets vs the UI ship date.</em>',
+  "chart-02.mp3":      'What does your eye tell you? <em>Huge spike</em>, right? Looks like a cliff.',
+  "chart-03.mp3":      'Now look at the numbers. <em>~50k → ~53k.</em> That\'s a <em>6% bump.</em>',
+  "chart-04.mp3":      'The chart made a 6% change look like a doubling. Priya would\'ve spotted that in two seconds.',
+  "chart-05.mp3":      'The name for this is a <em>truncated axis</em>. Forget the name. Remember the test — <em>when your eye says one thing and the numbers say another, something\'s off.</em>',
+  "stat-01.mp3":       "Next — Kenji's headline claim. <em>\"UI change drove a 47% increase. p &lt; 0.05.\"</em>",
+  "stat-02.mp3":       'Sounds definitive. But — <em>how much data did he actually look at?</em>',
+  "stat-03.mp3":       '<em>Three weeks.</em>',
+  "stat-04.mp3":       "Kenji's claiming something about <em>millions of Uber riders, over the long run</em>. With three weeks of post-ship data. It's like polling ten people and making a claim about a whole country.",
+  "stat-05.mp3":       'Analysts call this <em>sample size</em>. The test is simpler — <em>does the size of the data match the size of the claim?</em>',
+  "prose-01.mp3":      "Third — Kenji's summary paragraph. Listen.",
+  "prose-02.mp3":      '<span class="ital">"Analysis indicates a statistically significant correlation between the December 14 deployment and a substantial increase in rider support engagement."</span>',
+  "prose-03.mp3":      "Sounds polished. But if Priya asked — <em>what's he recommending?</em> — I couldn't tell her. <em>It doesn't commit.</em>",
+  "prose-04.mp3":      "A real version — <span class=\"ital\">\"Revert the Dec 14 Cancel button change. Projected 35% ticket reduction. 40 engineering hours.\"</span> Priya can sign that in thirty seconds.",
+  "prose-05.mp3":      "This — text that sounds smart but doesn't commit — we call <em>slop</em>. Common now, because AI makes it easy to write. Test — <em>can the reader do something with it?</em>",
+  "taxonomy-01.mp3":   'Three forms. <em>Same question underneath.</em>',
+  "taxonomy-02.mp3":   "Chart — does the <em>visual</em> match the numbers? Stat — does the <em>data</em> match the claim? Prose — can the <em>reader</em> act on it? When any of those break — <em>it's slop.</em>",
+  "resolution-01.mp3": 'I sent it back. Kenji rebuilt it.',
+  "resolution-02.mp3": 'Chart honest from zero. Claim scaled to what we know. Prose committing to one recommendation. <em>Still makes the case — now it holds up.</em>',
+  "anchor-01.mp3":     'At Airbnb, someone will hand you a chart, a stat, and a summary. <em>Don\'t nod.</em>',
+  "anchor-02.mp3":     '<em>Visual against numbers. Data against claim. Prose against action.</em> Three checks. Every time.',
+  "pou-01.mp3":        '<em>Your turn.</em>',
+  "pou-02.mp3":        "Four situations. For each — tell me if <em>the evidence holds up.</em>",
+  "handoff-01.mp3":    '<em>Nice.</em> Now — here\'s a real one.',
+  "handoff-02.mp3":    "A PM just sent you a <em>product recommendation deck</em>. Chart, stat, summary — the whole package.",
+  "handoff-03.mp3":    "Before it goes up the chain — <em>stress-test it with Claude.</em> I'll walk you through how to ask.",
+  "pip-01.mp3":        "First — try asking Claude your own way. <em>Whatever feels natural.</em>",
+  "pip-02.mp3":        "See how <em>vague your question got you a vague answer?</em> Let me teach you the sharp ones.",
+  "pip-03.mp3":        "Always put your <em>claim</em> in the question. What am I trying to say? What decision is someone making? <em>Then ask Claude if the evidence actually holds.</em>",
+  "pip-04.mp3":        "Copy these questions. They're your toolkit. When you're done — <em>send the fixed bundle back to me.</em>",
+  "close-01.mp3":      "<em>That's the move.</em> You didn't need a statistics degree. You needed four questions.",
+  "close-02.mp3":      "Honest chart. Real finding. Next — <em>how do you turn it into something someone can act on?</em>",
+};
+
+const SPEAKER_LABEL = {
+  marco: 'MARCO · MENTOR, Uber',
+  kenji: 'KENJI · ANALYST, Uber',
+  priya: 'PRIYA · VP, Uber',
+};
+
+// === scene metadata + SVG/HTML renderers (L4) ===
+const SCENES = {
+  bridge: {
+    title: 'The stakes — Priya\'s seven minutes', tag: 'Day 3 · morning',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text faint" font-size="16" letter-spacing="0.2em" x="100" y="95">CHAPTER 5 · DAY 3 · MORNING</text>
+        <text class="wb-text" font-size="34" x="100" y="160" font-style="italic">the real question —</text>
+        <g class="pop">
+          <rect x="100" y="190" width="1000" height="110" rx="16" fill="#0f1115"/>
+          <text text-anchor="middle" fill="#ffffff" font-family="Iowan Old Style, Georgia, serif" font-style="italic" font-size="28" x="600" y="240">"why did a UI change cause a support spike?"</text>
+          <text text-anchor="middle" fill="#f9d76e" font-family="system-ui, sans-serif" font-size="13" letter-spacing="0.14em" x="600" y="278">I NEEDED TO SEE IT</text>
+        </g>
+      </g>
+      <g data-line="2">
+        <g class="pop">
+          <rect x="280" y="370" width="640" height="220" rx="22" fill="#fff7e6" stroke="#a85d12" stroke-width="2.5"/>
+          <text class="wb-text warn" text-anchor="middle" font-size="13" letter-spacing="0.14em" x="600" y="404">THE STAKES</text>
+          <text class="wb-text" text-anchor="middle" font-size="42" x="600" y="460" font-style="italic" font-weight="700">Priya — 7 minutes</text>
+          <text class="wb-text dim" text-anchor="middle" font-size="18" x="600" y="498" font-style="italic">VP of Rider Operations. Tomorrow.</text>
+          <text class="wb-text dim" text-anchor="middle" font-size="18" x="600" y="528" font-style="italic">She'll tear apart anything that doesn't hold up.</text>
+          <text class="wb-text" text-anchor="middle" font-size="20" x="600" y="572" font-style="italic"><tspan font-weight="700">whatever I bring her — has to earn its weight.</tspan></text>
+        </g>
+      </g>
+    `
+  },
+
+  request: {
+    title: 'Kenji sends the bundle', tag: 'Slack · DM with analyst',
+    html: () => `
+      <div class="sl-stage">
+        <aside class="sl-sidebar">
+          <div class="sl-ws-header">
+            <div class="sl-ws-icon">U</div>
+            <div class="sl-ws-info">
+              <div class="sl-ws-name">Uber</div>
+              <div class="sl-ws-user">Avery Chen</div>
+            </div>
+          </div>
+          <div class="sl-section-label">Channels</div>
+          <div class="sl-channel"># data-analytics</div>
+          <div class="sl-channel"># rider-ops</div>
+          <div class="sl-channel"># support-metrics</div>
+          <div class="sl-section-label">Direct messages</div>
+          <div class="sl-dm">
+            <span class="sl-dm-dot"></span>Marco Reyes
+          </div>
+          <div class="sl-dm active">
+            <span class="sl-dm-dot green"></span>Kenji Tanaka
+          </div>
+          <div class="sl-dm">
+            <span class="sl-dm-dot"></span>Jorge Almeida
+          </div>
+          <div class="sl-dm">
+            <span class="sl-dm-dot"></span>Priya Sengupta
+          </div>
+        </aside>
+        <main class="sl-main">
+          <header class="sl-header">
+            <div class="sl-header-title">
+              <span class="sl-avatar green">K</span>
+              Kenji Tanaka
+              <span class="sl-header-status">active · analyst</span>
+            </div>
+          </header>
+          <div class="sl-thread" id="slThread">
+            <div class="sl-msg out" data-line="1">
+              <div class="sl-msg-avatar">A</div>
+              <div class="sl-msg-body">
+                <div class="sl-msg-meta"><b>Avery</b> · 8:47 AM</div>
+                <div class="sl-msg-text">hey — need your help. meeting w/ Priya tomorrow on the Dec 14 UI → cancel-ticket theory. can you pull the chart, the stat, and a 1-paragraph summary? priority stuff.</div>
+              </div>
+            </div>
+            <div class="sl-msg in" data-line="2" id="kenjiReply">
+              <div class="sl-msg-avatar green">K</div>
+              <div class="sl-msg-body">
+                <div class="sl-msg-meta"><b>Kenji</b> · 9:52 AM</div>
+                <div class="sl-msg-text">on it — here you go. chart attached + stat block + 1-para. ready for the deck.</div>
+                <div class="sl-attachments">
+                  <div class="sl-att sl-att-chart">
+                    <div class="sl-att-thumb">📈</div>
+                    <div class="sl-att-info">
+                      <div class="sl-att-name">cancel_tickets_by_week.png</div>
+                      <div class="sl-att-meta">PNG · 142 KB</div>
+                    </div>
+                  </div>
+                  <div class="sl-att sl-att-doc">
+                    <div class="sl-att-thumb">📄</div>
+                    <div class="sl-att-info">
+                      <div class="sl-att-name">stat_claim + summary.docx</div>
+                      <div class="sl-att-meta">DOCX · 28 KB</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    `
+  },
+
+  chart_slip: {
+    title: "Kenji's chart — what your eye says vs what the numbers say", tag: 'Chart viewer',
+    html: () => `
+      <div class="cv-stage">
+        <div class="cv-topbar">
+          <span class="cv-file">📈 cancel_tickets_by_week.png</span>
+          <span class="cv-spacer"></span>
+          <span class="cv-meta">from Kenji · 9:52 AM</span>
+        </div>
+        <div class="cv-body">
+          <div class="cv-chart-wrap" id="cvChartWrap">
+            <svg viewBox="0 0 900 440" class="cv-chart-svg" id="cvChart" preserveAspectRatio="xMidYMid meet">
+              <!-- bad chart (y axis starts at 48k) -->
+              <g class="cv-chart-bad">
+                <!-- y-axis -->
+                <line x1="90" y1="40" x2="90" y2="380" stroke="#6b7280" stroke-width="1.5"/>
+                <!-- x-axis -->
+                <line x1="90" y1="380" x2="860" y2="380" stroke="#6b7280" stroke-width="1.5"/>
+                <!-- y-axis ticks (starting at 48,000 — the deceptive trick) -->
+                <g font-family="Roboto, Arial, sans-serif" font-size="11" fill="#4b5563">
+                  <text x="80" y="384" text-anchor="end">48,000</text><line x1="87" y1="380" x2="93" y2="380" stroke="#6b7280"/>
+                  <text x="80" y="316" text-anchor="end">49,000</text><line x1="87" y1="312" x2="93" y2="312" stroke="#6b7280"/>
+                  <text x="80" y="250" text-anchor="end">50,000</text><line x1="87" y1="246" x2="93" y2="246" stroke="#6b7280"/>
+                  <text x="80" y="184" text-anchor="end">51,000</text><line x1="87" y1="180" x2="93" y2="180" stroke="#6b7280"/>
+                  <text x="80" y="116" text-anchor="end">52,000</text><line x1="87" y1="112" x2="93" y2="112" stroke="#6b7280"/>
+                  <text x="80" y="54" text-anchor="end">53,000</text><line x1="87" y1="50" x2="93" y2="50" stroke="#6b7280"/>
+                </g>
+                <!-- x axis labels -->
+                <g font-family="Roboto, Arial, sans-serif" font-size="11" fill="#4b5563">
+                  <text x="160" y="400" text-anchor="middle">Nov 21</text>
+                  <text x="290" y="400" text-anchor="middle">Nov 28</text>
+                  <text x="420" y="400" text-anchor="middle">Dec 5</text>
+                  <text x="550" y="400" text-anchor="middle">Dec 12</text>
+                  <text x="680" y="400" text-anchor="middle">Dec 19</text>
+                  <text x="810" y="400" text-anchor="middle">Dec 26</text>
+                </g>
+                <!-- ship date vertical line -->
+                <line x1="570" y1="45" x2="570" y2="380" stroke="#da7756" stroke-width="2" stroke-dasharray="4 4"/>
+                <text x="574" y="58" font-family="Roboto, Arial, sans-serif" font-size="11" fill="#da7756" font-weight="600">Dec 14 ship</text>
+                <!-- spike line (looks huge because axis starts at 48k; real values ~50k → ~53k) -->
+                <polyline fill="none" stroke="#1a73e8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                  points="160,325 225,333 290,319 355,340 420,305 485,319 550,286 615,166 680,130 745,112 810,99"/>
+                <g fill="#1a73e8">
+                  <circle cx="160" cy="325" r="3.5"/><circle cx="225" cy="333" r="3.5"/><circle cx="290" cy="319" r="3.5"/><circle cx="355" cy="340" r="3.5"/><circle cx="420" cy="305" r="3.5"/><circle cx="485" cy="319" r="3.5"/><circle cx="550" cy="286" r="3.5"/><circle cx="615" cy="166" r="3.5"/><circle cx="680" cy="130" r="3.5"/><circle cx="745" cy="112" r="3.5"/><circle cx="810" cy="99" r="3.5"/>
+                </g>
+                <text x="480" y="30" font-family="Roboto, Arial, sans-serif" font-size="15" font-weight="500" fill="#202124" text-anchor="middle">Cancel tickets per week</text>
+              </g>
+            </svg>
+            <div class="cv-axis-highlight" id="cvAxisHighlight"></div>
+            <div class="cv-numbers-callout" id="cvNumbers">
+              <div class="cv-num-label">ACTUAL NUMBERS</div>
+              <div class="cv-num-row"><span class="cv-num-key">before</span><span class="cv-num-val">~50,000/wk</span></div>
+              <div class="cv-num-row"><span class="cv-num-key">after</span><span class="cv-num-val">~53,000/wk</span></div>
+              <div class="cv-num-delta">= <b>6% bump</b></div>
+            </div>
+            <div class="cv-test" id="cvTest">
+              <div class="cv-test-label">THE TEST</div>
+              <div class="cv-test-body">when your eye and the numbers disagree — <b>something's off.</b></div>
+              <div class="cv-test-tag">this trick = <b>truncated axis</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+  },
+
+  stat_slip: {
+    title: "Kenji's stat claim — sample size", tag: 'The claim vs the data',
+    html: () => `
+      <div class="sl-quote-stage">
+        <div class="sl-quote-top">
+          <span class="sl-quote-label">KENJI'S HEADLINE CLAIM</span>
+        </div>
+        <div class="sl-quote-body" id="statQuoteBody">
+          <div class="sl-stat-big" id="statBig">"UI change drove a <b>47% increase</b>. <span class="sl-pval">p &lt; 0.05</span>."</div>
+        </div>
+        <div class="sl-question" id="statQuestion">
+          <div class="sl-q-label">BEFORE YOU TRUST A NUMBER</div>
+          <div class="sl-q-text">how much data did he actually look at?</div>
+        </div>
+        <div class="sl-answer" id="statAnswer">
+          <div class="sl-a-value">3 weeks</div>
+          <div class="sl-a-window">of post-ship data</div>
+        </div>
+        <div class="sl-scope" id="statScope">
+          <div class="sl-scope-claim">
+            <div class="sl-scope-label">THE CLAIM</div>
+            <div class="sl-scope-text">about <b>millions of Uber riders</b>, over the long run</div>
+            <div class="sl-scope-icon">🌍</div>
+          </div>
+          <div class="sl-scope-vs">vs</div>
+          <div class="sl-scope-data">
+            <div class="sl-scope-label">THE DATA</div>
+            <div class="sl-scope-text"><b>3 weeks</b> of post-ship activity</div>
+            <div class="sl-scope-icon">📅</div>
+          </div>
+        </div>
+        <div class="sl-test" id="statTest">
+          <div class="sl-test-label">THE TEST</div>
+          <div class="sl-test-body">does the <b>size of the data</b> match the <b>size of the claim</b>? <span class="sl-test-tag">analysts call this <b>sample size</b></span></div>
+        </div>
+      </div>
+    `
+  },
+
+  prose_slip: {
+    title: "Kenji's summary — slop vs commit", tag: 'Does the reader know what to do?',
+    html: () => `
+      <div class="pr-stage">
+        <div class="pr-top">
+          <span class="pr-file">📄 stat_claim + summary.docx · last page</span>
+        </div>
+        <div class="pr-body">
+          <div class="pr-panel pr-bad" id="prBad">
+            <div class="pr-panel-label">WHAT KENJI WROTE</div>
+            <div class="pr-panel-text">
+              "Analysis indicates a <u>statistically significant</u> correlation between the December 14 deployment and a <u>substantial increase</u> in rider support engagement, driven primarily by <u>increased cancellation-related ticket volume</u>."
+            </div>
+            <div class="pr-panel-flag pr-flag-bad">
+              ? what is he recommending?
+            </div>
+          </div>
+          <div class="pr-arrow" id="prArrow">→</div>
+          <div class="pr-panel pr-good" id="prGood">
+            <div class="pr-panel-label">WHAT COMMITS</div>
+            <div class="pr-panel-text">
+              "<b>Revert the Dec 14 Cancel button change.</b> Projected <b>35% ticket reduction</b>. <b>40 engineering hours</b>. Downside: tiny dip in a tap-through that was never a KPI."
+            </div>
+            <div class="pr-panel-flag pr-flag-good">
+              ✓ Priya can sign this in 30 seconds
+            </div>
+          </div>
+        </div>
+        <div class="pr-test" id="prTest">
+          <div class="pr-test-label">THE TEST</div>
+          <div class="pr-test-body">text that sounds smart but doesn't commit — we call it <b>slop</b>. common now because AI makes it easy. <span class="pr-test-q">can the reader <b>do something</b> with it?</span></div>
+        </div>
+      </div>
+    `
+  },
+
+  taxonomy: {
+    title: 'Three forms. Same question.', tag: 'The taxonomy of slop',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text" font-size="38" x="600" y="110" text-anchor="middle" font-style="italic">three forms. <tspan font-weight="700">same question underneath.</tspan></text>
+      </g>
+      <g data-line="2">
+        ${[
+          { x: 100,  title: 'chart', q: 'does the visual match the numbers?', ex: 'truncated axis', color: '#b45309', bg: '#fef7e0' },
+          { x: 450,  title: 'stat',  q: 'does the data match the claim?',     ex: 'small sample size', color: '#b6311d', bg: '#fbe8e4' },
+          { x: 800,  title: 'prose', q: 'can the reader act on it?',          ex: 'hollow prose / slop', color: '#0b3b28', bg: '#e6f4ec' },
+        ].map(b => `
+          <g class="pop">
+            <rect x="${b.x}" y="180" width="300" height="300" rx="18" fill="${b.bg}" stroke="${b.color}" stroke-width="2.5"/>
+            <text class="wb-text" font-size="26" font-weight="700" x="${b.x+150}" y="228" text-anchor="middle" fill="${b.color}">${b.title}</text>
+            <text class="wb-text dim" font-size="16" font-style="italic" x="${b.x+150}" y="290" text-anchor="middle">${b.q}</text>
+            <text class="wb-mono" font-size="13" x="${b.x+150}" y="422" text-anchor="middle" fill="${b.color}">e.g. ${b.ex}</text>
+          </g>
+        `).join('')}
+        <text class="wb-text" text-anchor="middle" font-size="24" x="600" y="560" font-style="italic">when any breaks — <tspan font-weight="700" fill="#b6311d">it's slop.</tspan></text>
+      </g>
+    `
+  },
+
+  resolution: {
+    title: "Kenji rebuilds — now it holds up", tag: 'The defensible bundle',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text faint" font-size="14" letter-spacing="0.18em" x="100" y="90">KENJI V2 — REBUILT</text>
+        <text class="wb-text green" font-size="32" x="100" y="135" font-style="italic">honest chart. scaled claim. committing prose.</text>
+      </g>
+      <g data-line="2">
+        <g class="pop">
+          <rect x="100" y="180" width="320" height="260" rx="14" fill="#e6f4ec" stroke="#1e7a4b" stroke-width="2"/>
+          <text class="wb-text green" font-size="14" letter-spacing="0.14em" x="260" y="210" text-anchor="middle">CHART — honest from 0</text>
+          <line x1="140" y1="400" x2="400" y2="400" stroke="#1e7a4b" stroke-width="1.5"/>
+          <line x1="140" y1="260" x2="140" y2="400" stroke="#1e7a4b" stroke-width="1.5"/>
+          <polyline points="150,380 180,382 210,378 240,385 270,372 300,380 330,370 360,270 390,255" fill="none" stroke="#1e7a4b" stroke-width="2"/>
+          <text class="wb-text dim" font-size="12" font-style="italic" x="260" y="428" text-anchor="middle">4-month window · full axis</text>
+        </g>
+        <g class="pop">
+          <rect x="440" y="180" width="320" height="260" rx="14" fill="#e6f4ec" stroke="#1e7a4b" stroke-width="2"/>
+          <text class="wb-text green" font-size="14" letter-spacing="0.14em" x="600" y="210" text-anchor="middle">STAT — scaled to what we know</text>
+          <text class="wb-text" font-size="20" x="600" y="260" text-anchor="middle" font-style="italic">"~70% of increase</text>
+          <text class="wb-text" font-size="20" x="600" y="288" text-anchor="middle" font-style="italic">correlates with Dec 14"</text>
+          <text class="wb-text dim" font-size="13" font-style="italic" x="600" y="340" text-anchor="middle">qualified. over a 4-month window.</text>
+          <text class="wb-text dim" font-size="13" font-style="italic" x="600" y="362" text-anchor="middle">no claim beyond the data.</text>
+        </g>
+        <g class="pop">
+          <rect x="780" y="180" width="320" height="260" rx="14" fill="#e6f4ec" stroke="#1e7a4b" stroke-width="2"/>
+          <text class="wb-text green" font-size="14" letter-spacing="0.14em" x="940" y="210" text-anchor="middle">PROSE — one recommendation</text>
+          <text class="wb-text" font-size="15" x="940" y="252" text-anchor="middle" font-style="italic">"Revert the Dec 14 UI.</text>
+          <text class="wb-text" font-size="15" x="940" y="276" text-anchor="middle" font-style="italic">35% ticket reduction.</text>
+          <text class="wb-text" font-size="15" x="940" y="300" text-anchor="middle" font-style="italic">40 eng hours."</text>
+          <text class="wb-text dim" font-size="13" font-style="italic" x="940" y="352" text-anchor="middle">commits. one decision.</text>
+        </g>
+        <text class="wb-text green" text-anchor="middle" font-size="22" x="600" y="520" font-style="italic"><tspan font-weight="700">still makes the case.</tspan> now it holds up.</text>
+      </g>
+    `
+  },
+
+  anchor: {
+    title: 'At Airbnb — your three checks', tag: 'Forward',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text faint" text-anchor="middle" font-size="14" letter-spacing="0.14em" x="600" y="110">AT AIRBNB</text>
+        <text class="wb-text" text-anchor="middle" font-size="36" x="600" y="160" font-style="italic">someone will hand you a chart, a stat, and a summary.</text>
+        <text class="wb-text red" text-anchor="middle" font-size="28" x="600" y="210" font-weight="700" font-style="italic">don't nod.</text>
+      </g>
+      <g data-line="2">
+        <g class="pop">
+          <rect x="140" y="270" width="920" height="160" rx="18" fill="#fff7e6" stroke="#a85d12" stroke-width="2.5"/>
+          <text class="wb-text warn" text-anchor="middle" font-size="14" letter-spacing="0.14em" x="600" y="302">THE THREE CHECKS · EVERY TIME</text>
+          <text class="wb-text" text-anchor="middle" font-size="26" x="300" y="365" font-style="italic">visual <tspan font-weight="700">vs</tspan> numbers</text>
+          <text class="wb-text" text-anchor="middle" font-size="26" x="600" y="365" font-style="italic">data <tspan font-weight="700">vs</tspan> claim</text>
+          <text class="wb-text" text-anchor="middle" font-size="26" x="900" y="365" font-style="italic">prose <tspan font-weight="700">vs</tspan> action</text>
+          <text class="wb-text dim" text-anchor="middle" font-size="14" font-style="italic" x="600" y="405">= the slop audit</text>
+        </g>
+      </g>
+    `
+  },
+
+  pou: {
+    title: 'Your turn — four situations', tag: 'POU · does the evidence hold up?',
+    isPou: true,
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text dim" text-anchor="middle" x="600" y="330" font-size="22" font-style="italic">your turn →</text>
+      </g>
+      <g data-line="2">
+        <text class="wb-text dim" text-anchor="middle" x="600" y="370" font-size="16" font-style="italic">(four situations · does the evidence hold up?)</text>
+      </g>
+    `
+  },
+
+  handoff: {
+    title: "Now — stress-test it with Claude", tag: 'Hands-on',
+    html: () => `
+      <div class="ho-stage">
+        <div class="ho-lead" data-line="1">
+          <div class="ho-lead-green">nice — you did that by hand.</div>
+          <div class="ho-lead-warm">
+            <span class="ho-lead-warm-label">HERE'S A REAL ONE</span>
+            <div class="ho-lead-warm-body">A PM just sent you this — wants it approved for a <b>company-wide rollout</b> this Friday.</div>
+          </div>
+        </div>
+
+        <div class="ho-deck-wrap" data-line="2">
+          <div class="ho-deck-filename">📄 checkout_redesign_recommendation.pdf</div>
+          <div class="deck-bundle">
+            <div class="deck-mini">
+              <div class="deck-mini-label">CHART</div>
+              <div class="deck-mini-chart">${/* we inject chart svg at runtime via onMount so it renders cleanly */ ''}
+                <svg viewBox="0 0 260 110" preserveAspectRatio="xMidYMid meet">
+                  <line x1="30" y1="12" x2="30" y2="92" stroke="#6b7280" stroke-width="1"/>
+                  <line x1="30" y1="92" x2="250" y2="92" stroke="#6b7280" stroke-width="1"/>
+                  <g font-family="Roboto, Arial" font-size="7" fill="#4b5563">
+                    <text x="26" y="94" text-anchor="end">12k</text>
+                    <text x="26" y="75" text-anchor="end">14k</text>
+                    <text x="26" y="55" text-anchor="end">20k</text>
+                    <text x="26" y="35" text-anchor="end">32k</text>
+                    <text x="26" y="18" text-anchor="end">44k</text>
+                  </g>
+                  <line x1="150" y1="15" x2="150" y2="92" stroke="#da7756" stroke-width="1" stroke-dasharray="2 2"/>
+                  <text x="154" y="22" font-family="Roboto" font-size="7" fill="#da7756">launch</text>
+                  <polyline fill="none" stroke="#1a73e8" stroke-width="2" stroke-linecap="round"
+                    points="50,82 80,83 110,81 140,80 170,45 200,24 230,18"/>
+                  <text x="140" y="10" font-family="Roboto" font-size="7" font-weight="500" fill="#202124" text-anchor="middle">engagement / week — "up 3×"</text>
+                </svg>
+              </div>
+            </div>
+            <div class="deck-mini">
+              <div class="deck-mini-label">STAT CLAIM</div>
+              <div class="deck-mini-stat">"Engagement up <b>200%</b>, p&lt;0.01"<span class="note">based on 2 weeks of post-launch data</span></div>
+            </div>
+            <div class="deck-mini">
+              <div class="deck-mini-label">SUMMARY</div>
+              <div class="deck-mini-prose">"Feature drove substantial meaningful growth across key engagement metrics. Initial analysis of post-deployment telemetry indicates strong signal of positive user response warranting broader rollout consideration."</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ho-download-wrap" data-line="3">
+          <div class="ho-lead-hint">Read it. Form your own opinion. Then —</div>
+          <button class="ho-download-btn" id="handoffDownload">
+            <div class="ho-download-caption">DOWNLOAD · OPEN IN CLAUDE</div>
+            <div class="ho-download-name">checkout_redesign_recommendation.pdf</div>
+            <div class="ho-download-cta">↓ click to download + start the stress-test</div>
+          </button>
+        </div>
+      </div>
+    `
+  },
+
+  pip: {
+    title: 'Live — you and Claude', tag: 'Cowork · stress-test',
+    isPip: true,
+    html: () => `
+      <div class="pip-stage">
+        <div class="cw-stage pip-cowork">
+          <aside class="cw-sidebar">
+            <div class="cw-brand">
+              <div class="cw-brand-mark">C</div>
+              <div><span class="cw-brand-text">Claude</span> <span class="cw-brand-sub">Cowork</span></div>
+            </div>
+            <div class="cw-new-btn">New chat<span class="cw-kbd">⌘N</span></div>
+            <div class="cw-search">Search chats</div>
+            <div class="cw-chatlist-label">Recents</div>
+            <ul class="cw-chatlist">
+              <li class="cw-chat-item active">Checkout deck · stress-test</li>
+              <li class="cw-chat-item">Rider-support cleanup (L2)</li>
+              <li class="cw-chat-item">L1 glossary work</li>
+              <li class="cw-chat-item">Airbnb brief — draft</li>
+            </ul>
+            <div class="cw-footer">
+              <div class="cw-avatar-dot">A</div>
+              <div class="cw-user-info">
+                <div class="cw-user-name">Avery Chen</div>
+                <div class="cw-user-tier">Max plan</div>
+              </div>
+            </div>
+          </aside>
+          <main class="cw-main">
+            <header class="cw-header">
+              <div class="cw-title">Checkout deck · stress-test</div>
+              <div class="cw-model">Claude Sonnet 4.6</div>
+            </header>
+            <div class="cw-messages" id="pipMsgs">
+              <div class="cw-msg assistant show">
+                <div class="claude-avatar">C</div>
+                <div class="claude-body">
+                  <p>Hi Avery — I see you've attached <code>checkout_redesign_recommendation.pdf</code>. It has a chart, a stat claim, and a summary paragraph. What would you like me to look at?</p>
+                </div>
+              </div>
+            </div>
+            <div class="cw-composer" id="pipComposer">
+              <div class="cw-composer-attach-row" id="pipAttachRow">
+                <div class="cw-csv-chip attached">
+                  <span>📄 checkout_redesign_recommendation.pdf</span>
+                  <span class="cw-chip-meta">chart + stat + summary</span>
+                </div>
+              </div>
+              <div class="cw-composer-inner" id="pipComposerInner">
+                <div class="cw-attach">+</div>
+                <textarea class="cw-input-real" id="pipInput" placeholder="Ask Claude about the deck..." rows="1"></textarea>
+                <button class="cw-send" id="pipSend" title="Send">↑</button>
+              </div>
+              <div class="cw-composer-hint" id="pipHint">Try your own question first — Avery will teach you sharper ones as you go.</div>
+            </div>
+          </main>
+        </div>
+
+        <div class="avery-pip" id="averyPip">
+          <div class="avery-pip-header">
+            <div class="avery-pip-status"><span class="avery-pip-dot"></span> Avery is watching</div>
+          </div>
+          <div class="avery-pip-face">
+            <div class="avery-pip-portrait">
+              <svg viewBox="0 0 120 120">
+                <defs><linearGradient id="pipAveryGrad4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c8f5df"/><stop offset="100%" stop-color="#3fb489"/></linearGradient></defs>
+                <circle cx="60" cy="60" r="58" fill="url(#pipAveryGrad4)"/>
+                <text x="60" y="80" font-family="Iowan Old Style, Georgia, serif" font-size="56" font-style="italic" text-anchor="middle" fill="#0b3b28">A</text>
+              </svg>
+            </div>
+            <div class="avery-pip-speech">
+              <div class="avery-pip-speech-text" id="averyPipSpeechText">—</div>
+            </div>
+          </div>
+          <div class="avery-pip-toolkit" id="averyPipToolkit">
+            <div class="avery-pip-toolkit-label">YOUR STRESS-TEST TOOLKIT</div>
+            <button class="avery-pip-qbutton" data-q="I'm trying to convince my VP to ship the redesigned checkout. Does this chart honestly show the size of the effect, given what she'll see in two seconds?">
+              → Does the chart match what the VP will see?
+            </button>
+            <button class="avery-pip-qbutton" data-q="This claim is based on the data you can see in the attached deck. Is the sample size big enough to justify the claim being made? What's the smallest the real effect could plausibly be?">
+              → Is the sample size big enough for the claim?
+            </button>
+            <button class="avery-pip-qbutton" data-q="Strip all the hedging and qualifiers out of the summary paragraph. What specific decision is the PM asking the VP to make? Is that claim actually supported by the chart and stat?">
+              → Strip the hedging — what's the actual claim?
+            </button>
+          </div>
+          <div class="avery-pip-upload" id="averyPipUpload" style="display:none">
+            <div class="avery-pip-upload-label">Send the stress-tested bundle back</div>
+            <label class="avery-pip-upload-zone" for="averyUploadInput">
+              <div class="avery-pip-upload-icon">↑</div>
+              <div class="avery-pip-upload-text">Drop file or <span>click to upload</span></div>
+            </label>
+            <input type="file" id="averyUploadInput" style="display:none"/>
+          </div>
+        </div>
+      </div>
+    `
+  },
+
+  close: {
+    title: 'That was the move', tag: 'Next — L5',
+    svg: () => `
+      <g data-line="1">
+        <g class="pop">
+          <rect x="160" y="130" width="880" height="230" rx="20" fill="#e6f4ec" stroke="#1e7a4b" stroke-width="3"/>
+          <text class="wb-text green" text-anchor="middle" font-size="14" letter-spacing="0.14em" x="600" y="168">YOUR TOOLKIT — FOREVER</text>
+          <text class="wb-text" text-anchor="middle" font-size="22" x="600" y="220" font-style="italic">what am I trying to claim?</text>
+          <text class="wb-text" text-anchor="middle" font-size="22" x="600" y="252" font-style="italic">who's going to see this?</text>
+          <text class="wb-text" text-anchor="middle" font-size="22" x="600" y="284" font-style="italic">what decision do they have to make?</text>
+          <text class="wb-text green" text-anchor="middle" font-size="24" x="600" y="326" font-style="italic" font-weight="700">does the evidence hold up against that?</text>
+        </g>
+      </g>
+      <g data-line="2">
+        <g class="pop">
+          <rect x="220" y="420" width="760" height="160" rx="18" fill="#fff7e6" stroke="#a85d12" stroke-width="2"/>
+          <text class="wb-text warn" text-anchor="middle" font-size="14" letter-spacing="0.14em" x="600" y="454">NEXT — L5</text>
+          <text class="wb-text" text-anchor="middle" font-size="28" x="600" y="504" font-style="italic">honest chart. real finding.</text>
+          <text class="wb-text dim" text-anchor="middle" font-size="20" x="600" y="540" font-style="italic">how do you turn it into something someone can <tspan font-weight="700">act on</tspan>?</text>
+        </g>
+      </g>
+    `
+  },
+};
+
+
+
+// === POU — L4 "does the evidence hold up" mini-game ===
+// 4 rounds. Each sets audience + goal FIRST, then asks the learner to evaluate.
+const POU_ROUNDS = [
+  {
+    category: 'Chart literacy',
+    headline: 'Round 1 / 4 — What does this chart actually say?',
+    prompt: 'Before forming any opinion — just <em>read the chart.</em> Which statement most accurately describes what it shows?',
+    kind: 'options',
+    chartSvgKey: 'bad',
+    options: [
+      { t: 'Cancel tickets doubled after Dec 14.', right: false,
+        note: 'That\'s the <em>impression</em> the chart creates — it looks dramatic. But read the actual values. The line goes from ~50k to ~53k, not from 25k to 50k. The visual scale made the jump look like a doubling. This is exactly why the habit matters — your eye tells you one story, the numbers tell another. <b>Always read the numbers.</b>' },
+      { t: 'Cancel tickets rose from around 50k/week to around 53k/week after Dec 14.', right: true,
+        note: 'Right. That\'s what the chart <em>actually</em> shows — a 50k → 53k bump. Reading a chart literally, before forming any opinion, is the single most important habit. Once you can describe a chart accurately, you can compare it to whatever claim is being made alongside it. Lots of people skip this step and let the visual impression do the reading for them. Don\'t.' },
+      { t: 'Cancel tickets went down after Dec 14.', right: false,
+        note: 'Look again — the line goes <em>up</em> after Dec 14, not down. Slow down when you read a chart; it\'s easy to misread fast.' },
+      { t: 'There\'s no clear trend in the data.', right: false,
+        note: 'There is a trend — it\'s small, but real. ~50k before, ~53k after. Charts often show modest but real changes. Don\'t let a non-dramatic visual make you dismiss the pattern.' },
+    ],
+  },
+  {
+    category: 'Sample size',
+    headline: 'Round 2 / 4 — Can he roll it out?',
+    prompt: 'A PM A/B-tested a new button color on <b>10 users</b>. <b>3 clicked</b>. He wants to roll it out to Uber\'s <b>150 million riders</b>. Is 10 users enough evidence to back that rollout?',
+    kind: 'options',
+    options: [
+      { t: 'Yes — 30% click rate is a huge lift.', right: false,
+        note: 'The percentage is big — but 10 users is a tiny sample. Flip a coin 10 times and you\'ll often get 7 heads. Doesn\'t mean the coin is rigged.' },
+      { t: 'Probably not — 10 people is too few to generalize to 150 million.', right: true,
+        note: 'Exactly. The size of the claim (150M riders) is massive compared to the size of the data (10 people). You can\'t generalize from 10 to 150 million. This is a <b>sample size</b> problem. PM needs a bigger test.' },
+      { t: 'Yes — p-value is what matters, not sample size.', right: false,
+        note: 'A p-value from n=10 tells you almost nothing. Sample size is what gives you the confidence to generalize.' },
+      { t: 'Need to know the color he picked.', right: false,
+        note: 'The color isn\'t the issue. The evidence (10 people) doesn\'t match the claim (150M users).' },
+    ],
+  },
+  {
+    category: 'Prose / slop',
+    headline: 'Round 3 / 4 — Which one does your manager act on?',
+    prompt: 'You need your manager\'s sign-off to replace a tooling vendor. She has <b>3 minutes</b> before her next meeting. Which paragraph do you send?',
+    kind: 'options',
+    options: [
+      { t: '"The current vendor presents substantial friction in onboarding workflows, and market analysis indicates meaningful opportunity for consolidation through an alternative solution that better aligns with our strategic priorities."', right: false,
+        note: 'Sounds professional. But in 3 minutes your manager can\'t tell what you\'re asking her to do. <b>Slop.</b> No commitment, no specifics, no decision.' },
+      { t: '"Replace vendor X with vendor Y by April 15. Saves $18k/year. One-week migration, owned by me. Risk: 2-day gap in analytics during cutover."', right: true,
+        note: 'This commits. Specific vendor, deadline, savings, owner, risk. Your manager can decide in 30 seconds. That\'s what prose is for — enabling a decision.' },
+      { t: '"Wanted to run an idea by you — thinking about our vendor setup and whether we could explore alternatives. Happy to chat when you have time!"', right: false,
+        note: 'Friendly but meaningless. Doesn\'t even specify what decision you need. Your manager will tab over to email.' },
+      { t: '"Analysis of vendor performance metrics and cost-benefit evaluation suggests favorable ROI from transitioning to a next-generation platform."', right: false,
+        note: 'Same trap as option 1. Sounds smart. Commits to nothing. Slop.' },
+    ],
+  },
+  {
+    category: 'Your move',
+    headline: 'Round 4 / 4 — What do you do with this?',
+    prompt: 'A teammate sent you this bundle. She wants it approved for a <b>company-wide rollout</b>. Look at all three pieces. <em>What\'s your move?</em>',
+    kind: 'options',
+    bundle: {
+      chart: { svgKey: 'bad' },
+      stat: { headline: '"Engagement up 200%, p&lt;0.01"', note: 'based on 2 weeks of post-launch data' },
+      prose: '"Feature drove substantial meaningful growth across key engagement metrics."',
+    },
+    options: [
+      { t: 'Approve it — pass it up to the VP as-is.', right: false,
+        note: 'All three pieces have problems. If the VP catches any of them later, it\'s <em>your</em> credibility on the line too — you approved it. When the work isn\'t ready, don\'t pass it up.' },
+      { t: 'Push back only on the chart. Rest is fine.', right: false,
+        note: 'Only the chart? The stat is <b>2 weeks</b> of data backing a company-wide rollout — way too thin. The prose doesn\'t commit to anything either. Fixing just one piece ships the rest of the problems. All three need work.' },
+      { t: 'Send the whole bundle back — ask for a real rebuild.', right: true,
+        note: 'Right. The chart\'s visual overstates the change. The stat (call it <b>sample size</b>) is 2 weeks — too thin for a company-wide rollout. The prose (call it <b>slop</b>) doesn\'t commit to anything. Three checks, three fails. When multiple pieces miss, you don\'t patch one — you send it back. That\'s the respectful, healthy feedback move. And it saves you both from shipping weak work.' },
+      { t: 'Quietly rewrite it yourself before passing it up.', right: false,
+        note: 'Tempting, but two problems. <em>One —</em> you can\'t fix the stat alone. It needs more data — another 4+ weeks. <em>Two —</em> silently redoing someone else\'s work hides the problem and they won\'t learn. Send it back.' },
+    ],
+  },
+];
+
+// ---- helpers ----
+function typeInto(el, text, durationMs, done) {
+  if (!el) return;
+  el.textContent = '';
+  const chars = Array.from(text);
+  const step = Math.max(12, durationMs / chars.length);
+  let i = 0;
+  const tick = () => {
+    if (!el.isConnected) return;
+    if (i >= chars.length) { if (done) done(); return; }
+    el.textContent += chars[i++];
+    setTimeout(tick, step);
+  };
+  setTimeout(tick, 80);
+}
+
+// =====================================================================
+// L4 scene animation callbacks
+// =====================================================================
+
+// --- request scene — Kenji's DM reveals step by step ---
+Object.assign(SCENES.request, {
+  onLine(li, dur) {
+    // handled via data-line reveal system; nothing extra needed
+  }
+});
+
+// --- chart_slip scene — the zoom + numbers callout ---
+Object.assign(SCENES.chart_slip, {
+  onMount() {
+    ['cvAxisHighlight','cvNumbers','cvTest'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('show');
+    });
+  },
+  onLine(li, dur) {
+    const show = (id) => { const e = document.getElementById(id); if (e) e.classList.add('show'); };
+    const hide = (id) => { const e = document.getElementById(id); if (e) e.classList.remove('show'); };
+    // 0 intro · 1 eye huge · 2 numbers reveal · 3 gap statement · 4 name + test
+    if (li === 0) {
+      hide('cvAxisHighlight'); hide('cvNumbers'); hide('cvTest');
+    } else if (li === 1) {
+      // eye says huge — no extra UI; maybe pulse the chart
+    } else if (li === 2) {
+      show('cvNumbers');
+    } else if (li === 3) {
+      show('cvAxisHighlight');
+    } else if (li === 4) {
+      show('cvTest');
+    }
+  }
+});
+
+// --- stat_slip scene — sequential reveal ---
+Object.assign(SCENES.stat_slip, {
+  onMount() {
+    ['statQuestion','statAnswer','statScope','statTest'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('show');
+    });
+  },
+  onLine(li, dur) {
+    const show = (id) => { const e = document.getElementById(id); if (e) e.classList.add('show'); };
+    if (li === 1) show('statQuestion');       // "how much data did he look at?"
+    else if (li === 2) show('statAnswer');    // "3 weeks"
+    else if (li === 3) show('statScope');     // claim-vs-data scope comparison
+    else if (li === 4) show('statTest');      // name + test
+  }
+});
+
+// --- prose_slip scene — sequential reveal ---
+Object.assign(SCENES.prose_slip, {
+  onMount() {
+    ['prGood','prArrow','prTest'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('show');
+    });
+    const bad = document.getElementById('prBad');
+    if (bad) bad.classList.remove('emphasized');
+  },
+  onLine(li, dur) {
+    const show = (id) => { const e = document.getElementById(id); if (e) e.classList.add('show'); };
+    // 0 intro · 1 quote · 2 can't act · 3 real version · 4 slop name + test
+    if (li === 1) {
+      const bad = document.getElementById('prBad'); if (bad) bad.classList.add('emphasized');
+    } else if (li === 3) {
+      show('prArrow'); show('prGood');
+    } else if (li === 4) {
+      show('prTest');
+    }
+  }
+});
+
+// ---- handoff scene — wire download chip ----
+Object.assign(SCENES.handoff, {
+  onMount() {
+    setTimeout(() => {
+      const chip = document.getElementById('handoffDownload');
+      if (!chip) return;
+      chip.addEventListener('click', () => {
+        downloadCheckoutBundle();
+        setTimeout(() => advanceToScene('pip'), 400);
+      });
+    }, 100);
+  }
+});
+
+function downloadCheckoutBundle() {
+  const text = `CHECKOUT REDESIGN RECOMMENDATION
+From: PM (on behalf of product team)
+To: VP Product · Friday review
+
+CHART (attached): engagement_by_week.png
+ - Shows engagement "up 3x" after launch
+ - (y-axis cropped, starts at 12,000)
+
+HEADLINE STAT:
+ - Engagement up 200%
+ - p < 0.01
+ - Based on 2 weeks of post-launch data
+
+SUMMARY:
+"Feature drove substantial meaningful growth across key engagement metrics. Initial analysis of post-deployment telemetry indicates strong signal of positive user response warranting broader rollout consideration."
+
+Asking for: approval to roll out company-wide next sprint.
+`;
+  const blob = new Blob([text], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'checkout_redesign_recommendation.txt';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+}
+
+// ---- pip scene — Avery scaffolds sharp questions ----
+const PIP_SYSTEM_PROMPT = `You are Claude Sonnet 4.6 running inside Claude Cowork. The user (Avery, a junior-to-mid data analyst) has attached a PM's recommendation bundle:
+
+FILE: checkout_redesign_recommendation
+CONTENTS:
+1. CHART (engagement_by_week.png) — shows engagement "up 3x" after launch. Y-AXIS IS CROPPED: starts at 12,000 (not 0). Real values: before launch ~14,000/week, after launch ~42,000/week. Axis makes change look more dramatic than it is, but even honest axis shows substantial jump.
+2. STAT CLAIM: "engagement up 200%, p<0.01" — based on ONLY 2 WEEKS of post-launch data.
+3. PROSE SUMMARY: "Feature drove substantial meaningful growth across key engagement metrics. Initial analysis of post-deployment telemetry indicates strong signal of positive user response warranting broader rollout consideration."
+
+DECISION BEING REQUESTED: company-wide rollout next sprint.
+
+KEY ISSUES TO RECOGNIZE (but only surface what the user asks about):
+- CHART: y-axis cropped at 12k — makes effect look punchier than reality. For a VP audience the axis should be honest. Cropped axis isn't inherently wrong, but for a rollout decision it's misleading.
+- STAT: 2 weeks is tiny for a claim about sustained engagement at company scale. Possible launch-week novelty effect. Insufficient evidence for rollout.
+- PROSE: hollow / non-committal. "Substantial meaningful growth" says nothing. No specific metric, no recommendation, no decision enabled.
+
+BEHAVIOR:
+- When user asks a VAGUE question ("is this good?", "looks alright?"), respond with a VAGUE answer like "The deck looks reasonably polished. It makes the case for the feature." — deliberately not very useful. This teaches them that vague in → vague out.
+- When user asks a SHARP question (mentions the audience, the claim, sample size, stripping hedging, time window, etc.), respond with a concrete, pointed answer that drills into the specific weakness they asked about.
+- Format with markdown — **bold** for emphasis, \`code\` for specific claims.
+- Keep responses under 150 words.
+- You're Claude Cowork — do not mention Gemini or that you're simulated.
+- Never volunteer all three issues at once. Only surface what the user's specific question pulls on. This reinforces that the questions matter.
+
+Avery is watching in a PIP overlay and guiding the user through this. Be helpful but reward specificity.`;
+
+Object.assign(SCENES.pip, {
+  onMount() {
+    document.body.classList.add('pip-mode');
+    const msgs = document.getElementById('pipMsgs');
+    if (msgs) {
+      msgs.innerHTML = `
+        <div class="cw-msg assistant show">
+          <div class="claude-avatar">C</div>
+          <div class="claude-body">
+            <p>Hi Avery — here's what's in <code>checkout_redesign_recommendation.pdf</code>:</p>
+            <div class="deck-bundle pip-deck-preview">
+              <div class="deck-mini">
+                <div class="deck-mini-label">CHART</div>
+                <div class="deck-mini-chart">
+                  <svg viewBox="0 0 260 110" preserveAspectRatio="xMidYMid meet">
+                    <line x1="30" y1="12" x2="30" y2="92" stroke="#6b7280" stroke-width="1"/>
+                    <line x1="30" y1="92" x2="250" y2="92" stroke="#6b7280" stroke-width="1"/>
+                    <g font-family="Roboto, Arial" font-size="7" fill="#4b5563">
+                      <text x="26" y="94" text-anchor="end">12k</text>
+                      <text x="26" y="75" text-anchor="end">14k</text>
+                      <text x="26" y="55" text-anchor="end">20k</text>
+                      <text x="26" y="35" text-anchor="end">32k</text>
+                      <text x="26" y="18" text-anchor="end">44k</text>
+                    </g>
+                    <line x1="150" y1="15" x2="150" y2="92" stroke="#da7756" stroke-width="1" stroke-dasharray="2 2"/>
+                    <text x="154" y="22" font-family="Roboto" font-size="7" fill="#da7756">launch</text>
+                    <polyline fill="none" stroke="#1a73e8" stroke-width="2" stroke-linecap="round"
+                      points="50,82 80,83 110,81 140,80 170,45 200,24 230,18"/>
+                    <text x="140" y="10" font-family="Roboto" font-size="7" font-weight="500" fill="#202124" text-anchor="middle">engagement / week</text>
+                  </svg>
+                </div>
+              </div>
+              <div class="deck-mini">
+                <div class="deck-mini-label">STAT CLAIM</div>
+                <div class="deck-mini-stat">"Engagement up <b>200%</b>, p&lt;0.01"<span class="note">based on 2 weeks of post-launch data</span></div>
+              </div>
+              <div class="deck-mini">
+                <div class="deck-mini-label">SUMMARY</div>
+                <div class="deck-mini-prose">"Feature drove substantial meaningful growth across key engagement metrics. Initial analysis of post-deployment telemetry indicates strong signal of positive user response warranting broader rollout consideration."</div>
+              </div>
+            </div>
+            <p>PM is asking for approval to roll this out company-wide. What would you like me to look at?</p>
+          </div>
+        </div>
+      `;
+    }
+    const upload = document.getElementById('averyPipUpload');
+    if (upload) upload.style.display = 'none';
+    const toolkit = document.getElementById('averyPipToolkit');
+    if (toolkit) toolkit.classList.remove('show');
+    pipConversation = [];
+    pipAskCount = 0;
+    setupPipComposer();
+    setupToolkitButtons();
+    setupUploadHandler();
+  },
+  onLine(li, dur) {
+    const speech = document.getElementById('averyPipSpeechText');
+    if (li === 0 && speech) speech.innerHTML = "Try it your own way first. Whatever feels natural.";
+    if (li === 1 && speech) speech.innerHTML = "Vague question gets you a vague answer. <b>Let me teach you the sharp ones.</b>";
+    if (li === 2 && speech) {
+      speech.innerHTML = "Put your <b>claim</b> in the question. What are you trying to say? Who sees it? What decision do they make?";
+      const toolkit = document.getElementById('averyPipToolkit');
+      if (toolkit) toolkit.classList.add('show');
+    }
+    if (li === 3 && speech) {
+      speech.innerHTML = "Copy these. They're your toolkit — forever. When you're done, <b>send the bundle back.</b>";
+      const upload = document.getElementById('averyPipUpload');
+      if (upload) upload.style.display = 'block';
+    }
+  }
+});
+
+let pipConversation = [];
+let pipAskCount = 0;
+
+function setupPipComposer() {
+  const input = document.getElementById('pipInput');
+  const send = document.getElementById('pipSend');
+  if (!input || !send) return;
+  const resize = () => { input.style.height = 'auto'; input.style.height = Math.min(120, input.scrollHeight) + 'px'; };
+  input.addEventListener('input', resize);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPipPrompt(); }
+  });
+  send.addEventListener('click', sendPipPrompt);
+}
+
+function setupToolkitButtons() {
+  document.querySelectorAll('.avery-pip-qbutton').forEach(b => {
+    b.addEventListener('click', () => {
+      const input = document.getElementById('pipInput');
+      if (!input) return;
+      input.value = b.dataset.q;
+      input.style.height = 'auto'; input.style.height = Math.min(120, input.scrollHeight) + 'px';
+      input.focus();
+    });
+  });
+}
+
+async function sendPipPrompt() {
+  const input = document.getElementById('pipInput');
+  if (!input) return;
+  const prompt = input.value.trim();
+  if (!prompt) return;
+  input.value = ''; input.style.height = 'auto';
+  pipAskCount++;
+  const msgs = document.getElementById('pipMsgs');
+  const userMsg = document.createElement('div');
+  userMsg.className = 'cw-msg user show';
+  userMsg.textContent = prompt;
+  msgs.appendChild(userMsg);
+  pipConversation.push({ role: 'user', content: prompt });
+  const claudeMsg = document.createElement('div');
+  claudeMsg.className = 'cw-msg assistant show';
+  claudeMsg.innerHTML = `<div class="claude-avatar">C</div>
+    <div class="claude-body">
+      <div class="cw-thinking"><span></span><span></span><span></span></div>
+    </div>`;
+  msgs.appendChild(claudeMsg);
+  msgs.scrollTop = msgs.scrollHeight;
+  try {
+    const response = await callGemini(pipConversation);
+    const body = claudeMsg.querySelector('.claude-body');
+    body.innerHTML = `<div class="claude-rendered">${markdownToHtml(response)}</div>`;
+    pipConversation.push({ role: 'assistant', content: response });
+    msgs.scrollTop = msgs.scrollHeight;
+  } catch (e) {
+    const body = claudeMsg.querySelector('.claude-body');
+    body.innerHTML = `<p style="color:#b6311d">Couldn't reach the model — ${e.message || e}</p>`;
+  }
+}
+
+async function callGemini(conversation) {
+  const contents = conversation.map(m => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }],
+  }));
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+  const body = {
+    contents,
+    systemInstruction: { parts: [{ text: PIP_SYSTEM_PROMPT }] },
+    generationConfig: { temperature: 0.5, maxOutputTokens: 700 },
+  };
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!r.ok) { const t = await r.text(); throw new Error(`${r.status}: ${t.slice(0,200)}`); }
+  const j = await r.json();
+  const text = j.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('no response');
+  return text.trim();
+}
+
+function markdownToHtml(md) {
+  let h = md
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`([^`]+?)`/g, '<code>$1</code>')
+    .replace(/^\s*[\-\*]\s+(.+)$/gm, '<li>$1</li>');
+  h = h.replace(/(<li>.*<\/li>)(\n(?!<li>))/gs, '<ul>$1</ul>$2');
+  h = h.split(/\n\n+/).map(p => p.startsWith('<ul>') ? p : `<p>${p.replace(/\n/g, '<br/>')}</p>`).join('');
+  return h;
+}
+
+function setupUploadHandler() {
+  const input = document.getElementById('averyUploadInput');
+  const zone = document.querySelector('.avery-pip-upload-zone');
+  if (!input || !zone) return;
+  const onFile = () => {
+    setTimeout(() => {
+      document.body.classList.remove('pip-mode');
+      if (typeof window.__l4AdvanceFromPip === 'function') window.__l4AdvanceFromPip();
+    }, 700);
+  };
+  input.addEventListener('change', onFile);
+  zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault(); zone.classList.remove('drag');
+    if (e.dataTransfer.files.length > 0) onFile();
+  });
+}
+
+// Flatten ordered list of scenes with their lines (from manifest)
+const FLAT = MANIFEST.scenes.map(s => ({
+  id: s.id,
+  ...SCENES[s.id],
+  lines: s.lines.map((l, i) => ({
+    ...l,
+    idx: i + 1,
+    subtitle: SUBTITLE_OVERRIDES[l.file] || l.text,
+  })),
+}));
+
+// ------------ State ------------
+let sceneIdx = 0;
+let lineIdx = 0;
+let mode = 'auto';
+let playing = false;
+let muted = false;
+
+const audioEl = new Audio();
+audioEl.preload = 'auto';
+
+const $ = id => document.getElementById(id);
+const boardEl = $('board');
+const tagEl = $('boardTag');
+const sceneTitleEl = $('boardSceneTitle');
+const subtitleEl = $('subtitle');
+const sceneLabelEl = $('sceneLabel');
+const lineChipEl = $('lineChip');
+const scenePosEl = $('scenePos');
+const scrubFill = $('scrubFill');
+const scrubLabel = $('scrubLabel');
+const scrubTrack = $('scrubTrack');
+const btnPlay = $('btnPlay');
+const btnPrev = $('btnPrev');
+const btnNext = $('btnNext');
+const portraitEl = $('portrait');
+const pouEl = $('pou');
+const pouSkip = $('pouSkip');
+const pouReplay = $('pouReplay');
+const pouNext = $('pouNext');
+const pouFinish = $('pouFinish');
+const pouFeedback = $('pouFeedback');
+const pouSummary = $('pouSummary');
+const xpBurst = $('xpBurst');
+const manualHint = $('manualHint');
+const soundBtn = $('soundBtn');
+const preloadNotice = $('preloadNotice');
+
+// ---- totals ----
+function totalDuration() {
+  return FLAT.reduce((a, s) => a + s.lines.reduce((x, l) => x + l.duration, 0), 0);
+}
+function elapsedBefore(si, li) {
+  let t = 0;
+  for (let i = 0; i < si; i++) t += FLAT[i].lines.reduce((x, l) => x + l.duration, 0);
+  for (let i = 0; i < li; i++) t += FLAT[si].lines[i].duration;
+  return t;
+}
+function fmtTime(ms) {
+  const s = Math.max(0, Math.round(ms));
+  return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+}
+
+// ---- render scene ----
+function renderScene(si) {
+  const s = FLAT[si];
+  if (s.html) {
+    boardEl.innerHTML = s.html();
+  } else {
+    boardEl.innerHTML = `<svg viewBox="0 0 ${VB_W} ${VB_H}" preserveAspectRatio="xMidYMid meet">${s.svg()}</svg>`;
+  }
+  tagEl.textContent = s.tag || '';
+  sceneTitleEl.textContent = s.title || '';
+  sceneLabelEl.textContent = `Scene ${si+1} / ${FLAT.length}`;
+  pouEl.classList.remove('show');
+  if (s.onMount) s.onMount();
+}
+function revealUpTo(li) {
+  // works for both svg (g[data-line]) and html ([data-line])
+  const groups = boardEl.querySelectorAll('[data-line]');
+  groups.forEach(g => {
+    const n = Number(g.dataset.line);
+    g.classList.toggle('show', n <= li + 1);
+  });
+}
+
+function setSubtitle(html, withFade = true) {
+  if (!withFade) { subtitleEl.innerHTML = html; return; }
+  subtitleEl.classList.add('fade');
+  setTimeout(() => {
+    subtitleEl.innerHTML = html;
+    subtitleEl.classList.remove('fade');
+  }, 200);
+}
+
+function updateScrub() {
+  const total = totalDuration();
+  const cur = elapsedBefore(sceneIdx, lineIdx) + (audioEl.currentTime || 0);
+  const pct = total > 0 ? (cur / total) * 100 : 0;
+  scrubFill.style.width = `${Math.min(100, pct)}%`;
+  scrubLabel.textContent = `${fmtTime(cur)} / ${fmtTime(total)}`;
+  scenePosEl.textContent = `${sceneIdx+1}·${lineIdx+1}`;
+  lineChipEl.textContent = `Line ${lineIdx+1} / ${FLAT[sceneIdx].lines.length}`;
+}
+
+// ---- line playback ----
+function loadLine(playAfter) {
+  const line = FLAT[sceneIdx].lines[lineIdx];
+  setSubtitle(line.subtitle);
+  const chipEl = document.getElementById('speakerChip');
+  if (line.speaker && line.speaker !== 'avery' && SPEAKER_LABEL[line.speaker]) {
+    chipEl.textContent = SPEAKER_LABEL[line.speaker];
+    chipEl.style.display = 'inline-block';
+  } else {
+    chipEl.style.display = 'none';
+  }
+  revealUpTo(lineIdx);
+  if (FLAT[sceneIdx].onLine) FLAT[sceneIdx].onLine(lineIdx, line.duration);
+  audioEl.src = `${AUDIO_DIR}/${line.file}`;
+  audioEl.currentTime = 0;
+  updateScrub();
+  if (playAfter && !muted) {
+    const p = audioEl.play();
+    if (p && p.catch) p.catch(e => {
+      console.warn('audio play blocked', e);
+      playing = false; btnPlay.textContent = '▶ Play';
+      portraitEl.classList.remove('speaking');
+    });
+    playing = true;
+    btnPlay.textContent = '❚❚ Pause';
+    portraitEl.classList.add('speaking');
+  } else if (playAfter && muted) {
+    playing = true;
+    btnPlay.textContent = '❚❚ Pause';
+    portraitEl.classList.add('speaking');
+    mutedTimer = setTimeout(onLineEnd, FLAT[sceneIdx].lines[lineIdx].duration * 1000);
+  } else {
+    playing = false;
+    btnPlay.textContent = '▶ Play';
+    portraitEl.classList.remove('speaking');
+  }
+}
+
+let mutedTimer = null;
+function clearMutedTimer() {
+  if (mutedTimer) { clearTimeout(mutedTimer); mutedTimer = null; }
+}
+
+function onLineEnd() {
+  clearMutedTimer();
+  playing = false;
+  btnPlay.textContent = '▶ Play';
+  portraitEl.classList.remove('speaking');
+  updateScrub();
+  if (mode === 'auto') goNext(true);
+}
+audioEl.addEventListener('ended', onLineEnd);
+audioEl.addEventListener('timeupdate', updateScrub);
+
+function play() {
+  const line = FLAT[sceneIdx].lines[lineIdx];
+  if (!audioEl.src || !audioEl.src.endsWith(line.file)) { loadLine(true); return; }
+  if (muted) {
+    playing = true;
+    btnPlay.textContent = '❚❚ Pause';
+    portraitEl.classList.add('speaking');
+    clearMutedTimer();
+    const remaining = Math.max(0.1, line.duration - (audioEl.currentTime || 0));
+    mutedTimer = setTimeout(onLineEnd, remaining * 1000);
+    return;
+  }
+  const p = audioEl.play();
+  if (p && p.catch) p.catch(e => console.warn(e));
+  playing = true;
+  btnPlay.textContent = '❚❚ Pause';
+  portraitEl.classList.add('speaking');
+}
+function pause() {
+  audioEl.pause();
+  clearMutedTimer();
+  playing = false;
+  btnPlay.textContent = '▶ Play';
+  portraitEl.classList.remove('speaking');
+}
+function togglePlay() { playing ? pause() : play(); }
+
+function goNext(autoplay = false) {
+  const curScene = FLAT[sceneIdx];
+  const atLast = lineIdx + 1 >= curScene.lines.length;
+  // POU scene: at its last line, stop and open overlay — don't auto-advance
+  if (atLast && curScene.isPou) {
+    pause();
+    openPou();
+    return;
+  }
+  // Handoff scene: at last line, wait for user to click the download chip
+  if (atLast && curScene.id === 'handoff') {
+    pause();
+    return;
+  }
+  // PIP scene: never auto-advance; wait for upload to close-loop
+  if (atLast && curScene.isPip) {
+    pause();
+    return;
+  }
+  if (!atLast) {
+    lineIdx++;
+    loadLine(autoplay);
+  } else if (sceneIdx + 1 < FLAT.length) {
+    sceneIdx++;
+    lineIdx = 0;
+    renderScene(sceneIdx);
+    loadLine(autoplay);
+  } else {
+    pause();
+  }
+}
+function goPrev(autoplay = false) {
+  pause();
+  if (lineIdx > 0) {
+    lineIdx--;
+    loadLine(autoplay);
+  } else if (sceneIdx > 0) {
+    sceneIdx--;
+    lineIdx = FLAT[sceneIdx].lines.length - 1;
+    renderScene(sceneIdx);
+    loadLine(autoplay);
+  }
+}
+
+// ---- scrub ----
+scrubTrack.addEventListener('click', (e) => {
+  const rect = scrubTrack.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  const total = totalDuration();
+  const target = pct * total;
+  let acc = 0;
+  for (let i = 0; i < FLAT.length; i++) {
+    for (let j = 0; j < FLAT[i].lines.length; j++) {
+      const d = FLAT[i].lines[j].duration;
+      if (target < acc + d) {
+        const offset = target - acc;
+        if (sceneIdx !== i) { sceneIdx = i; lineIdx = j; renderScene(i); }
+        else if (lineIdx !== j) { lineIdx = j; }
+        loadLine(false);
+        audioEl.currentTime = offset;
+        updateScrub();
+        return;
+      }
+      acc += d;
+    }
+  }
+});
+
+// ---- controls ----
+btnPlay.addEventListener('click', togglePlay);
+btnPrev.addEventListener('click', () => { pause(); goPrev(true); });
+btnNext.addEventListener('click', () => { pause(); goNext(true); });
+
+document.addEventListener('keydown', (e) => {
+  const active = document.activeElement;
+  if (active && active.tagName === 'TEXTAREA') return;
+  if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+  else if (e.key === 'ArrowRight') { pause(); goNext(true); }
+  else if (e.key === 'ArrowLeft')  { pause(); goPrev(true); }
+  else if (e.key === 'r' || e.key === 'R') { replayAll(); }
+  else if (e.key === 'm' || e.key === 'M') { setMode(mode === 'auto' ? 'manual' : 'auto'); }
+});
+
+// ---- mode toggle ----
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('#modeToggle button').forEach(b => {
+    b.classList.toggle('on', b.dataset.mode === m);
+  });
+  manualHint.style.display = m === 'manual' ? 'block' : 'none';
+}
+document.querySelectorAll('#modeToggle button').forEach(b => {
+  b.addEventListener('click', () => setMode(b.dataset.mode));
+});
+
+// ---- sound ----
+function setMuted(m) {
+  muted = m;
+  audioEl.muted = m;
+  soundBtn.classList.toggle('muted', m);
+  soundBtn.textContent = m ? '🔇 Sound off' : '🔊 Sound on';
+}
+soundBtn.addEventListener('click', () => setMuted(!muted));
+
+// ---- Avery image fallback ----
+const averyImg = $('averyImg');
+const averyFallback = $('averyFallback');
+averyImg.addEventListener('load', () => {
+  averyImg.style.display = 'block';
+  averyFallback.style.display = 'none';
+});
+averyImg.addEventListener('error', () => {
+  averyImg.style.display = 'none';
+  averyFallback.style.display = 'flex';
+});
+
+// ---- POU mini-game — L2 "spot the wrong row" ----
+let roundIdx = 0;
+let roundResults = []; // true/false per round
+const pouContinueBtn = document.getElementById('pouContinue');
+
+function openPou() {
+  roundIdx = 0;
+  roundResults = [];
+  pouEl.classList.add('show');
+  renderRound();
+}
+// Small SVG chart templates used by the "charts" round type
+const POU_CHART_SVGS = {
+  bad: `<svg viewBox="0 0 260 140" preserveAspectRatio="xMidYMid meet">
+    <line x1="30" y1="12" x2="30" y2="118" stroke="#6b7280" stroke-width="1"/>
+    <line x1="30" y1="118" x2="250" y2="118" stroke="#6b7280" stroke-width="1"/>
+    <g font-family="Roboto, Arial, sans-serif" font-size="7.5" fill="#4b5563">
+      <text x="26" y="120" text-anchor="end">48k</text>
+      <text x="26" y="95" text-anchor="end">49k</text>
+      <text x="26" y="70" text-anchor="end">50k</text>
+      <text x="26" y="45" text-anchor="end">51k</text>
+      <text x="26" y="20" text-anchor="end">52k</text>
+    </g>
+    <line x1="170" y1="15" x2="170" y2="118" stroke="#da7756" stroke-width="1" stroke-dasharray="2 2"/>
+    <text x="174" y="22" font-family="Roboto" font-size="7" fill="#da7756">Dec 14</text>
+    <polyline fill="none" stroke="#1a73e8" stroke-width="2" stroke-linecap="round"
+      points="50,106 80,108 110,104 140,110 170,99 200,56 230,38"/>
+    <text x="140" y="10" font-family="Roboto" font-size="8" font-weight="500" fill="#202124" text-anchor="middle">Cancel tickets / week</text>
+  </svg>`,
+  good: `<svg viewBox="0 0 260 140" preserveAspectRatio="xMidYMid meet">
+    <line x1="30" y1="12" x2="30" y2="118" stroke="#6b7280" stroke-width="1"/>
+    <line x1="30" y1="118" x2="250" y2="118" stroke="#6b7280" stroke-width="1"/>
+    <g font-family="Roboto, Arial, sans-serif" font-size="7.5" fill="#4b5563">
+      <text x="26" y="120" text-anchor="end">0</text>
+      <text x="26" y="95" text-anchor="end">15k</text>
+      <text x="26" y="70" text-anchor="end">30k</text>
+      <text x="26" y="45" text-anchor="end">45k</text>
+      <text x="26" y="20" text-anchor="end">60k</text>
+    </g>
+    <line x1="170" y1="15" x2="170" y2="118" stroke="#da7756" stroke-width="1" stroke-dasharray="2 2"/>
+    <text x="174" y="22" font-family="Roboto" font-size="7" fill="#da7756">Dec 14</text>
+    <polyline fill="none" stroke="#1a73e8" stroke-width="2" stroke-linecap="round"
+      points="50,35 80,35 110,35 140,34 170,34 200,29 230,27"/>
+    <text x="140" y="10" font-family="Roboto" font-size="8" font-weight="500" fill="#202124" text-anchor="middle">Cancel tickets / week</text>
+  </svg>`,
+};
+
+function renderRound() {
+  const r = POU_ROUNDS[roundIdx];
+  $('pouH2').innerHTML = r.headline;
+  $('pouPrompt').innerHTML = r.prompt;
+  $('roundCategory').textContent = r.category;
+
+  // Render interactive area based on kind
+  if (r.kind === 'charts') {
+    $('dataSlice').innerHTML = `
+      <div class="pou-chart-pair">
+        ${r.rows.map(row => `
+          <div class="pou-chart-pick" data-idx="${row.idx}">
+            <div class="label"><span class="rowmark">${row.idx}</span> ${row.label}</div>
+            ${POU_CHART_SVGS[row.svgKey] || ''}
+            <div class="caption">${row.caption}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } else if (r.kind === 'options') {
+    const chartHtml = r.chartSvgKey && POU_CHART_SVGS[r.chartSvgKey]
+      ? `<div class="pou-chart-inline">${POU_CHART_SVGS[r.chartSvgKey]}</div>`
+      : '';
+    const bundleHtml = r.bundle ? `
+      <div class="deck-bundle">
+        ${r.bundle.chart ? `
+          <div class="deck-mini">
+            <div class="deck-mini-label">CHART</div>
+            <div class="deck-mini-chart">${POU_CHART_SVGS[r.bundle.chart.svgKey] || ''}</div>
+          </div>` : ''}
+        ${r.bundle.stat ? `
+          <div class="deck-mini">
+            <div class="deck-mini-label">STAT CLAIM</div>
+            <div class="deck-mini-stat">${r.bundle.stat.headline}<span class="note">${r.bundle.stat.note || ''}</span></div>
+          </div>` : ''}
+        ${r.bundle.prose ? `
+          <div class="deck-mini">
+            <div class="deck-mini-label">SUMMARY</div>
+            <div class="deck-mini-prose">${r.bundle.prose}</div>
+          </div>` : ''}
+      </div>
+    ` : '';
+    $('dataSlice').innerHTML = `
+      ${chartHtml}
+      ${bundleHtml}
+      <div class="options">
+        ${r.options.map((o, i) => `
+          <button class="opt" data-i="${i}">${o.t}<span class="mark"></span></button>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // round dots
+  const dots = document.querySelectorAll('#roundDots .dot');
+  dots.forEach((d, i) => {
+    d.className = 'dot';
+    if (i < roundIdx) d.classList.add(roundResults[i] ? 'pass' : 'wrong');
+    else if (i === roundIdx) d.classList.add('on');
+  });
+  pouFeedback.className = 'feedback';
+  pouFeedback.innerHTML = '';
+  pouNext.style.display = 'none';
+  pouFinish.style.display = 'none';
+  pouContinueBtn.style.display = 'none';
+  pouSummary.className = 'summary';
+
+  // wire clicks
+  if (r.kind === 'charts') {
+    document.querySelectorAll('.pou-chart-pick').forEach(el => {
+      el.addEventListener('click', () => onChartPick(el));
+    });
+  } else if (r.kind === 'options') {
+    document.querySelectorAll('#dataSlice .opt').forEach(b => {
+      b.addEventListener('click', () => onOptionPick(b));
+    });
+  }
+}
+
+function onChartPick(el) {
+  const picked = Number(el.dataset.idx);
+  const r = POU_ROUNDS[roundIdx];
+  const correct = picked === r.rightIdx;
+  roundResults[roundIdx] = correct;
+
+  document.querySelectorAll('.pou-chart-pick').forEach(pick => {
+    pick.style.pointerEvents = 'none';
+    const idx = Number(pick.dataset.idx);
+    if (idx === r.rightIdx) { pick.classList.add('correct'); pick.querySelector('.rowmark').textContent = '✓'; }
+    else if (idx === picked && !correct) { pick.classList.add('wrong'); pick.querySelector('.rowmark').textContent = '✕'; }
+  });
+
+  if (correct) {
+    pouFeedback.className = 'feedback pass show';
+    pouFeedback.innerHTML = `<strong>Right.</strong> ${r.notes.right}`;
+  } else {
+    pouFeedback.className = 'feedback redirect show';
+    pouFeedback.innerHTML = `<strong>Not quite.</strong> ${r.notes.wrong}`;
+  }
+  const dots = document.querySelectorAll('#roundDots .dot');
+  dots[roundIdx].className = 'dot ' + (correct ? 'pass' : 'wrong');
+  if (roundIdx + 1 < POU_ROUNDS.length) pouNext.style.display = 'inline-block';
+  else pouFinish.style.display = 'inline-block';
+}
+
+function onOptionPick(btn) {
+  const i = Number(btn.dataset.i);
+  const r = POU_ROUNDS[roundIdx];
+  const opt = r.options[i];
+  const correct = !!opt.right;
+  roundResults[roundIdx] = correct;
+
+  document.querySelectorAll('#dataSlice .opt').forEach(b => {
+    b.classList.add('disabled');
+    const bi = Number(b.dataset.i);
+    if (r.options[bi].right) { b.classList.add('correct'); b.querySelector('.mark').textContent = '✓'; }
+    else if (bi === i) { b.classList.add('wrong'); b.querySelector('.mark').textContent = '✕'; }
+  });
+
+  if (correct) {
+    pouFeedback.className = 'feedback pass show';
+    pouFeedback.innerHTML = `<strong>Right.</strong> ${opt.note}`;
+  } else {
+    pouFeedback.className = 'feedback redirect show';
+    pouFeedback.innerHTML = `<strong>Not quite.</strong> ${opt.note}`;
+  }
+  const dots = document.querySelectorAll('#roundDots .dot');
+  dots[roundIdx].className = 'dot ' + (correct ? 'pass' : 'wrong');
+  if (roundIdx + 1 < POU_ROUNDS.length) pouNext.style.display = 'inline-block';
+  else pouFinish.style.display = 'inline-block';
+}
+pouNext.addEventListener('click', () => {
+  roundIdx++;
+  renderRound();
+});
+pouFinish.addEventListener('click', () => {
+  const passed = roundResults.filter(Boolean).length;
+  const n = POU_ROUNDS.length;
+  pouSummary.className = 'summary show';
+  if (passed === n) {
+    pouSummary.innerHTML = `<b>Clean sweep — ${passed} / ${n}.</b> You spotted all four categories of wrong rows. <em>Avery:</em> "That's exactly what I'm looking for. Now — let me show you how to do this at scale."`;
+    xpBurst.classList.add('show');
+    setTimeout(() => xpBurst.classList.remove('show'), 2400);
+  } else if (passed >= 3) {
+    pouSummary.innerHTML = `<b>${passed} / ${n} — solid.</b> One slipped past. <em>Avery:</em> "No analyst catches every wrong row by eye. Which is why we're about to talk about scale."`;
+    xpBurst.classList.add('show');
+    setTimeout(() => xpBurst.classList.remove('show'), 2200);
+  } else {
+    pouSummary.innerHTML = `<b>${passed} / ${n}.</b> <em>Avery:</em> "That's the point. You can't eyeball 40,000 rows. Let's turn this over to Claude."`;
+  }
+  pouFinish.style.display = 'none';
+  pouNext.style.display = 'none';
+  pouContinueBtn.style.display = 'inline-block';
+});
+
+// Post-POU → advance to handoff scene
+pouContinueBtn.addEventListener('click', () => advanceToScene('handoff'));
+pouSkip.addEventListener('click', () => {
+  pouEl.classList.remove('show');
+  setTimeout(() => advanceToScene('handoff'), 150);
+});
+
+function advanceToScene(id) {
+  pouEl.classList.remove('show');
+  pause();
+  const idx = FLAT.findIndex(s => s.id === id);
+  if (idx < 0) return;
+  sceneIdx = idx;
+  lineIdx = 0;
+  renderScene(sceneIdx);
+  loadLine(true);
+}
+// Expose for PIP upload handler
+window.__l4AdvanceFromPip = () => advanceToScene('close');
+window.__l2AdvanceFromPip = window.__l4AdvanceFromPip; // back-compat alias
+pouReplay.addEventListener('click', () => replayAll());
+
+function replayAll() {
+  pauseExit();
+  sceneIdx = 0; lineIdx = 0;
+  roundIdx = 0; roundResults = [];
+  renderScene(0);
+  loadLine(mode === 'auto');
+}
+function pauseExit() {
+  pause();
+  pouEl.classList.remove('show');
+}
+
+// ---- preload hint ----
+audioEl.addEventListener('waiting', () => preloadNotice.classList.add('show'));
+audioEl.addEventListener('playing', () => preloadNotice.classList.remove('show'));
+audioEl.addEventListener('canplay', () => preloadNotice.classList.remove('show'));
+
+// ---- init ----
+setMode('auto');
+renderScene(0);
+loadLine(false);
+scrubLabel.textContent = `0:00 / ${fmtTime(totalDuration())}`;
+
+})();
+</script>
+</body>
+</html>

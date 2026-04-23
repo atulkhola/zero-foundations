@@ -1,0 +1,1796 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Zero · L3 · Ask the right question (v3 · Claude-powered POU)</title>
+<style>
+:root {
+  --bg: #f4f5f7;
+  --card: #ffffff;
+  --paper: #fbf7ee;
+  --paper-grid: rgba(15,17,21,0.05);
+
+  --ink: #0f1115;
+  --ink-soft: #3d424d;
+  --ink-dim: #6b7280;
+  --ink-faint: #9ca3af;
+  --line: rgba(15,17,21,0.08);
+  --line-strong: rgba(15,17,21,0.16);
+
+  --good: #1e7a4b;
+  --good-soft: #e6f4ec;
+  --bad: #b6311d;
+  --bad-soft: #fbe8e4;
+  --warn: #a85d12;
+
+  --radius-card: 14px;
+  --radius-chip: 999px;
+
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "SF Pro Text", sans-serif;
+  --hand: "Bradley Hand", "Segoe Print", "Marker Felt", "Chalkduster", var(--serif);
+
+  --g-mint: linear-gradient(135deg, #c8f5df 0%, #86d9b5 55%, #3fb489 100%);
+
+  --shadow-card: 0 1px 2px rgba(15,17,21,0.04), 0 6px 20px rgba(15,17,21,0.06);
+  --shadow-stage: 0 8px 40px rgba(15,17,21,0.10), 0 1px 2px rgba(15,17,21,0.04);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: var(--sans); }
+body {
+  font-size: 15px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.frame {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 22px 24px 18px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Top ---------- */
+.topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.topbar .crumb { font-size: 12px; color: var(--ink-dim); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
+.topbar .title { font-size: 14px; color: var(--ink); font-weight: 600; }
+.topbar .title .ital { font-family: var(--serif); font-style: italic; font-weight: 400; }
+.topbar .spacer { flex: 1; }
+.topbar .chip {
+  font-size: 11.5px; padding: 5px 10px;
+  border-radius: var(--radius-chip);
+  background: var(--card); border: 1px solid var(--line); color: var(--ink-soft);
+}
+
+.mode-toggle {
+  display: inline-flex; align-items: center;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: 3px;
+  gap: 2px;
+}
+.mode-toggle button {
+  font: 600 11.5px/1 var(--sans);
+  border: none;
+  background: transparent;
+  color: var(--ink-soft);
+  padding: 6px 12px;
+  border-radius: var(--radius-chip);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+.mode-toggle button.on {
+  background: var(--ink); color: #fff;
+}
+
+.sound-btn {
+  font: 600 11.5px/1 var(--sans);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: 7px 12px;
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+.sound-btn.muted { color: var(--ink-faint); }
+
+/* ---------- Stage ---------- */
+.stage {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 22px;
+  padding-top: 18px;
+  min-height: 0;
+}
+
+.rail {
+  display: flex; flex-direction: column; gap: 16px;
+  min-height: 0;
+}
+
+.avery-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px;
+}
+
+.portrait {
+  position: relative;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: var(--g-mint);
+  box-shadow: 0 4px 16px rgba(63,180,137,0.22), inset 0 2px 4px rgba(255,255,255,0.6);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  transition: box-shadow 0.3s;
+}
+.portrait::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px rgba(255,255,255,0.55);
+  pointer-events: none;
+  z-index: 2;
+}
+.portrait img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.portrait .fallback {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.portrait .fallback svg { width: 100%; height: 100%; display: block; }
+
+.portrait .ring {
+  position: absolute; inset: -10px;
+  border-radius: 50%;
+  border: 2px solid rgba(63,180,137,0.38);
+  opacity: 0;
+}
+.portrait.speaking .ring {
+  animation: pulse 1.5s ease-out infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(0.92); opacity: 0.55; }
+  70% { transform: scale(1.15); opacity: 0; }
+  100% { opacity: 0; }
+}
+.portrait.speaking {
+  box-shadow: 0 6px 22px rgba(63,180,137,0.32), 0 0 0 4px rgba(63,180,137,0.15), inset 0 2px 4px rgba(255,255,255,0.6);
+}
+
+.avery-name { font-size: 14px; font-weight: 600; color: var(--ink); margin-top: 6px; }
+.avery-role { font-size: 12px; color: var(--ink-dim); }
+
+.subtitle-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 18px 20px 20px;
+  box-shadow: var(--shadow-card);
+  min-height: 170px;
+  display: flex; flex-direction: column; gap: 8px;
+  flex: 1;
+}
+.subtitle-row {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.subtitle-label {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-faint); font-weight: 600;
+}
+.subtitle-linechip {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-faint); font-weight: 600;
+}
+.speaker-chip {
+  display: inline-block; align-self: flex-start;
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: var(--radius-chip);
+  background: #0f1115; color: #f9d76e;
+  border: 1px solid #0f1115;
+  margin-bottom: 4px;
+  animation: chipIn 0.35s ease both;
+}
+@keyframes chipIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.subtitle-text {
+  font-size: 17px; line-height: 1.55; color: var(--ink);
+  font-family: var(--serif);
+  letter-spacing: -0.005em;
+  transition: opacity 0.25s ease;
+}
+.subtitle-text.fade { opacity: 0; }
+.subtitle-text .ital { font-style: italic; color: var(--ink-soft); }
+.subtitle-text em { font-style: normal; font-weight: 700; font-family: var(--sans); font-size: 15.5px; color: var(--ink); }
+
+.manual-hint {
+  margin-top: auto;
+  font-size: 11.5px; color: var(--ink-dim);
+  padding: 8px 10px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 10px;
+}
+
+/* ---------- Board ---------- */
+.board-wrap {
+  position: relative;
+  background: var(--paper);
+  border-radius: 22px;
+  border: 1px solid rgba(15,17,21,0.06);
+  box-shadow: var(--shadow-stage);
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.board-wrap::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(to right, var(--paper-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--paper-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  opacity: 0.7;
+}
+.board {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+.board > svg {  /* direct-child only — nested SVGs render inline */
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+}
+.board .tag {
+  position: absolute;
+  top: 14px; left: 16px;
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-dim); font-weight: 600;
+  background: rgba(255,255,255,0.7);
+  padding: 5px 10px; border-radius: var(--radius-chip);
+  border: 1px solid var(--line);
+  z-index: 3;
+}
+.board .scene-title {
+  position: absolute;
+  top: 14px; right: 16px;
+  font-size: 11.5px;
+  color: var(--ink-soft); font-weight: 600;
+  font-family: var(--sans);
+  z-index: 3;
+}
+
+/* SVG line-reveal system */
+.board svg g[data-line] {
+  opacity: 0;
+  transition: opacity 0.45s ease-out;
+}
+.board svg g[data-line].show {
+  opacity: 1;
+}
+/* stroke draw-in */
+.board svg .draw {
+  stroke-dasharray: var(--dash, 1200);
+  stroke-dashoffset: var(--dash, 1200);
+}
+.board svg g[data-line].show .draw {
+  animation: draw 1.0s ease-out 0.1s forwards;
+}
+@keyframes draw { to { stroke-dashoffset: 0; } }
+/* pop */
+.board svg .pop {
+  transform-origin: center;
+  transform-box: fill-box;
+  transform: scale(0.88);
+}
+.board svg g[data-line].show .pop {
+  animation: popin 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) forwards;
+}
+@keyframes popin { to { transform: scale(1); } }
+
+.wb-text { font-family: var(--hand); fill: var(--ink); }
+.wb-text.dim { fill: var(--ink-soft); }
+.wb-text.faint { fill: var(--ink-faint); }
+.wb-text.red { fill: var(--bad); }
+.wb-text.green { fill: var(--good); }
+
+/* ---------- Bottom ---------- */
+.bottombar {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 18px;
+  align-items: center;
+}
+.btn {
+  font: 500 13px/1 var(--sans);
+  background: var(--card); color: var(--ink);
+  border: 1px solid var(--line); border-radius: var(--radius-chip);
+  padding: 9px 14px; cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.btn:hover { background: #fff; border-color: var(--line-strong); }
+.btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+.btn.primary:hover { background: #000; }
+.btn.ghost { background: transparent; border-color: var(--line); }
+
+.bottom-left { display: flex; gap: 6px; align-items: center; }
+.scene-pos {
+  font-size: 11.5px; color: var(--ink-dim); font-weight: 600;
+  padding: 0 4px; font-variant-numeric: tabular-nums;
+}
+
+.scrub {
+  display: flex; align-items: center; gap: 12px;
+}
+.scrub-track {
+  flex: 1;
+  position: relative;
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(15,17,21,0.08);
+  cursor: pointer;
+}
+.scrub-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  border-radius: 4px;
+  background: var(--ink);
+  width: 0%;
+  transition: width 0.1s linear;
+}
+.scrub-marker {
+  position: absolute; top: -3px; width: 2px; height: 12px;
+  background: rgba(15,17,21,0.25);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.scrub-marker.active { background: var(--ink); }
+.scrub-label {
+  min-width: 110px;
+  font-size: 11.5px; color: var(--ink-dim); font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.hints {
+  display: flex; gap: 14px; font-size: 11px; color: var(--ink-faint);
+}
+.hints kbd {
+  font-family: var(--sans);
+  background: var(--card); border: 1px solid var(--line);
+  padding: 2px 6px; border-radius: 6px; font-size: 10.5px; color: var(--ink-soft);
+}
+
+/* ---------- POU ---------- */
+.pou {
+  position: absolute; inset: 0;
+  z-index: 5;
+  background: linear-gradient(180deg, rgba(251,247,238,0.94), rgba(251,247,238,0.98));
+  backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 36px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease-out;
+}
+.pou.show { opacity: 1; pointer-events: auto; }
+.pou .sheet {
+  max-width: 640px; width: 100%;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow-stage);
+  padding: 26px 30px 28px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.pou .label {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-faint); font-weight: 600;
+}
+.pou h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 26px;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+.pou h2 .ital { font-style: italic; }
+.pou .prompt {
+  font-size: 14.5px; color: var(--ink-soft);
+  background: var(--paper);
+  border-left: 3px solid var(--ink);
+  padding: 12px 14px;
+  border-radius: 0 10px 10px 0;
+  font-family: var(--serif); font-style: italic;
+}
+.pou textarea {
+  width: 100%;
+  min-height: 120px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: 15px/1.5 var(--sans);
+  color: var(--ink);
+  resize: vertical;
+  background: #fff;
+}
+.pou textarea:focus { outline: none; border-color: var(--ink); }
+.pou .helper { font-size: 12px; color: var(--ink-dim); }
+.pou .actions { display: flex; gap: 10px; align-items: center; }
+.pou .spacer { flex: 1; }
+.pou .feedback {
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 14px;
+  display: none;
+}
+.pou .feedback.show { display: block; }
+.pou .feedback.pass { background: var(--good-soft); color: var(--good); border: 1px solid rgba(30,122,75,0.25); }
+.pou .feedback.soft { background: #fff5e6; color: var(--warn); border: 1px solid rgba(168,93,18,0.22); }
+.pou .feedback.redirect { background: var(--bad-soft); color: var(--bad); border: 1px solid rgba(182,49,29,0.22); }
+.pou .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.pou .chip {
+  font-size: 11.5px; padding: 5px 10px;
+  border-radius: var(--radius-chip);
+  background: var(--card); border: 1px solid var(--line); color: var(--ink-dim);
+}
+.pou .chip.on { background: var(--good-soft); border-color: rgba(30,122,75,0.28); color: var(--good); }
+
+.xp-burst {
+  position: absolute; top: 18px; right: 18px;
+  background: var(--g-mint);
+  color: #0b3b28;
+  font-weight: 700; font-size: 13px;
+  padding: 8px 14px; border-radius: var(--radius-chip);
+  box-shadow: 0 6px 18px rgba(63,180,137,0.32);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 6;
+}
+.xp-burst.show { opacity: 1; transform: translateY(0); }
+
+.preload-notice {
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  font-size: 11.5px; color: var(--ink-dim);
+  background: rgba(255,255,255,0.85); border: 1px solid var(--line);
+  padding: 6px 12px; border-radius: var(--radius-chip);
+  z-index: 4;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.preload-notice.show { opacity: 1; }
+
+@media (max-width: 900px) {
+  .stage { grid-template-columns: 1fr; }
+}
+
+.why-list { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 8px; }
+.why-row { display: flex; align-items: flex-start; gap: 12px; }
+.why-num {
+  flex: 0 0 30px;
+  height: 30px; width: 30px;
+  border-radius: 50%;
+  background: #0f1115; color: #f9d76e;
+  font-weight: 700; font-size: 14px;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-top: 6px;
+  font-family: var(--sans);
+}
+.why-input {
+  flex: 1; min-height: 38px;
+  padding: 10px 12px;
+  font: 15px/1.45 var(--sans);
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  resize: vertical;
+}
+.why-input:focus { outline: 2px solid #0f1115; outline-offset: 1px; }
+
+.avery-chain {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+}
+.avery-chain .chain-label {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--ink-dim); font-weight: 600; margin-bottom: 8px;
+}
+.avery-chain .chain-list {
+  margin: 0 0 10px 22px;
+  padding: 0;
+  font: 14px/1.55 var(--sans);
+  color: var(--ink);
+}
+.avery-chain .chain-list li { margin-bottom: 4px; }
+.avery-chain .chain-list li strong { font-weight: 700; }
+.avery-chain .chain-note {
+  font-size: 12.5px; color: var(--ink-soft); font-style: italic; line-height: 1.5;
+  border-top: 1px dashed var(--line);
+  padding-top: 10px;
+}
+
+
+/* ---------- POU v2 (interactive 5-why chain) ---------- */
+.rca-chain { display: flex; flex-direction: column; gap: 14px; margin-bottom: 18px; }
+.rung-pair {
+  border-left: 3px solid #f9d76e; padding-left: 14px;
+  animation: rungIn 0.36s cubic-bezier(.22,.61,.36,1);
+}
+@keyframes rungIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.rung-q, .rung-a { display: flex; gap: 10px; align-items: baseline; }
+.rung-q { margin-bottom: 6px; flex-wrap: wrap; }
+.rung-badge {
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.12em;
+  padding: 3px 8px; border-radius: 4px; background: #0f1115; color: #f9d76e;
+  flex-shrink: 0; text-transform: uppercase;
+}
+.rung-badge.ans { background: #f9d76e; color: #0f1115; padding: 3px 8px; }
+.rung-q-text { font-size: 15px; color: #0f1115; font-style: italic; line-height: 1.45; }
+.rung-a-text { font-size: 14.5px; color: #2f2f2f; line-height: 1.5; }
+.rung-tag.weak {
+  display: inline-block; font-size: 10px; padding: 2px 8px; margin-left: 6px;
+  border-radius: 999px; background: #fef1d4; color: #8a5a00; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+
+.current-rung {
+  background: #fff; border: 1px dashed #c6c4bf; border-radius: 10px;
+  padding: 14px 16px; margin-bottom: 12px;
+}
+.rung-label {
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.16em;
+  color: #6b6866; text-transform: uppercase; margin-bottom: 10px;
+}
+.rung-input {
+  width: 100%; box-sizing: border-box; font: inherit; font-size: 15px;
+  padding: 10px 12px; border-radius: 8px;
+  border: 1px solid #d6d3ce; background: #fafaf8;
+  resize: vertical; min-height: 52px; font-style: italic;
+  line-height: 1.4;
+}
+.rung-input:focus { outline: 2px solid #0f1115; outline-offset: 1px; background: #fff; }
+.rung-feedback { margin-top: 8px; font-size: 13px; min-height: 18px; line-height: 1.4; }
+.rung-feedback.soft.show { color: #8a5a00; font-style: italic; }
+.rung-feedback.nudge.show { color: #8b2418; font-weight: 500; }
+.rung-actions { display: flex; gap: 10px; margin-top: 12px; align-items: center; flex-wrap: wrap; }
+.rung-helper { font-size: 12px; color: #6b6866; font-style: italic; margin-left: auto; }
+
+.rca-resolution {
+  background: linear-gradient(135deg, #0f1115 0%, #1c1f27 100%);
+  color: #fafaf7; border-radius: 12px; padding: 20px 22px;
+  margin: 18px 0 14px; animation: rungIn 0.5s cubic-bezier(.22,.61,.36,1);
+}
+.rca-label {
+  font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: #f9d76e; margin-bottom: 10px; font-weight: 800;
+}
+.rca-text { font-size: 16px; line-height: 1.55; margin-bottom: 10px; }
+.rca-note { font-size: 13px; color: #c6c4bf; font-style: italic; line-height: 1.5; }
+.rca-note em, .rca-text em { color: #f9d76e; font-style: italic; }
+
+
+/* ---------- POU mode bar + API key entry ---------- */
+.mode-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; margin: 0 0 14px;
+  background: #faf7ef; border: 1px solid #e9e3d0; border-radius: 10px;
+  font-size: 13px;
+}
+.mode-state { display: flex; align-items: center; gap: 8px; color: #6b6866; font-weight: 600; }
+.mode-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #b8860b; box-shadow: 0 0 0 3px rgba(184,134,11,0.15);
+  transition: all 0.25s;
+}
+.mode-state.smart .mode-dot { background: #10a37f; box-shadow: 0 0 0 3px rgba(16,163,127,0.18); }
+.mode-toggle {
+  font: inherit; font-size: 12.5px; font-weight: 600;
+  padding: 5px 12px; border-radius: 6px;
+  background: #0f1115; color: #f9d76e; border: 0;
+  cursor: pointer; transition: transform 0.12s;
+}
+.mode-toggle:hover { transform: translateY(-1px); }
+.mode-toggle.smart { background: #10a37f; color: white; }
+
+.api-key-entry {
+  background: #fff; border: 1px dashed #b8b5ae; border-radius: 10px;
+  padding: 12px 14px; margin: 0 0 14px;
+  animation: rungIn 0.3s ease-out;
+}
+.api-label { font-size: 12.5px; color: #6b6866; margin-bottom: 10px; line-height: 1.4; font-style: italic; }
+.api-row { display: flex; gap: 8px; align-items: center; }
+.api-row input {
+  flex: 1; font: 13px/1.4 ui-monospace, Menlo, monospace;
+  padding: 8px 10px; border-radius: 6px;
+  border: 1px solid #d6d3ce; background: #fafaf8;
+}
+.api-row input:focus { outline: 2px solid #0f1115; outline-offset: 1px; background: #fff; }
+.btn.sm { padding: 6px 12px; font-size: 12.5px; }
+.rung-feedback.api.show { color: #6b6866; font-size: 12px; font-style: italic; }
+.rung-feedback.error.show { color: #b6311d; }
+.claude-thinking {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; color: #6b6866; font-style: italic; margin-left: 8px;
+}
+.claude-thinking::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%;
+  background: #10a37f; animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+
+.rung-note {
+  font-size: 12.5px; color: #8a5a00; font-style: italic;
+  margin: 4px 0 6px 32px; line-height: 1.4;
+}
+.rung-tag.creative {
+  display: inline-block; font-size: 10px; padding: 2px 8px; margin-left: 6px;
+  border-radius: 999px; background: #ddeef6; color: #0e4d6b; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+
+
+/* ===== Foundations 7-step path indicator ===== */
+.foundations-track {
+  position: sticky; top: 0;
+  z-index: 50;
+  background: rgba(251, 247, 238, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(15, 17, 21, 0.08);
+  padding: 8px 20px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  font-size: 12px;
+}
+.ft-brand {
+  font-weight: 700; font-size: 12px;
+  color: #0f1115;
+  letter-spacing: -0.01em;
+  padding-right: 10px;
+  border-right: 1px solid rgba(15,17,21,0.12);
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 6px;
+}
+.ft-brand-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: linear-gradient(135deg, #c8f5df, #3fb489);
+}
+.ft-steps {
+  flex: 1;
+  display: flex; gap: 4px; align-items: center;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ft-steps::-webkit-scrollbar { display: none; }
+.ft-step {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 11.5px;
+  white-space: nowrap;
+  letter-spacing: -0.005em;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  border: 1px solid transparent;
+}
+.ft-step-num {
+  font-weight: 700; font-size: 10.5px;
+  letter-spacing: 0.02em;
+}
+.ft-step-title {
+  font-weight: 500; opacity: 0.8;
+}
+.ft-step:hover { transform: translateY(-1px); }
+.ft-step.done {
+  background: #e6f4ec; color: #0f4a2b;
+  border-color: rgba(30,122,75,0.22);
+}
+.ft-step.done:hover { background: #d7eedd; }
+.ft-step.current {
+  background: #0f1115; color: #ffffff;
+  border-color: #0f1115;
+}
+.ft-step.current .ft-step-title { opacity: 1; font-weight: 600; }
+.ft-step.upcoming {
+  background: transparent; color: #6b7280;
+  border-color: rgba(15,17,21,0.15);
+}
+.ft-step.upcoming:hover { color: #0f1115; border-color: rgba(15,17,21,0.32); }
+.ft-step-sep {
+  color: #cbd5e1; font-size: 10px;
+  user-select: none;
+}
+.ft-end {
+  font-size: 11px; color: #6b7280;
+  padding-left: 10px; border-left: 1px solid rgba(15,17,21,0.12);
+  white-space: nowrap;
+}
+.ft-end a {
+  color: #0f1115; text-decoration: none;
+  font-weight: 500;
+}
+.ft-end a:hover { text-decoration: underline; }
+
+/* Give the page a little top breathing room since the track is sticky */
+body > .frame { padding-top: 6px; }
+
+@media (max-width: 720px) {
+  .foundations-track { padding: 6px 10px; gap: 6px; font-size: 11px; }
+  .ft-brand { font-size: 11px; padding-right: 6px; }
+  .ft-step-title { display: none; }
+  .ft-end { display: none; }
+}
+
+</style>
+</head>
+<body>
+<!-- zero-foundations-track:start -->
+<nav class="foundations-track" aria-label="Foundations curriculum progress">
+  <div class="ft-brand"><span class="ft-brand-dot"></span>Zero · Foundations</div>
+  <div class="ft-steps">
+    <a class="ft-step done" href="ZERO-L0-Concept-CostReduction-v3.html" title="The brief" aria-label="L0 — The brief (completed)"><span class="ft-step-num">L0</span><span class="ft-step-title">the brief</span></a>
+    <a class="ft-step done" href="ZERO-L1-Concept-UnderstandData-v1.html" title="Understanding data" aria-label="L1 — Understanding data (completed)"><span class="ft-step-num">L1</span><span class="ft-step-title">understanding data</span></a>
+    <a class="ft-step done" href="ZERO-L2-Concept-CleanData-v1.html" title="Cleaning data" aria-label="L2 — Cleaning data (completed)"><span class="ft-step-num">L2</span><span class="ft-step-title">cleaning data</span></a>
+    <a class="ft-step current" href="ZERO-L3-Concept-FiveWhy-v3.html" title="The right question" aria-label="L3 — The right question (current)"><span class="ft-step-num">L3</span><span class="ft-step-title">the right question</span></a>
+    <a class="ft-step upcoming" href="ZERO-L4-Concept-EvidenceOrTheater-v1.html" title="Evidence or theater" aria-label="L4 — Evidence or theater"><span class="ft-step-num">L4</span><span class="ft-step-title">evidence or theater</span></a>
+    <a class="ft-step upcoming" href="ZERO-L5-Concept-FindingToRecommendation-v1.html" title="Finding → recommendation" aria-label="L5 — Finding → recommendation"><span class="ft-step-num">L5</span><span class="ft-step-title">finding → recommendation</span></a>
+    <a class="ft-step upcoming" href="ZERO-L6-Concept-ContainerIsTheFight-v1.html" title="The container" aria-label="L6 — The container"><span class="ft-step-num">L6</span><span class="ft-step-title">the container</span></a>
+  </div>
+  <div class="ft-end"><a href="index.html">↗ index</a></div>
+</nav>
+<!-- zero-foundations-track:end -->
+
+
+<div class="frame">
+
+  <div class="topbar">
+    <span class="crumb">Foundations · Cost reduction · L3</span>
+    <span class="title">L3 · Ask <span class="ital">— the right question + 5-why</span></span>
+    <span class="spacer"></span>
+    <span class="chip">v3 · Day 3 · new situation · ✨ Claude-powered grader</span>
+    <div class="mode-toggle" id="modeToggle">
+      <button data-mode="auto" class="on">Auto</button>
+      <button data-mode="manual">Manual</button>
+    </div>
+    <button class="sound-btn" id="soundBtn" title="Mute / unmute">🔊 Sound on</button>
+  </div>
+
+  <div class="stage">
+
+    <!-- LEFT: Avery + subtitle -->
+    <div class="rail">
+      <div class="avery-card">
+        <div class="portrait" id="portrait">
+          <div class="ring"></div>
+          <img id="averyImg" src="ZERO-L3-assets/img/avery.jpg" alt="Avery" style="display:none"/>
+          <div class="fallback" id="averyFallback">
+            <svg viewBox="0 0 180 180" aria-label="Avery">
+              <defs>
+                <linearGradient id="averyGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+                  <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <rect width="180" height="180" fill="url(#averyGrad)"/>
+              <text x="90" y="118" font-family="Iowan Old Style, Georgia, serif" font-size="100" font-style="italic" font-weight="400" text-anchor="middle" fill="#0b3b28">A</text>
+            </svg>
+          </div>
+        </div>
+        <div class="avery-name">Avery</div>
+        <div class="avery-role">Your Foundations guide</div>
+      </div>
+
+      <div class="subtitle-card">
+        <div class="subtitle-row">
+          <div class="subtitle-label" id="sceneLabel">Scene 1 / 8</div>
+          <div class="subtitle-linechip" id="lineChip">Line 1 / 4</div>
+        </div>
+        <div class="speaker-chip" id="speakerChip" style="display:none">PRIYA · VP, Uber</div>
+        <div class="subtitle-text" id="subtitle">—</div>
+        <div class="manual-hint" id="manualHint" style="display:none">
+          Manual mode — tap <strong>Next</strong> (or <kbd>→</kbd>) for the next line.
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Whiteboard -->
+    <div class="board-wrap">
+      <div class="tag" id="boardTag">The frame</div>
+      <div class="scene-title" id="boardSceneTitle"></div>
+      <div class="board" id="board"></div>
+
+      <div class="xp-burst" id="xpBurst">+20 XP · Framing</div>
+      <div class="preload-notice" id="preloadNotice">Loading voice…</div>
+
+      <div class="pou" id="pou">
+        <div class="sheet">
+          <div class="label">Proof of understanding · L3</div>
+          <h2>Your turn — <span class="ital">walk the five whys</span> yourself.</h2>
+          <div class="prompt">
+            <strong>The situation:</strong> A fintech app's <strong>password reset</strong> support tickets doubled last month. That's all you know.<br>
+            Ask the first why. I'll hand back an answer. Use it to shape your next why. <strong>Five rungs</strong> to the root cause.
+          </div>
+
+          <div class="mode-bar">
+            <div class="mode-state" id="modeState"><span class="mode-dot"></span><span id="modeLabel">Keyword mode</span></div>
+            <button class="mode-toggle" id="modeToggle">✨ Enable smart mode</button>
+          </div>
+
+          <div class="api-key-entry" id="apiKeyEntry" style="display:none">
+            <div class="api-label">Paste an Anthropic API key to unlock Claude-powered feedback. Stays in memory, not saved.</div>
+            <div class="api-row">
+              <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false">
+              <button class="btn primary sm" id="apiKeySave">Activate</button>
+              <button class="btn ghost sm" id="apiKeyCancel">Cancel</button>
+            </div>
+          </div>
+
+          <div class="rca-chain" id="rcaChain"></div>
+
+          <div class="current-rung" id="currentRung">
+            <div class="rung-label">Why <span id="rungNumber">1</span> of 5</div>
+            <textarea class="rung-input" id="rungInput" rows="2" placeholder="Why did password reset tickets double?"></textarea>
+            <div class="rung-feedback" id="rungFeedback"></div>
+            <div class="rung-actions">
+              <button class="btn primary" id="askBtn">Ask →</button>
+              <button class="btn ghost" id="hintBtn">Hint</button>
+              <span class="rung-helper">Tip — each why should grow out of the previous answer.</span>
+            </div>
+          </div>
+
+          <div class="rca-resolution" id="rcaResolution" style="display:none">
+            <div class="rca-label">The root cause — and the real fix</div>
+            <div class="rca-text">
+              Rewrite the email subject line — clear, routine, not scary. Add downstream support-ticket impact to marketing's <em>scorecard</em>. Require CX sign-off on high-volume mailings.
+            </div>
+            <div class="rca-note">
+              Notice this wasn't a product-UX bug at all — it was in <em>marketing comms</em>. Same 5-why technique, different domain. That's the move: the shape travels, the specifics don't. You just did <em>root cause analysis</em>.
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn" id="pouSkip">Skip</button>
+            <span class="spacer"></span>
+            <button class="btn" id="pouReplay">↻ Replay L3</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottombar">
+    <div class="bottom-left">
+      <button class="btn ghost" id="btnPrev" title="Prev line (←)">← Prev</button>
+      <button class="btn primary" id="btnPlay" title="Play/Pause (Space)">▶ Play</button>
+      <button class="btn ghost" id="btnNext" title="Next line (→)">Next →</button>
+      <span class="scene-pos" id="scenePos">1·1</span>
+    </div>
+    <div class="scrub">
+      <div class="scrub-track" id="scrubTrack">
+        <div class="scrub-fill" id="scrubFill"></div>
+      </div>
+      <div class="scrub-label" id="scrubLabel">0:00 / 1:09</div>
+    </div>
+    <div class="hints">
+      <span><kbd>Space</kbd> play</span>
+      <span><kbd>←</kbd> <kbd>→</kbd> line</span>
+      <span><kbd>M</kbd> mode</span>
+      <span><kbd>R</kbd> replay</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(() => {
+
+const VB_W = 1200, VB_H = 700;
+const AUDIO_DIR = 'ZERO-L3-assets/audio';
+
+// === line manifest (from ElevenLabs generation) ===
+const MANIFEST = {"scenes": [{"id": "bridge", "lines": [{"file": "bridge-01.mp3", "text": "Day 3 at Uber. Data is clean. I know what every column means. Time to actually look at the thing.", "speaker": "avery", "duration": 4.911}, {"file": "bridge-02.mp3", "text": "First chart I pulled \u2014 ticket volume by week. And right there in January \u2014 it doubles.", "speaker": "avery", "duration": 5.146}, {"file": "bridge-03.mp3", "text": "Clean as a whistle. The chart was honest. The number was real.", "speaker": "avery", "duration": 2.873}]}, {"id": "almost", "lines": [{"file": "almost-01.mp3", "text": "So I'm typing into the recommendation deck \u2014 'hire fewer agents, cut support costs, done.'", "speaker": "avery", "duration": 9.744}, {"file": "almost-02.mp3", "text": "I'm one paragraph from finishing it.", "speaker": "avery", "duration": 2.508}, {"file": "almost-03.mp3", "text": "And Marco \u2014 my mentor \u2014 walks past my desk. Looks at the chart. Looks at me. And goes \u2014", "speaker": "avery", "duration": 4.859}]}, {"id": "marco-q", "lines": [{"file": "marco-q-01.mp3", "text": "Why did tickets double?", "speaker": "marco", "duration": 1.515}]}, {"id": "shrug", "lines": [{"file": "shrug-01.mp3", "text": "And I'm like\u2026 I don't actually know.", "speaker": "avery", "duration": 2.325}, {"file": "shrug-02.mp3", "text": "He hands me a marker. We walk to the whiteboard. He writes the question at the top. And we go.", "speaker": "avery", "duration": 4.075}]}, {"id": "why1", "lines": [{"file": "why1-01.mp3", "text": "First why \u2014 why did total tickets double?", "speaker": "avery", "duration": 2.534}, {"file": "why1-02.mp3", "text": "I pull the data by ticket type. And it's not all of them \u2014 it's specifically cancellation tickets that doubled. Everything else stayed flat.", "speaker": "avery", "duration": 8.176}]}, {"id": "why2", "lines": [{"file": "why2-01.mp3", "text": "Second why \u2014 why did cancellations spike?", "speaker": "avery", "duration": 2.456}, {"file": "why2-02.mp3", "text": "I line it up against our release calendar. The jump starts the exact week we shipped the new rider app in December.", "speaker": "avery", "duration": 5.381}]}, {"id": "why3", "lines": [{"file": "why3-01.mp3", "text": "Third why \u2014 why does a UI change cause people to call support to cancel?", "speaker": "avery", "duration": 4.206}, {"file": "why3-02.mp3", "text": "I open the new app. Try to cancel a trip. The Cancel button \u2014 used to be on the home screen \u2014 is now buried two screens deep.", "speaker": "avery", "duration": 6.87}, {"file": "why3-03.mp3", "text": "Riders couldn't find it. So they did the next thing. They called us.", "speaker": "avery", "duration": 3.474}]}, {"id": "why4", "lines": [{"file": "why4-01.mp3", "text": "Fourth why \u2014 why didn't anyone catch this before launch?", "speaker": "avery", "duration": 3.527}, {"file": "why4-02.mp3", "text": "Pull the test they ran before launch. Half the riders got the new flow, half got the old one \u2014 then compared the two. That kind of side-by-side test has a name \u2014 it's called an A/B test. What did they measure? One thing \u2014 did people still book trips at the same rate. Yes, they did.", "speaker": "avery", "duration": 16.118}, {"file": "why4-03.mp3", "text": "They never measured what happened *after* the tap.", "speaker": "avery", "duration": 2.952}]}, {"id": "why5", "lines": [{"file": "why5-01.mp3", "text": "Fifth why \u2014 why was that the only thing they measured?", "speaker": "avery", "duration": 3.239}, {"file": "why5-02.mp3", "text": "Because nobody on the product team was watching how many calls support was getting. Every product team tracks a little set of numbers each week \u2014 call it their scorecard. Call volume wasn't on this one.", "speaker": "avery", "duration": 9.091}, {"file": "why5-03.mp3", "text": "Nobody on the product side was looking.", "speaker": "avery", "duration": 2.09}]}, {"id": "pivot", "lines": [{"file": "pivot-01.mp3", "text": "And right there \u2014 at the bottom of the chain \u2014 the project changed.", "speaker": "avery", "duration": 4.31}, {"file": "pivot-02.mp3", "text": "The recommendation wasn't 'hire fewer agents' anymore.", "speaker": "avery", "duration": 2.873}, {"file": "pivot-03.mp3", "text": "It was \u2014 fix the Cancel button. Move it back where people can find it. And add support call volume to the scorecard \u2014 the numbers the product team watches every week.", "speaker": "avery", "duration": 15.491}, {"file": "pivot-04.mp3", "text": "Same problem. Different fix. And way bigger payoff \u2014 you're not just handling calls faster, you're stopping them from happening at all.", "speaker": "avery", "duration": 9.613}]}, {"id": "rca", "lines": [{"file": "rca-01.mp3", "text": "By the way \u2014 this technique has a name.", "speaker": "avery", "duration": 2.168}, {"file": "rca-02.mp3", "text": "Root cause analysis. RCA. Five-why is just the simplest version of it.", "speaker": "avery", "duration": 3.788}, {"file": "rca-03.mp3", "text": "Same move works on almost any 'why is this happening' question. Customers leaving. A system breaking. A bug showing up. Most of life, honestly.", "speaker": "avery", "duration": 8.438}, {"file": "rca-04.mp3", "text": "The skill is \u2014 don't stop at the first answer. Keep asking why until something *actionable* shows up.", "speaker": "avery", "duration": 5.616}]}, {"id": "anchor", "lines": [{"file": "anchor-01.mp3", "text": "So \u2014 you're about to get a number. Tickets up. Refunds up. Support costs up. Something like that.", "speaker": "avery", "duration": 4.911}, {"file": "anchor-02.mp3", "text": "First instinct will be to recommend cutting it. Don't.", "speaker": "avery", "duration": 2.873}, {"file": "anchor-03.mp3", "text": "Get past the symptom. Find the why. The real project is always one or two whys deeper than where you start.", "speaker": "avery", "duration": 5.146}]}, {"id": "pou", "lines": [{"file": "pou-01.mp3", "text": "Alright \u2014 your turn. Here's the situation.", "speaker": "avery", "duration": 3.657}, {"file": "pou-02.mp3", "text": "A fintech app's password reset support tickets doubled last month. That's all you know.", "speaker": "avery", "duration": 3.84}, {"file": "pou-03.mp3", "text": "Ask the first why. Whatever feels natural. I'll hand back an answer. Then you go deeper \u2014 five rungs.", "speaker": "avery", "duration": 6.087}]}]};
+
+// === subtitle overlay (how lines display — can include <em>, <span class="ital">) ===
+const SUBTITLE_OVERRIDES = {
+  "almost-01.mp3": "So I'm typing into the deck — <em>'hire fewer agents, cut support costs, done.'</em>",
+  "marco-q-01.mp3": '<em>"Why did tickets double?"</em>',
+  "why1-01.mp3": 'First why — <em>why did total tickets double?</em>',
+  "why2-01.mp3": 'Second why — <em>why did cancellations spike?</em>',
+  "why3-01.mp3": 'Third why — <em>why does a UI change cause people to call support?</em>',
+  "why4-01.mp3": "Fourth why — <em>why didn't anyone catch this before launch?</em>",
+  "why4-02.mp3": "Side-by-side test — half new flow, half old. That's called an <em>A/B test.</em> They measured one thing — did bookings hold up. They did.",
+  "why5-01.mp3": 'Fifth why — <em>why was that the only thing they measured?</em>',
+  "why5-02.mp3": "Nobody on product was watching support call volume. Every team tracks weekly numbers — their <em>scorecard.</em> Calls weren't on it.",
+  "pivot-01.mp3": 'And right there — <em>the project changed.</em>',
+  "pivot-03.mp3": "Fix the Cancel button. Move it back. Add call volume to the <em>scorecard</em> — the numbers product watches weekly.",
+  "rca-02.mp3": '<em>Root cause analysis.</em> RCA. Five-why is just the simplest version.',
+  "anchor-02.mp3": "First instinct will be to recommend cutting it. <em>Don't.</em>",
+  "anchor-03.mp3": "Get past the symptom. <em>Find the why.</em> The real project is always one or two whys deeper than where you start.",
+  "pou-02.mp3": "A fintech app's password reset tickets <em>doubled</em> last month. That's all you know.",
+  "pou-03.mp3": "Ask the first why. I'll hand back an answer. <em>Five rungs</em> to the root cause.",
+};
+
+// === speaker label (used when speaker !== 'avery') ===
+const SPEAKER_LABEL = {
+  marco: 'MARCO · Mentor, Senior PM',
+};
+
+// === scene metadata + SVG ===
+// visual reveal groups are tagged with data-line="N" to match the line index (1-based).
+const SCENES = {
+  bridge: {
+    title: 'Day 3 · the chart', tag: 'Bridge from L2',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text faint" font-size="18" font-style="italic" letter-spacing="0.2em" x="100" y="100">UBER · DAY 3 · CLEAN DATASET</text>
+      </g>
+      <g data-line="2">
+        <!-- a small line chart, jan spike -->
+        <line x1="160" y1="540" x2="1040" y2="540" stroke="#0f1115" stroke-width="2" opacity="0.45"/>
+        <line x1="160" y1="540" x2="160" y2="220" stroke="#0f1115" stroke-width="2" opacity="0.45"/>
+        <text class="wb-text dim" font-size="13" x="160" y="560" font-style="italic">Oct</text>
+        <text class="wb-text dim" font-size="13" x="370" y="560" font-style="italic">Nov</text>
+        <text class="wb-text dim" font-size="13" x="580" y="560" font-style="italic">Dec</text>
+        <text class="wb-text dim" font-size="13" x="790" y="560" font-style="italic">Jan</text>
+        <text class="wb-text dim" font-size="13" x="990" y="560" font-style="italic">Feb</text>
+        <text class="wb-text dim" font-size="13" x="120" y="430" font-style="italic">25k</text>
+        <text class="wb-text dim" font-size="13" x="120" y="280" font-style="italic">60k</text>
+        <text class="wb-text" font-size="13" font-style="italic" x="160" y="180" font-weight="600">tickets / week</text>
+        <polyline class="draw" fill="none" stroke="#0f1115" stroke-width="3.5" stroke-linecap="round"
+          points="160,440 270,448 380,432 490,440 600,425 710,415 820,260 930,250 1040,260"
+          style="--dash: 1100"/>
+      </g>
+      <g data-line="3">
+        <g class="pop">
+          <ellipse cx="900" cy="255" rx="170" ry="55" fill="none" stroke="#b6311d" stroke-width="4" stroke-linecap="round"/>
+          <text class="wb-text red" font-size="22" font-style="italic" text-anchor="middle" x="900" y="180">↑ doubled</text>
+        </g>
+      </g>
+    `
+  },
+
+  almost: {
+    title: 'Almost shipped', tag: 'The trap',
+    svg: () => `
+      <g data-line="1">
+        <g class="pop">
+          <rect x="220" y="160" width="760" height="370" rx="18" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+          <text class="wb-text faint" font-size="13" letter-spacing="0.18em" x="245" y="195">SLIDE · DRAFT RECOMMENDATION</text>
+          <line x1="245" y1="210" x2="955" y2="210" stroke="#0f1115" stroke-width="1" opacity="0.2"/>
+          <text class="wb-text" font-size="36" x="245" y="270" font-weight="700">Reduce rider support cost — 20%</text>
+          <text class="wb-text" font-size="22" x="265" y="340">• Hire fewer support agents</text>
+          <text class="wb-text" font-size="22" x="265" y="380">• Renegotiate per-ticket vendor rate</text>
+          <text class="wb-text" font-size="22" x="265" y="420">• Auto-deflect Tier-1 with bot</text>
+          <text class="wb-text dim" font-size="20" x="265" y="495" font-style="italic">— done. ship it.</text>
+        </g>
+      </g>
+      <g data-line="2">
+        <text class="wb-text dim" font-size="20" font-style="italic" text-anchor="middle" x="600" y="600">one paragraph from finishing it…</text>
+      </g>
+      <g data-line="3">
+        <g class="pop">
+          <text class="wb-text" font-size="60" x="990" y="495">👤</text>
+          <text class="wb-text dim" font-size="14" font-style="italic" text-anchor="middle" x="1015" y="560">Marco walks past</text>
+        </g>
+      </g>
+    `
+  },
+
+  'marco-q': {
+    title: 'Marco', tag: 'The question',
+    svg: () => `
+      <g data-line="1">
+        <g class="pop">
+          <rect x="180" y="240" width="840" height="200" rx="22" fill="#0f1115"/>
+          <text text-anchor="middle" fill="#ffffff" font-family="Iowan Old Style, Georgia, serif" font-style="italic" font-size="56" x="600" y="330">"Why did tickets double?"</text>
+          <text text-anchor="middle" fill="#f9d76e" font-family="Iowan Old Style, Georgia, serif" font-size="22" font-style="italic" x="600" y="395">— Marco</text>
+        </g>
+      </g>
+    `
+  },
+
+  shrug: {
+    title: 'To the whiteboard', tag: 'The reset',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text" text-anchor="middle" font-size="42" font-style="italic" x="600" y="320">"…I don't actually know."</text>
+      </g>
+      <g data-line="2">
+        <line class="draw" x1="220" y1="500" x2="980" y2="500" stroke="#0f1115" stroke-width="3" stroke-linecap="round" style="--dash: 770"/>
+        <text class="wb-text dim" font-size="20" font-style="italic" text-anchor="middle" x="600" y="540">— to the whiteboard.</text>
+      </g>
+    `
+  },
+
+  // ============ The 5-why chain ============
+  // each scene reveals one more rung of the chain
+  why1: {
+    title: 'Why 1 · Cancellations doubled', tag: '① of five',
+    chain: 1,
+    svg: () => fiveWhySvg(1),
+  },
+  why2: {
+    title: 'Why 2 · The new UI', tag: '② of five',
+    chain: 2,
+    svg: () => fiveWhySvg(2),
+  },
+  why3: {
+    title: 'Why 3 · Cancel button buried', tag: '③ of five',
+    chain: 3,
+    svg: () => fiveWhySvg(3),
+  },
+  why4: {
+    title: 'Why 4 · A/B only tracked conversion', tag: '④ of five',
+    chain: 4,
+    svg: () => fiveWhySvg(4),
+  },
+  why5: {
+    title: 'Why 5 · Nobody owned support volume', tag: '⑤ of five',
+    chain: 5,
+    svg: () => fiveWhySvg(5),
+  },
+
+  pivot: {
+    title: 'The project changed', tag: 'Symptom → cause',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text faint" font-size="14" letter-spacing="0.18em" x="100" y="90">BEFORE</text>
+        <text class="wb-text faint" font-size="14" letter-spacing="0.18em" x="660" y="90">AFTER</text>
+      </g>
+      <g data-line="2">
+        <g class="pop">
+          <rect x="80" y="120" width="500" height="240" rx="16" fill="#fbe8e4" stroke="#b6311d" stroke-width="2"/>
+          <text class="wb-text" font-size="24" font-weight="700" x="110" y="170">Hire fewer agents</text>
+          <text class="wb-text" font-size="22" x="110" y="210">Renegotiate vendor</text>
+          <text class="wb-text" font-size="22" x="110" y="250">Auto-deflect with bot</text>
+          <line x1="100" y1="195" x2="490" y2="155" stroke="#b6311d" stroke-width="3" opacity="0.7"/>
+          <line x1="100" y1="225" x2="490" y2="195" stroke="#b6311d" stroke-width="3" opacity="0.7"/>
+          <line x1="100" y1="265" x2="490" y2="235" stroke="#b6311d" stroke-width="3" opacity="0.7"/>
+          <text class="wb-text red" font-size="14" font-style="italic" x="110" y="320">treats the symptom — costs come back</text>
+        </g>
+      </g>
+      <g data-line="3">
+        <g class="pop">
+          <rect x="640" y="120" width="500" height="240" rx="16" fill="#e6f4ec" stroke="#1e7a4b" stroke-width="2"/>
+          <text class="wb-text" font-size="24" font-weight="700" x="670" y="170">Fix the Cancel button</text>
+          <text class="wb-text" font-size="22" x="670" y="210">Add call volume to the scorecard</text>
+          <text class="wb-text" font-size="22" x="670" y="250">Run a real post-launch retro</text>
+          <text class="wb-text green" font-size="14" font-style="italic" x="670" y="320">cuts tickets that shouldn't exist</text>
+        </g>
+      </g>
+      <g data-line="4">
+        <text class="wb-text" text-anchor="middle" font-size="22" font-style="italic" x="600" y="430">same problem · different intervention</text>
+        <text class="wb-text green" text-anchor="middle" font-size="34" font-weight="700" x="600" y="490">~$2.1M / yr saved</text>
+        <text class="wb-text dim" text-anchor="middle" font-size="16" font-style="italic" x="600" y="525">vs. ~$400k from the symptom fix</text>
+      </g>
+    `
+  },
+
+  rca: {
+    title: 'It has a name · RCA', tag: 'The discipline',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text dim" font-size="22" font-style="italic" text-anchor="middle" x="600" y="180">by the way — this technique has a name.</text>
+      </g>
+      <g data-line="2">
+        <g class="pop">
+          <rect x="220" y="220" width="760" height="120" rx="18" fill="#0f1115"/>
+          <text text-anchor="middle" fill="#ffffff" font-family="Iowan Old Style, Georgia, serif" font-size="48" font-weight="700" x="600" y="285">Root Cause Analysis</text>
+          <text text-anchor="middle" fill="#f9d76e" font-family="Iowan Old Style, Georgia, serif" font-style="italic" font-size="22" x="600" y="320">RCA — 5-why is the simplest form</text>
+        </g>
+      </g>
+      <g data-line="3">
+        <text class="wb-text dim" text-anchor="middle" font-size="18" font-style="italic" x="600" y="385">same move works on…</text>
+        ${[
+          { x: 200, label: 'Churn spikes' },
+          { x: 450, label: 'Supply chain breaks' },
+          { x: 720, label: 'Product bugs' },
+          { x: 980, label: 'Customer complaints' },
+        ].map(b => `
+          <g class="pop">
+            <rect x="${b.x-110}" y="410" width="220" height="70" rx="14" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+            <text class="wb-text" text-anchor="middle" font-size="18" x="${b.x}" y="453">${b.label}</text>
+          </g>
+        `).join('')}
+      </g>
+      <g data-line="4">
+        <text class="wb-text" text-anchor="middle" font-size="22" font-style="italic" x="600" y="560">don't stop at the first answer.</text>
+        <text class="wb-text" text-anchor="middle" font-size="22" font-weight="700" x="600" y="600">keep asking <em>why</em> until something <em>actionable</em> shows up.</text>
+      </g>
+    `
+  },
+
+  anchor: {
+    title: 'Before Airbnb briefs us', tag: 'Frame for the brief',
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text faint" text-anchor="middle" font-size="18" font-style="italic" letter-spacing="0.14em" x="600" y="130">BRIEF FROM</text>
+        <text class="wb-text" text-anchor="middle" font-size="54" x="600" y="180" font-weight="700">Airbnb</text>
+        <text class="wb-text dim" text-anchor="middle" font-size="20" font-style="italic" x="600" y="220">refunds up · support cost up · "fix it"</text>
+      </g>
+      <g data-line="2">
+        <g class="pop">
+          <rect x="220" y="280" width="760" height="100" rx="16" fill="#fbe8e4" stroke="#b6311d" stroke-width="2"/>
+          <text class="wb-text red" text-anchor="middle" font-size="22" font-weight="700" x="600" y="320">first instinct: recommend cutting it</text>
+          <text class="wb-text red" text-anchor="middle" font-size="48" font-weight="700" x="600" y="365">DON'T.</text>
+        </g>
+      </g>
+      <g data-line="3">
+        <text class="wb-text" text-anchor="middle" font-size="28" x="600" y="450" font-style="italic">get past the symptom · find the <em>why</em>.</text>
+        <text class="wb-text dim" text-anchor="middle" font-size="18" x="600" y="490" font-style="italic">the real project is always one or two whys deeper.</text>
+      </g>
+    `
+  },
+
+  pou: {
+    title: 'Your turn', tag: 'POU',
+    isPou: true,
+    svg: () => `
+      <g data-line="1">
+        <text class="wb-text dim" text-anchor="middle" x="600" y="340" font-size="22" font-style="italic">your turn →</text>
+      </g>
+      <g data-line="2">
+        <text class="wb-text dim" text-anchor="middle" x="600" y="380" font-size="18" font-style="italic">(write your five whys to the right)</text>
+      </g>
+      <g data-line="3">
+        <text class="wb-text dim" text-anchor="middle" x="600" y="420" font-size="16" font-style="italic">go deep — symptom → cause</text>
+      </g>
+    `
+  },
+};
+
+// ---- helper: render the 5-why chain up to the Nth rung ----
+function fiveWhySvg(rung) {
+  const chain = [
+    { q: 'Why did total tickets double?',                               a: 'cancellation tickets specifically doubled' },
+    { q: 'Why did cancellations spike?',                                 a: 'new rider app shipped in December' },
+    { q: 'Why does a UI change cause cancellation tickets?',             a: 'Cancel-trip button buried two screens deep' },
+    { q: "Why didn't anyone catch this before launch?",                  a: 'A/B test only measured conversion' },
+    { q: 'Why was conversion the only metric?',                          a: 'nobody owned "support volume" as a product metric' },
+  ];
+  // each rung gets ~115px of vertical space; chain fits inside the board height
+  const lineGap = 110;
+  const top = 40;
+  const out = [];
+  // top header — always visible
+  out.push(`
+    <g>
+      <text class="wb-text faint" font-size="13" letter-spacing="0.18em" x="60" y="${top}">UBER · 2023 · 5-WHY CHAIN</text>
+    </g>
+  `);
+  for (let i = 0; i < chain.length; i++) {
+    const isShown = (i + 1) <= rung;
+    const visible = isShown ? '' : 'opacity:0.0';
+    const y = top + 30 + i * lineGap;
+    const arrowY = y + 32;
+    const ansY = y + 70;
+    out.push(`
+      <g style="${visible}" ${isShown ? `data-line="${i + 1 === rung ? 1 : 0}"` : ''}>
+        <text class="wb-text" font-size="22" x="80" y="${y}"><tspan font-style="italic" fill="#6b7280">${i+1}.</tspan>  ${escSvg(chain[i].q)}</text>
+        <line x1="110" y1="${arrowY}" x2="110" y2="${ansY - 18}" stroke="#0f1115" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 6"/>
+        <text class="wb-text" font-size="22" font-weight="700" x="130" y="${ansY}">→ ${escSvg(chain[i].a)}</text>
+      </g>
+    `);
+  }
+  return out.join('');
+}
+
+function escSvg(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Flatten ordered list of scenes with their lines (from manifest)
+const FLAT = MANIFEST.scenes.map(s => ({
+  id: s.id,
+  ...SCENES[s.id],
+  lines: s.lines.map((l, i) => ({
+    ...l,
+    idx: i + 1,
+    subtitle: SUBTITLE_OVERRIDES[l.file] || l.text,
+  })),
+}));
+
+// ------------ State ------------
+let sceneIdx = 0;     // current scene
+let lineIdx = 0;      // current line within scene (0-based)
+let mode = 'auto';    // 'auto' | 'manual'
+let playing = false;
+let muted = false;
+
+const audioEl = new Audio();
+audioEl.preload = 'auto';
+
+// lookup
+const $ = id => document.getElementById(id);
+const boardEl = $('board');
+const tagEl = $('boardTag');
+const sceneTitleEl = $('boardSceneTitle');
+const subtitleEl = $('subtitle');
+const sceneLabelEl = $('sceneLabel');
+const lineChipEl = $('lineChip');
+const scenePosEl = $('scenePos');
+const scrubFill = $('scrubFill');
+const scrubLabel = $('scrubLabel');
+const scrubTrack = $('scrubTrack');
+const btnPlay = $('btnPlay');
+const btnPrev = $('btnPrev');
+const btnNext = $('btnNext');
+const portraitEl = $('portrait');
+const pouEl = $('pou');
+const pouSubmit = $('pouSubmit');
+const pouSkip = $('pouSkip');
+const pouReplay = $('pouReplay');
+const pouFeedback = $('pouFeedback');
+const xpBurst = $('xpBurst');
+const manualHint = $('manualHint');
+const soundBtn = $('soundBtn');
+const preloadNotice = $('preloadNotice');
+
+// ---- totals ----
+function totalDuration() {
+  return FLAT.reduce((a, s) => a + s.lines.reduce((x, l) => x + l.duration, 0), 0);
+}
+function elapsedBefore(si, li) {
+  let t = 0;
+  for (let i = 0; i < si; i++) t += FLAT[i].lines.reduce((x, l) => x + l.duration, 0);
+  for (let i = 0; i < li; i++) t += FLAT[si].lines[i].duration;
+  return t;
+}
+function fmtTime(ms) {
+  const s = Math.max(0, Math.round(ms));
+  return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+}
+
+// ---- render scene ----
+function renderScene(si) {
+  const s = FLAT[si];
+  boardEl.innerHTML = `<svg viewBox="0 0 ${VB_W} ${VB_H}" preserveAspectRatio="xMidYMid meet">${s.svg()}</svg>`;
+  tagEl.textContent = s.tag || '';
+  sceneTitleEl.textContent = s.title || '';
+  sceneLabelEl.textContent = `Scene ${si+1} / ${FLAT.length}`;
+  // POU overlay appears at the END of the POU scene, not on entry
+  pouEl.classList.remove('show');
+}
+function revealUpTo(li) {
+  const groups = boardEl.querySelectorAll('svg g[data-line]');
+  groups.forEach(g => {
+    const n = Number(g.dataset.line);
+    g.classList.toggle('show', n <= li + 1);
+  });
+}
+
+function setSubtitle(html, withFade = true) {
+  if (!withFade) { subtitleEl.innerHTML = html; return; }
+  subtitleEl.classList.add('fade');
+  setTimeout(() => {
+    subtitleEl.innerHTML = html;
+    subtitleEl.classList.remove('fade');
+  }, 200);
+}
+
+function updateScrub() {
+  const total = totalDuration();
+  const cur = elapsedBefore(sceneIdx, lineIdx) + (audioEl.currentTime || 0);
+  const pct = total > 0 ? (cur / total) * 100 : 0;
+  scrubFill.style.width = `${Math.min(100, pct)}%`;
+  scrubLabel.textContent = `${fmtTime(cur)} / ${fmtTime(total)}`;
+  scenePosEl.textContent = `${sceneIdx+1}·${lineIdx+1}`;
+  lineChipEl.textContent = `Line ${lineIdx+1} / ${FLAT[sceneIdx].lines.length}`;
+}
+
+// ---- line playback ----
+function loadLine(playAfter) {
+  const line = FLAT[sceneIdx].lines[lineIdx];
+  setSubtitle(line.subtitle);
+  // speaker chip: show only when speaker is not Avery
+  const chipEl = document.getElementById('speakerChip');
+  if (line.speaker && line.speaker !== 'avery' && SPEAKER_LABEL[line.speaker]) {
+    chipEl.textContent = SPEAKER_LABEL[line.speaker];
+    chipEl.style.display = 'inline-block';
+  } else {
+    chipEl.style.display = 'none';
+  }
+  revealUpTo(lineIdx);
+  audioEl.src = `${AUDIO_DIR}/${line.file}`;
+  audioEl.currentTime = 0;
+  updateScrub();
+  if (playAfter && !muted) {
+    const p = audioEl.play();
+    if (p && p.catch) p.catch(e => {
+      console.warn('audio play blocked', e);
+      // browser blocked autoplay — treat as paused
+      playing = false; btnPlay.textContent = '▶ Play';
+      portraitEl.classList.remove('speaking');
+    });
+    playing = true;
+    btnPlay.textContent = '❚❚ Pause';
+    portraitEl.classList.add('speaking');
+  } else if (playAfter && muted) {
+    // muted "auto" — simulate duration with timer
+    playing = true;
+    btnPlay.textContent = '❚❚ Pause';
+    portraitEl.classList.add('speaking');
+    mutedTimer = setTimeout(onLineEnd, FLAT[sceneIdx].lines[lineIdx].duration * 1000);
+  } else {
+    playing = false;
+    btnPlay.textContent = '▶ Play';
+    portraitEl.classList.remove('speaking');
+  }
+}
+
+let mutedTimer = null;
+function clearMutedTimer() {
+  if (mutedTimer) { clearTimeout(mutedTimer); mutedTimer = null; }
+}
+
+function onLineEnd() {
+  clearMutedTimer();
+  playing = false;
+  btnPlay.textContent = '▶ Play';
+  portraitEl.classList.remove('speaking');
+  updateScrub();
+  if (mode === 'auto') {
+    // advance automatically
+    goNext(true);
+  }
+}
+audioEl.addEventListener('ended', onLineEnd);
+audioEl.addEventListener('timeupdate', updateScrub);
+
+function play() {
+  const line = FLAT[sceneIdx].lines[lineIdx];
+  if (!audioEl.src || !audioEl.src.endsWith(line.file)) {
+    loadLine(true);
+    return;
+  }
+  if (muted) {
+    playing = true;
+    btnPlay.textContent = '❚❚ Pause';
+    portraitEl.classList.add('speaking');
+    clearMutedTimer();
+    const remaining = Math.max(0.1, line.duration - (audioEl.currentTime || 0));
+    mutedTimer = setTimeout(onLineEnd, remaining * 1000);
+    return;
+  }
+  const p = audioEl.play();
+  if (p && p.catch) p.catch(e => console.warn(e));
+  playing = true;
+  btnPlay.textContent = '❚❚ Pause';
+  portraitEl.classList.add('speaking');
+}
+
+function pause() {
+  audioEl.pause();
+  clearMutedTimer();
+  playing = false;
+  btnPlay.textContent = '▶ Play';
+  portraitEl.classList.remove('speaking');
+}
+
+function togglePlay() { playing ? pause() : play(); }
+
+function goNext(autoplay = false) {
+  // Move to the next line; cross scene boundaries if needed.
+  if (lineIdx + 1 < FLAT[sceneIdx].lines.length) {
+    lineIdx++;
+    loadLine(autoplay);
+  } else if (sceneIdx + 1 < FLAT.length) {
+    sceneIdx++;
+    lineIdx = 0;
+    renderScene(sceneIdx);
+    loadLine(autoplay);
+  } else {
+    // past final line of final scene — show POU overlay if we're on the POU scene
+    pause();
+    if (FLAT[sceneIdx].isPou) pouEl.classList.add('show');
+  }
+}
+
+function goPrev(autoplay = false) {
+  pause();
+  if (lineIdx > 0) {
+    lineIdx--;
+    loadLine(autoplay);
+  } else if (sceneIdx > 0) {
+    sceneIdx--;
+    lineIdx = FLAT[sceneIdx].lines.length - 1;
+    renderScene(sceneIdx);
+    loadLine(autoplay);
+  }
+}
+
+// ---- scrub ----
+scrubTrack.addEventListener('click', (e) => {
+  const rect = scrubTrack.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  const total = totalDuration();
+  const target = pct * total;
+  let acc = 0;
+  for (let i = 0; i < FLAT.length; i++) {
+    for (let j = 0; j < FLAT[i].lines.length; j++) {
+      const d = FLAT[i].lines[j].duration;
+      if (target < acc + d) {
+        const offset = target - acc;
+        if (sceneIdx !== i) { sceneIdx = i; lineIdx = j; renderScene(i); }
+        else if (lineIdx !== j) { lineIdx = j; }
+        loadLine(false);
+        audioEl.currentTime = offset;
+        updateScrub();
+        return;
+      }
+      acc += d;
+    }
+  }
+});
+
+// ---- controls ----
+btnPlay.addEventListener('click', togglePlay);
+btnPrev.addEventListener('click', () => { pause(); goPrev(true); });
+btnNext.addEventListener('click', () => { pause(); goNext(true); });
+
+document.addEventListener('keydown', (e) => {
+  if (document.activeElement && document.activeElement.tagName === 'TEXTAREA') return;
+  if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+  else if (e.key === 'ArrowRight') { pause(); goNext(true); }
+  else if (e.key === 'ArrowLeft')  { pause(); goPrev(true); }
+  else if (e.key === 'r' || e.key === 'R') { replayAll(); }
+  else if (e.key === 'm' || e.key === 'M') { setMode(mode === 'auto' ? 'manual' : 'auto'); }
+});
+
+// ---- mode toggle ----
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('#modeToggle button').forEach(b => {
+    b.classList.toggle('on', b.dataset.mode === m);
+  });
+  manualHint.style.display = m === 'manual' ? 'block' : 'none';
+}
+document.querySelectorAll('#modeToggle button').forEach(b => {
+  b.addEventListener('click', () => setMode(b.dataset.mode));
+});
+
+// ---- sound ----
+function setMuted(m) {
+  muted = m;
+  audioEl.muted = m;
+  soundBtn.classList.toggle('muted', m);
+  soundBtn.textContent = m ? '🔇 Sound off' : '🔊 Sound on';
+}
+soundBtn.addEventListener('click', () => setMuted(!muted));
+
+// ---- Avery image fallback detection ----
+const averyImg = $('averyImg');
+const averyFallback = $('averyFallback');
+averyImg.addEventListener('load', () => {
+  averyImg.style.display = 'block';
+  averyFallback.style.display = 'none';
+});
+averyImg.addEventListener('error', () => {
+  averyImg.style.display = 'none';
+  averyFallback.style.display = 'flex';
+});
+
+// ---- POU (Claude-powered 5-why grader) ----
+// The canonical truth chain for the fintech password-reset scenario.
+// Keyword lists are a fallback when no API key is set or the API call fails.
+const CHAIN = [
+  {
+    hint: "Start with the top-line number — ask why password reset tickets are doubling.",
+    keywords: ['password','reset','ticket','double','up','spike','increase','rise','grow','why','cause','happen'],
+    answer: "Looking at the data — it's not a general spike. The increase is concentrated among users who'd been inactive for 30+ days. Active users are flat.",
+  },
+  {
+    hint: "The spike only hits inactive users. Ask what changed for them specifically.",
+    keywords: ['inactive','active','specific','segment','users','that','those','subset','concentrated','only','why','change','different'],
+    answer: "You dig into what touched those inactive users in the last month. Turns out they received a new 'account security check-in' email from the marketing team.",
+  },
+  {
+    hint: "A marketing email is what touched them. Ask how an email could cause password resets.",
+    keywords: ['email','marketing','security','check','send','campaign','receive','message','new','cause','why','trigger','would'],
+    answer: "You open the email. Subject line: \"We noticed unusual activity on your account — please confirm.\" Users read that as a breach warning. The safe move? Reset the password immediately, just in case.",
+  },
+  {
+    hint: "The subject line scared people. Ask why marketing didn't catch this before sending.",
+    keywords: ['catch','miss','notice','before','send','launch','test','check','review','approve','qa','didn','nobody','why','marketing'],
+    answer: "Pull the email review process. Marketing A/B-tested the subject line — but only for open rate. The scary version won big. They never measured what users did after opening.",
+  },
+  {
+    hint: "They only measured opens. Ask why post-open behavior wasn't tracked.",
+    keywords: ['only','one','thing','measure','track','watch','why','just','downstream','behavior','scorecard','after','post','impact'],
+    answer: "Because support-ticket impact lives on CX's dashboard. Marketing's scorecard tracks sends, opens, and clicks. Same org-silo pattern as the Uber case — just a different team.",
+  },
+];
+
+let rungIdx = 0;
+const POU_MODE = { smart: false, apiKey: "" };
+
+function escHtml(s) {
+  return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ---- Claude API evaluator ----
+const CLAUDE_SYSTEM_PROMPT = `You are Avery, a warm and sharp senior analyst mentoring a student through a 5-why root-cause analysis.
+
+SITUATION THE STUDENT IS INVESTIGATING:
+A fintech app's "password reset" support tickets doubled last month. That is the only thing they know when they start.
+
+THE TRUTH CHAIN (your private reference — the actual root cause; the student has NOT seen this):
+Rung 1: The spike is concentrated among users inactive 30+ days. Active users flat.
+Rung 2: Those inactive users received a new "account security check-in" email from marketing last month.
+Rung 3: The email's subject — "We noticed unusual activity on your account — please confirm" — scared users into resetting their password preemptively.
+Rung 4: Marketing A/B-tested the subject line, but only for open rate. The scary version won. They never measured downstream behavior.
+Rung 5: Support-ticket impact lives on CX's dashboard. Marketing's scorecard only tracks sends, opens, clicks.
+
+RESOLUTION: Rewrite the email subject. Add downstream support-ticket impact to marketing's scorecard. Require CX sign-off on high-volume mailings.
+
+Grade the student's question using these rules:
+- ACCEPT if the question is a reasonable next "why" that engages with the previous answer (or the situation, if rung 1). Even if they took a slightly different angle than your canonical path, accept — and reveal an answer adapted to their angle if useful.
+- ACCEPT_CREATIVE if they asked from an unexpected angle that is still valid — note that, then reveal an answer that honors their angle AND points toward the canonical insight for this rung.
+- NUDGE if the question is off-topic, ignores the previous answer, or is too vague. Give a short hint (1 sentence) that points them at what to engage with. Do NOT reveal the answer.
+
+Respond in STRICT JSON only, no prose outside the JSON:
+{"verdict": "accept" | "accept_creative" | "nudge", "feedback": "<1 warm sentence, can be empty for plain accepts>", "answer": "<the rung answer to reveal — canonical or lightly adapted. Empty string if nudge.>"}
+
+Keep feedback specific and warm. Keep the answer under 55 words.`;
+
+async function evalWhyClaude(userText, rungIdx) {
+  const prevAnswer = rungIdx > 0 ? CHAIN[rungIdx - 1].answer : "(none — this is the first why)";
+  const userMsg = `Current rung: ${rungIdx + 1} of 5.\nPrevious answer you revealed: "${prevAnswer}"\nStudent's new question: "${userText}"`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': POU_MODE.apiKey,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 500,
+      system: CLAUDE_SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: userMsg }],
+    }),
+  });
+  if (!res.ok) throw new Error('API ' + res.status + ': ' + (await res.text()).slice(0, 200));
+  const data = await res.json();
+  const text = data.content && data.content[0] && data.content[0].text;
+  if (!text) throw new Error('Empty response');
+  // Extract the JSON — models sometimes wrap in backticks.
+  const jsonStart = text.indexOf('{');
+  const jsonEnd = text.lastIndexOf('}');
+  if (jsonStart < 0 || jsonEnd < 0) throw new Error('No JSON in response');
+  const parsed = JSON.parse(text.slice(jsonStart, jsonEnd + 1));
+  // Normalize verdicts
+  const v = (parsed.verdict || '').toLowerCase();
+  if (!['accept', 'accept_creative', 'nudge'].includes(v)) throw new Error('Bad verdict: ' + v);
+  return { verdict: v, feedback: parsed.feedback || '', answer: parsed.answer || '' };
+}
+
+// ---- Keyword fallback evaluator ----
+function evalWhyKeyword(userText, rungIdx) {
+  const lower = (userText || '').toLowerCase();
+  const hits = CHAIN[rungIdx].keywords.filter(k => lower.includes(k)).length;
+  if (hits >= 2) return { verdict: 'accept', feedback: '', answer: CHAIN[rungIdx].answer };
+  if (hits === 1) return { verdict: 'accept', feedback: 'Loosely connected — tighter link to the last answer next time.', answer: CHAIN[rungIdx].answer };
+  return {
+    verdict: 'nudge',
+    feedback: rungIdx === 0
+      ? 'Look at the situation in front of you — the spike in password reset tickets. Your first why should be about that.'
+      : 'Read the last answer again. Your next why should grow out of something in it.',
+    answer: '',
+  };
+}
+
+// ---- Render a rung Q→A to the chain ----
+function appendRung(userText, result) {
+  const entry = CHAIN[rungIdx];
+  const answer = result.answer || entry.answer;
+  const chainDiv = document.getElementById('rcaChain');
+  const el = document.createElement('div');
+  el.className = 'rung-pair';
+  const creativeTag = result.verdict === 'accept_creative'
+    ? '<span class="rung-tag creative">creative angle</span>' : '';
+  el.innerHTML = `
+    <div class="rung-q">
+      <span class="rung-badge">Why ${rungIdx + 1}</span>
+      <span class="rung-q-text">${escHtml(userText)}</span>${creativeTag}
+    </div>
+    ${result.feedback ? `<div class="rung-note">${escHtml(result.feedback)}</div>` : ''}
+    <div class="rung-a">
+      <span class="rung-badge ans">→</span>
+      <span class="rung-a-text">${escHtml(answer)}</span>
+    </div>`;
+  chainDiv.appendChild(el);
+  rungIdx++;
+  const rungInputEl = document.getElementById('rungInput');
+  rungInputEl.value = '';
+  const rungFeedbackEl = document.getElementById('rungFeedback');
+  rungFeedbackEl.className = 'rung-feedback';
+  rungFeedbackEl.textContent = '';
+  if (rungIdx >= CHAIN.length) {
+    document.getElementById('currentRung').style.display = 'none';
+    document.getElementById('rcaResolution').style.display = 'block';
+    xpBurst.classList.add('show');
+    setTimeout(() => xpBurst.classList.remove('show'), 2400);
+  } else {
+    document.getElementById('rungNumber').textContent = rungIdx + 1;
+    const placeholders = [
+      'Why did password reset tickets double?',
+      '…and why only inactive users?',
+      '…and why would that cause password resets?',
+      "…and why didn't marketing catch it?",
+      '…and why was only open rate measured?',
+    ];
+    rungInputEl.placeholder = placeholders[rungIdx] || '…and why is that?';
+    rungInputEl.focus();
+    chainDiv.lastChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// ---- Ask handler ----
+async function handleAsk() {
+  const rungInputEl = document.getElementById('rungInput');
+  const rungFeedbackEl = document.getElementById('rungFeedback');
+  const askBtnEl = document.getElementById('askBtn');
+  const text = rungInputEl.value.trim();
+  if (text.length < 4 || text.split(/\s+/).length < 2) {
+    rungFeedbackEl.className = 'rung-feedback soft show';
+    rungFeedbackEl.textContent = 'Give it a real swing — ask a full why sentence.';
+    return;
+  }
+
+  let result;
+  if (POU_MODE.smart && POU_MODE.apiKey) {
+    askBtnEl.disabled = true;
+    askBtnEl.textContent = '✨ Thinking…';
+    try {
+      result = await evalWhyClaude(text, rungIdx);
+    } catch (err) {
+      console.warn('Claude API error, falling back to keywords:', err);
+      result = evalWhyKeyword(text, rungIdx);
+      rungFeedbackEl.className = 'rung-feedback error show';
+      rungFeedbackEl.textContent = 'Claude unreachable — used keyword mode for this one. (' + String(err).slice(0, 80) + ')';
+    } finally {
+      askBtnEl.disabled = false;
+      askBtnEl.textContent = 'Ask →';
+    }
+  } else {
+    result = evalWhyKeyword(text, rungIdx);
+  }
+
+  if (result.verdict === 'nudge') {
+    rungFeedbackEl.className = 'rung-feedback nudge show';
+    rungFeedbackEl.textContent = result.feedback || 'Stay anchored to what you just read.';
+    return;
+  }
+  appendRung(text, result);
+}
+
+document.getElementById('askBtn').addEventListener('click', handleAsk);
+document.getElementById('hintBtn').addEventListener('click', () => {
+  const rungFeedbackEl = document.getElementById('rungFeedback');
+  rungFeedbackEl.className = 'rung-feedback soft show';
+  rungFeedbackEl.textContent = CHAIN[rungIdx].hint;
+});
+document.getElementById('rungInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); handleAsk(); }
+});
+
+// ---- Mode toggle + API key UI ----
+const modeState = document.getElementById('modeState');
+const modeLabel = document.getElementById('modeLabel');
+const modeToggleBtn = document.getElementById('modeToggle');
+const apiKeyEntry = document.getElementById('apiKeyEntry');
+const apiKeyInput = document.getElementById('apiKeyInput');
+const apiKeySaveBtn = document.getElementById('apiKeySave');
+const apiKeyCancelBtn = document.getElementById('apiKeyCancel');
+
+modeToggleBtn.addEventListener('click', () => {
+  if (POU_MODE.smart) {
+    POU_MODE.smart = false;
+    POU_MODE.apiKey = "";
+    modeState.classList.remove('smart');
+    modeLabel.textContent = 'Keyword mode';
+    modeToggleBtn.classList.remove('smart');
+    modeToggleBtn.textContent = '✨ Enable smart mode';
+  } else {
+    apiKeyEntry.style.display = 'block';
+    apiKeyInput.focus();
+  }
+});
+apiKeySaveBtn.addEventListener('click', () => {
+  const k = apiKeyInput.value.trim();
+  if (!k.startsWith('sk-ant-')) {
+    apiKeyInput.style.borderColor = '#b6311d';
+    return;
+  }
+  POU_MODE.apiKey = k;
+  POU_MODE.smart = true;
+  apiKeyInput.value = '';
+  apiKeyEntry.style.display = 'none';
+  modeState.classList.add('smart');
+  modeLabel.textContent = 'Smart mode · Claude Haiku 4.5';
+  modeToggleBtn.classList.add('smart');
+  modeToggleBtn.textContent = 'Disable smart mode';
+});
+apiKeyCancelBtn.addEventListener('click', () => {
+  apiKeyInput.value = '';
+  apiKeyEntry.style.display = 'none';
+});
+
+pouSkip.addEventListener('click', () => pouEl.classList.remove('show'));
+pouReplay.addEventListener('click', () => replayAll());
+
+function resetPou() {
+  rungIdx = 0;
+  document.getElementById('rcaChain').innerHTML = '';
+  document.getElementById('currentRung').style.display = 'block';
+  document.getElementById('rcaResolution').style.display = 'none';
+  document.getElementById('rungNumber').textContent = '1';
+  const i = document.getElementById('rungInput');
+  if (i) { i.value = ''; i.placeholder = 'Why did password reset tickets double?'; }
+  const fb = document.getElementById('rungFeedback');
+  if (fb) { fb.className = 'rung-feedback'; fb.textContent = ''; }
+}
+
+function replayAll() {
+  pauseExit();
+  sceneIdx = 0; lineIdx = 0;
+  resetPou();
+  renderScene(0);
+  loadLine(mode === 'auto');
+}
+
+// ---- preload hint ----
+audioEl.addEventListener('waiting', () => preloadNotice.classList.add('show'));
+audioEl.addEventListener('playing', () => preloadNotice.classList.remove('show'));
+audioEl.addEventListener('canplay', () => preloadNotice.classList.remove('show'));
+
+// ---- init ----
+setMode('auto');
+renderScene(0);
+loadLine(false);
+scrubLabel.textContent = `0:00 / ${fmtTime(totalDuration())}`;
+// Don't autoplay on load — browser autoplay policy will block the unmuted audio.
+// User taps Play once; after that, auto mode cascades.
+
+})();
+</script>
+</body>
+</html>

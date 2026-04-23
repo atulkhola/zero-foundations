@@ -1,0 +1,245 @@
+{
+  "scenes": [
+    {
+      "id": "bridge",
+      "lines": [
+        {
+          "file": "bridge-01.mp3",
+          "text": "Honest chart. Real finding. Now — turn it into something Priya can act on.",
+          "speaker": "avery",
+          "duration": 5.251
+        }
+      ]
+    },
+    {
+      "id": "finding",
+      "lines": [
+        {
+          "file": "finding-01.mp3",
+          "text": "I had all the pieces. The UI change drove 70 percent of the spike. Reverting it recovers those tickets.",
+          "speaker": "avery",
+          "duration": 7.158
+        },
+        {
+          "file": "finding-02.mp3",
+          "text": "That's a finding. Not a recommendation.",
+          "speaker": "avery",
+          "duration": 2.351
+        },
+        {
+          "file": "finding-03.mp3",
+          "text": "A finding tells you what happened. A recommendation tells you what to do.",
+          "speaker": "avery",
+          "duration": 4.284
+        }
+      ]
+    },
+    {
+      "id": "draft_essay",
+      "lines": [
+        {
+          "file": "essay-01.mp3",
+          "text": "First try — I wrote everything I knew. Two hundred words. Context, pattern, root cause, what it implied.",
+          "speaker": "avery",
+          "duration": 8.829
+        },
+        {
+          "file": "essay-02.mp3",
+          "text": "I showed it to Marco. He read three sentences. Tabbed away.",
+          "speaker": "avery",
+          "duration": 3.971
+        },
+        {
+          "file": "essay-03.mp3",
+          "text": "Priya has seven minutes. She'd never finish this. Explaining isn't recommending.",
+          "speaker": "avery",
+          "duration": 5.642
+        }
+      ]
+    },
+    {
+      "id": "draft_hedge",
+      "lines": [
+        {
+          "file": "hedge-01.mp3",
+          "text": "Second try — tighter. But I got careful.",
+          "speaker": "avery",
+          "duration": 3.082
+        },
+        {
+          "file": "hedge-02.mp3",
+          "text": "\"We should consider reverting. It may be worth exploring a rollback.\"",
+          "speaker": "avery",
+          "duration": 3.553
+        },
+        {
+          "file": "hedge-03.mp3",
+          "text": "Marco read it. Looked at me. Said — okay, so what do you want me to do?",
+          "speaker": "avery",
+          "duration": 5.721
+        },
+        {
+          "file": "hedge-04.mp3",
+          "text": "I'd made him translate. Hedging isn't recommending.",
+          "speaker": "avery",
+          "duration": 3.396
+        }
+      ]
+    },
+    {
+      "id": "draft_commit",
+      "lines": [
+        {
+          "file": "commit-01.mp3",
+          "text": "Third try — I stopped being careful.",
+          "speaker": "avery",
+          "duration": 2.273
+        },
+        {
+          "file": "commit-02.mp3",
+          "text": "One sentence. Revert the Cancel button in the December 14 release. Forty engineering hours. Thirty-five percent ticket reduction. Downside — tiny dip in a tap-through that was never a KPI.",
+          "speaker": "avery",
+          "duration": 12.356
+        },
+        {
+          "file": "commit-03.mp3",
+          "text": "Marco read it. Tapped the screen. Said — yes, this.",
+          "speaker": "avery",
+          "duration": 4.362
+        }
+      ]
+    },
+    {
+      "id": "anatomy",
+      "lines": [
+        {
+          "file": "anatomy-01.mp3",
+          "text": "Every real recommendation has four parts.",
+          "speaker": "avery",
+          "duration": 2.508
+        },
+        {
+          "file": "anatomy-02.mp3",
+          "text": "What to do. What it costs. What it's worth. What the downside is.",
+          "speaker": "avery",
+          "duration": 4.989
+        },
+        {
+          "file": "anatomy-03.mp3",
+          "text": "All four — reader decides. Miss any — they come back with questions.",
+          "speaker": "avery",
+          "duration": 5.068
+        },
+        {
+          "file": "anatomy-04.mp3",
+          "text": "Before I sent it, I ran it against three checks. One sentence. All four parts. Can Priya act on it in thirty seconds.",
+          "speaker": "avery",
+          "duration": 7.314
+        }
+      ]
+    },
+    {
+      "id": "anchor",
+      "lines": [
+        {
+          "file": "anchor-01.mp3",
+          "text": "At Airbnb — your write-up lives or dies on the recommendation line.",
+          "speaker": "avery",
+          "duration": 3.709
+        },
+        {
+          "file": "anchor-02.mp3",
+          "text": "Make it a decision someone can sign in thirty seconds.",
+          "speaker": "avery",
+          "duration": 2.847
+        }
+      ]
+    },
+    {
+      "id": "pou",
+      "lines": [
+        {
+          "file": "pou-01.mp3",
+          "text": "Your turn.",
+          "speaker": "avery",
+          "duration": 0.601
+        },
+        {
+          "file": "pou-02.mp3",
+          "text": "I'll show you findings and drafts. Pick the one someone can actually act on.",
+          "speaker": "avery",
+          "duration": 3.553
+        }
+      ]
+    },
+    {
+      "id": "handoff",
+      "lines": [
+        {
+          "file": "handoff-01.mp3",
+          "text": "Nice. Now — here's one of your own.",
+          "speaker": "avery",
+          "duration": 2.926
+        },
+        {
+          "file": "handoff-02.mp3",
+          "text": "You've been analyzing Airbnb refund-dispute tickets. You found the April 15 policy change drove the spike.",
+          "speaker": "avery",
+          "duration": 6.113
+        },
+        {
+          "file": "handoff-03.mp3",
+          "text": "You have the findings. Jordan — your manager — needs the recommendation. Use Claude to iterate. I'll be watching.",
+          "speaker": "avery",
+          "duration": 7.001
+        }
+      ]
+    },
+    {
+      "id": "pip",
+      "lines": [
+        {
+          "file": "pip-01.mp3",
+          "text": "Try it your own way first. Whatever feels natural.",
+          "speaker": "avery",
+          "duration": 3.082
+        },
+        {
+          "file": "pip-02.mp3",
+          "text": "Good start. Now let me teach you the sharp moves.",
+          "speaker": "avery",
+          "duration": 2.429
+        },
+        {
+          "file": "pip-03.mp3",
+          "text": "Give Claude the findings and context. Ask for a one-sentence draft. Then iterate — strip the hedging, add the numbers, match it to the three checks.",
+          "speaker": "avery",
+          "duration": 9.091
+        },
+        {
+          "file": "pip-04.mp3",
+          "text": "When all three boxes are green — send it back.",
+          "speaker": "avery",
+          "duration": 2.586
+        }
+      ]
+    },
+    {
+      "id": "close",
+      "lines": [
+        {
+          "file": "close-01.mp3",
+          "text": "Finding to recommendation. You just closed the loop.",
+          "speaker": "avery",
+          "duration": 2.847
+        },
+        {
+          "file": "close-02.mp3",
+          "text": "Next — how do you package it so the VP actually reads it.",
+          "speaker": "avery",
+          "duration": 3.631
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,285 @@
+{
+  "scenes": [
+    {
+      "id": "bridge",
+      "lines": [
+        {
+          "file": "bridge-01.mp3",
+          "text": "Day five at Uber. Data is clean. I know what every column means. Time to actually look at the thing.",
+          "speaker": "avery",
+          "duration": 4.911
+        },
+        {
+          "file": "bridge-02.mp3",
+          "text": "First chart I pulled \u2014 ticket volume by week. And right there in January \u2014 it doubles.",
+          "speaker": "avery",
+          "duration": 5.146
+        },
+        {
+          "file": "bridge-03.mp3",
+          "text": "Clean as a whistle. The chart was honest. The number was real.",
+          "speaker": "avery",
+          "duration": 2.873
+        }
+      ]
+    },
+    {
+      "id": "almost",
+      "lines": [
+        {
+          "file": "almost-01.mp3",
+          "text": "So I'm typing into the recommendation deck \u2014 'hire fewer agents, cut support costs, done.'",
+          "speaker": "avery",
+          "duration": 9.744
+        },
+        {
+          "file": "almost-02.mp3",
+          "text": "I'm one paragraph from finishing it.",
+          "speaker": "avery",
+          "duration": 2.508
+        },
+        {
+          "file": "almost-03.mp3",
+          "text": "And Marco \u2014 my mentor \u2014 walks past my desk. Looks at the chart. Looks at me. And goes \u2014",
+          "speaker": "avery",
+          "duration": 4.859
+        }
+      ]
+    },
+    {
+      "id": "marco-q",
+      "lines": [
+        {
+          "file": "marco-q-01.mp3",
+          "text": "Why did tickets double?",
+          "speaker": "marco",
+          "duration": 1.515
+        }
+      ]
+    },
+    {
+      "id": "shrug",
+      "lines": [
+        {
+          "file": "shrug-01.mp3",
+          "text": "And I'm like\u2026 I don't actually know.",
+          "speaker": "avery",
+          "duration": 2.325
+        },
+        {
+          "file": "shrug-02.mp3",
+          "text": "He hands me a marker. We walk to the whiteboard. He writes the question at the top. And we go.",
+          "speaker": "avery",
+          "duration": 4.075
+        }
+      ]
+    },
+    {
+      "id": "why1",
+      "lines": [
+        {
+          "file": "why1-01.mp3",
+          "text": "First why \u2014 why did total tickets double?",
+          "speaker": "avery",
+          "duration": 2.534
+        },
+        {
+          "file": "why1-02.mp3",
+          "text": "I pull the data by ticket type. And it's not all of them \u2014 it's specifically cancellation tickets that doubled. Everything else stayed flat.",
+          "speaker": "avery",
+          "duration": 8.176
+        }
+      ]
+    },
+    {
+      "id": "why2",
+      "lines": [
+        {
+          "file": "why2-01.mp3",
+          "text": "Second why \u2014 why did cancellations spike?",
+          "speaker": "avery",
+          "duration": 2.456
+        },
+        {
+          "file": "why2-02.mp3",
+          "text": "I line it up against our release calendar. The jump starts the exact week we shipped the new rider app in December.",
+          "speaker": "avery",
+          "duration": 5.381
+        }
+      ]
+    },
+    {
+      "id": "why3",
+      "lines": [
+        {
+          "file": "why3-01.mp3",
+          "text": "Third why \u2014 why does a UI change cause people to call support to cancel?",
+          "speaker": "avery",
+          "duration": 4.206
+        },
+        {
+          "file": "why3-02.mp3",
+          "text": "I open the new app. Try to cancel a trip. The Cancel button \u2014 used to be on the home screen \u2014 is now buried two screens deep.",
+          "speaker": "avery",
+          "duration": 6.87
+        },
+        {
+          "file": "why3-03.mp3",
+          "text": "Riders couldn't find it. So they did the next thing. They called us.",
+          "speaker": "avery",
+          "duration": 3.474
+        }
+      ]
+    },
+    {
+      "id": "why4",
+      "lines": [
+        {
+          "file": "why4-01.mp3",
+          "text": "Fourth why \u2014 why didn't anyone catch this before launch?",
+          "speaker": "avery",
+          "duration": 3.527
+        },
+        {
+          "file": "why4-02.mp3",
+          "text": "Pull the test they ran before launch. Half the riders got the new flow, half got the old one \u2014 then compared the two. That kind of side-by-side test has a name \u2014 it's called an A/B test. What did they measure? One thing \u2014 did people still book trips at the same rate. Yes, they did.",
+          "speaker": "avery",
+          "duration": 16.118
+        },
+        {
+          "file": "why4-03.mp3",
+          "text": "They never measured what happened *after* the tap.",
+          "speaker": "avery",
+          "duration": 2.952
+        }
+      ]
+    },
+    {
+      "id": "why5",
+      "lines": [
+        {
+          "file": "why5-01.mp3",
+          "text": "Fifth why \u2014 why was that the only thing they measured?",
+          "speaker": "avery",
+          "duration": 3.239
+        },
+        {
+          "file": "why5-02.mp3",
+          "text": "Because nobody on the product team was watching how many calls support was getting. Every product team tracks a little set of numbers each week \u2014 call it their scorecard. Call volume wasn't on this one.",
+          "speaker": "avery",
+          "duration": 9.091
+        },
+        {
+          "file": "why5-03.mp3",
+          "text": "Nobody on the product side was looking.",
+          "speaker": "avery",
+          "duration": 2.09
+        }
+      ]
+    },
+    {
+      "id": "pivot",
+      "lines": [
+        {
+          "file": "pivot-01.mp3",
+          "text": "And right there \u2014 at the bottom of the chain \u2014 the project changed.",
+          "speaker": "avery",
+          "duration": 4.31
+        },
+        {
+          "file": "pivot-02.mp3",
+          "text": "The recommendation wasn't 'hire fewer agents' anymore.",
+          "speaker": "avery",
+          "duration": 2.873
+        },
+        {
+          "file": "pivot-03.mp3",
+          "text": "It was \u2014 fix the Cancel button. Move it back where people can find it. And add support call volume to the scorecard \u2014 the numbers the product team watches every week.",
+          "speaker": "avery",
+          "duration": 15.491
+        },
+        {
+          "file": "pivot-04.mp3",
+          "text": "Same problem. Different fix. And way bigger payoff \u2014 you're not just handling calls faster, you're stopping them from happening at all.",
+          "speaker": "avery",
+          "duration": 9.613
+        }
+      ]
+    },
+    {
+      "id": "rca",
+      "lines": [
+        {
+          "file": "rca-01.mp3",
+          "text": "By the way \u2014 this technique has a name.",
+          "speaker": "avery",
+          "duration": 2.168
+        },
+        {
+          "file": "rca-02.mp3",
+          "text": "Root cause analysis. RCA. Five-why is just the simplest version of it.",
+          "speaker": "avery",
+          "duration": 3.788
+        },
+        {
+          "file": "rca-03.mp3",
+          "text": "Same move works on almost any 'why is this happening' question. Customers leaving. A system breaking. A bug showing up. Most of life, honestly.",
+          "speaker": "avery",
+          "duration": 8.438
+        },
+        {
+          "file": "rca-04.mp3",
+          "text": "The skill is \u2014 don't stop at the first answer. Keep asking why until something *actionable* shows up.",
+          "speaker": "avery",
+          "duration": 5.616
+        }
+      ]
+    },
+    {
+      "id": "anchor",
+      "lines": [
+        {
+          "file": "anchor-01.mp3",
+          "text": "So \u2014 you're about to get a number. Tickets up. Refunds up. Support costs up. Something like that.",
+          "speaker": "avery",
+          "duration": 4.911
+        },
+        {
+          "file": "anchor-02.mp3",
+          "text": "First instinct will be to recommend cutting it. Don't.",
+          "speaker": "avery",
+          "duration": 2.873
+        },
+        {
+          "file": "anchor-03.mp3",
+          "text": "Get past the symptom. Find the why. The real project is always one or two whys deeper than where you start.",
+          "speaker": "avery",
+          "duration": 5.146
+        }
+      ]
+    },
+    {
+      "id": "pou",
+      "lines": [
+        {
+          "file": "pou-01.mp3",
+          "text": "Alright \u2014 your turn. Here's the situation.",
+          "speaker": "avery",
+          "duration": 3.657
+        },
+        {
+          "file": "pou-02.mp3",
+          "text": "A fintech app's password reset support tickets doubled last month. That's all you know.",
+          "speaker": "avery",
+          "duration": 3.84
+        },
+        {
+          "file": "pou-03.mp3",
+          "text": "Ask the first why. Whatever feels natural. I'll hand back an answer. Then you go deeper \u2014 five rungs.",
+          "speaker": "avery",
+          "duration": 6.087
+        }
+      ]
+    }
+  ]
+}

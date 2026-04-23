@@ -1,0 +1,259 @@
+{
+  "scenes": [
+    {
+      "id": "bridge",
+      "lines": [
+        {
+          "file": "bridge-01.mp3",
+          "text": "So — I had my three questions. Rider support cost, down twenty percent, by end of Q3.",
+          "speaker": "avery",
+          "duration": 5.799
+        },
+        {
+          "file": "bridge-02.mp3",
+          "text": "I had the frame. [pause] Now I needed the data.",
+          "speaker": "avery",
+          "duration": 4.206
+        },
+        {
+          "file": "bridge-03.mp3",
+          "text": "Day two. [pause] I walk in ready to work.",
+          "speaker": "avery",
+          "duration": 3.239
+        }
+      ]
+    },
+    {
+      "id": "csv",
+      "lines": [
+        {
+          "file": "csv-01.mp3",
+          "text": "Finance drops this on my desk.",
+          "speaker": "avery",
+          "duration": 1.567
+        },
+        {
+          "file": "csv-02.mp3",
+          "text": "One CSV. [pause] Forty-thousand rows.",
+          "speaker": "avery",
+          "duration": 4.284
+        },
+        {
+          "file": "csv-03.mp3",
+          "text": "Column headers like t-k-t-closed-d-t-v-two. I had no idea what that meant.",
+          "speaker": "avery",
+          "duration": 7.889
+        },
+        {
+          "file": "csv-04.mp3",
+          "text": "It's a menu in a language I don't speak.",
+          "speaker": "avery",
+          "duration": 2.351
+        }
+      ]
+    },
+    {
+      "id": "trap",
+      "lines": [
+        {
+          "file": "trap-01.mp3",
+          "text": "I stare at the names. Trying to decode them.",
+          "speaker": "avery",
+          "duration": 2.847
+        },
+        {
+          "file": "trap-02.mp3",
+          "text": "Ticket closed dt v2? Rider seg enc? Supp contact flag three?",
+          "speaker": "avery",
+          "duration": 6.687
+        },
+        {
+          "file": "trap-03.mp3",
+          "text": "Half the words are abbreviated. I'm inventing meanings as I go.",
+          "speaker": "avery",
+          "duration": 3.474
+        },
+        {
+          "file": "trap-04.mp3",
+          "text": "Marco walks past. Sees me squinting. He goes — what does that one actually mean? I had no idea.",
+          "speaker": "avery",
+          "duration": 8.124
+        }
+      ]
+    },
+    {
+      "id": "lie",
+      "lines": [
+        {
+          "file": "lie-01.mp3",
+          "text": "Headers lie.",
+          "speaker": "avery",
+          "duration": 1.306
+        },
+        {
+          "file": "lie-02.mp3",
+          "text": "That one column — could mean the first time a ticket was closed.",
+          "speaker": "avery",
+          "duration": 3.971
+        },
+        {
+          "file": "lie-03.mp3",
+          "text": "Or the final close, after re-opens.",
+          "speaker": "avery",
+          "duration": 2.429
+        },
+        {
+          "file": "lie-04.mp3",
+          "text": "Count the first-closes, tickets look flat. Count the finals, tickets look doubled.",
+          "speaker": "avery",
+          "duration": 4.911
+        },
+        {
+          "file": "lie-05.mp3",
+          "text": "Same column. [pause] Two totally different realities.",
+          "speaker": "avery",
+          "duration": 4.676
+        }
+      ]
+    },
+    {
+      "id": "translate",
+      "lines": [
+        {
+          "file": "translate-01.mp3",
+          "text": "Before you analyze — you translate.",
+          "speaker": "avery",
+          "duration": 2.351
+        },
+        {
+          "file": "translate-02.mp3",
+          "text": "For every column I'd use, three questions.",
+          "speaker": "avery",
+          "duration": 2.508
+        },
+        {
+          "file": "translate-03.mp3",
+          "text": "What does it actually mean — in plain English.",
+          "speaker": "avery",
+          "duration": 3.004
+        },
+        {
+          "file": "translate-04.mp3",
+          "text": "Where does it come from — who writes to it.",
+          "speaker": "avery",
+          "duration": 2.351
+        },
+        {
+          "file": "translate-05.mp3",
+          "text": "And — what does it not tell me.",
+          "speaker": "avery",
+          "duration": 2.769
+        }
+      ]
+    },
+    {
+      "id": "glossary",
+      "lines": [
+        {
+          "file": "glossary-01.mp3",
+          "text": "Whole afternoon. [pause] Just a notebook and the CSV open.",
+          "speaker": "avery",
+          "duration": 5.642
+        },
+        {
+          "file": "glossary-02.mp3",
+          "text": "One line per column. In my own words.",
+          "speaker": "avery",
+          "duration": 3.004
+        },
+        {
+          "file": "glossary-03.mp3",
+          "text": "Half of them I ended up DMing Jorge — the finance guy who shipped the export.",
+          "speaker": "avery",
+          "duration": 3.631
+        },
+        {
+          "file": "glossary-04.mp3",
+          "text": "By sundown I could read the dataset like a newspaper.",
+          "speaker": "avery",
+          "duration": 2.586
+        }
+      ]
+    },
+    {
+      "id": "anchor",
+      "lines": [
+        {
+          "file": "anchor-01.mp3",
+          "text": "Airbnb's dataset is going to be messier than mine was.",
+          "speaker": "avery",
+          "duration": 2.926
+        },
+        {
+          "file": "anchor-02.mp3",
+          "text": "Host-support tickets. Refunds. Disputes. Cancellations. Policy flags.",
+          "speaker": "avery",
+          "duration": 7.001
+        },
+        {
+          "file": "anchor-03.mp3",
+          "text": "Before you run a single query — build the glossary.",
+          "speaker": "avery",
+          "duration": 3.318
+        },
+        {
+          "file": "anchor-04.mp3",
+          "text": "Translate first. [pause] Then analyze.",
+          "speaker": "avery",
+          "duration": 4.049
+        }
+      ]
+    },
+    {
+      "id": "pou",
+      "lines": [
+        {
+          "file": "pou-01.mp3",
+          "text": "Alright — your turn.",
+          "speaker": "avery",
+          "duration": 1.306
+        },
+        {
+          "file": "pou-02.mp3",
+          "text": "I'll show you three columns from an Airbnb slice. Pick what each one actually means.",
+          "speaker": "avery",
+          "duration": 4.911
+        }
+      ]
+    },
+    {
+      "id": "modern_move",
+      "lines": [
+        {
+          "file": "modern-01.mp3",
+          "text": "I did this with a notebook in 2023. Today? I'd just drop the CSV in here and ask.",
+          "speaker": "avery",
+          "duration": 5.564
+        },
+        {
+          "file": "modern-02.mp3",
+          "text": "Thirty seconds. Same shape I spent an afternoon on. But watch — Claude just took the obvious read. Exactly the trap that almost got me.",
+          "speaker": "avery",
+          "duration": 8.202
+        },
+        {
+          "file": "modern-03.mp3",
+          "text": "So I push back with what I know. Claude corrects. I only caught it because I'd already done the work.",
+          "speaker": "avery",
+          "duration": 5.407
+        },
+        {
+          "file": "modern-04.mp3",
+          "text": "Use the tool. Don't outsource the thinking.",
+          "speaker": "avery",
+          "duration": 2.847
+        }
+      ]
+    }
+  ]
+}

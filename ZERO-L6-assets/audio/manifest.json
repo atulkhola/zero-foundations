@@ -1,0 +1,221 @@
+{
+  "scenes": [
+    {
+      "id": "bridge",
+      "lines": [
+        {
+          "file": "bridge-01.mp3",
+          "text": "One-sentence recommendation. Done. Now — how do I package it so Priya actually reads it?",
+          "speaker": "avery",
+          "duration": 6.426
+        }
+      ]
+    },
+    {
+      "id": "the_deck",
+      "lines": [
+        {
+          "file": "deck-01.mp3",
+          "text": "First version — I went big. Nineteen slides. Every chart, every alternative, every caveat. I was proud of it.",
+          "speaker": "avery",
+          "duration": 8.673
+        },
+        {
+          "file": "deck-02.mp3",
+          "text": "Gave it to Priya. She opened it. Scrolled to slide three. Closed the tab.",
+          "speaker": "avery",
+          "duration": 5.146
+        },
+        {
+          "file": "deck-03.mp3",
+          "text": "She looked at me — Avery, I have seven minutes before my next meeting. What do you want me to do?",
+          "speaker": "avery",
+          "duration": 6.191
+        }
+      ]
+    },
+    {
+      "id": "the_problem",
+      "lines": [
+        {
+          "file": "problem-01.mp3",
+          "text": "VPs don't read. They skim.",
+          "speaker": "avery",
+          "duration": 2.351
+        },
+        {
+          "file": "problem-02.mp3",
+          "text": "This wasn't a content problem. It was a container problem.",
+          "speaker": "avery",
+          "duration": 3.631
+        }
+      ]
+    },
+    {
+      "id": "the_template",
+      "lines": [
+        {
+          "file": "template-01.mp3",
+          "text": "The shape I needed was a one-pager. Not a shorter deck — a completely different artifact.",
+          "speaker": "avery",
+          "duration": 5.642
+        },
+        {
+          "file": "template-02.mp3",
+          "text": "Five parts. Headline finding. Recommendation. Supporting chart. Risk. Ask.",
+          "speaker": "avery",
+          "duration": 7.811
+        },
+        {
+          "file": "template-03.mp3",
+          "text": "Everything Priya needs to decide. Nothing else.",
+          "speaker": "avery",
+          "duration": 2.926
+        }
+      ]
+    },
+    {
+      "id": "the_shrink",
+      "lines": [
+        {
+          "file": "shrink-01.mp3",
+          "text": "I took the same data — and poured it into the template. Same information. Completely different shape.",
+          "speaker": "avery",
+          "duration": 6.269
+        },
+        {
+          "file": "shrink-02.mp3",
+          "text": "Nineteen slides became half a page.",
+          "speaker": "avery",
+          "duration": 2.038
+        }
+      ]
+    },
+    {
+      "id": "resolution",
+      "lines": [
+        {
+          "file": "resolution-01.mp3",
+          "text": "Priya read it in the elevator. Tapped my shoulder at the next meeting — do it.",
+          "speaker": "avery",
+          "duration": 5.068
+        },
+        {
+          "file": "resolution-02.mp3",
+          "text": "Engineers shipped the revert. Tickets dropped 35 percent. Two million saved. Nobody got laid off.",
+          "speaker": "avery",
+          "duration": 6.844
+        }
+      ]
+    },
+    {
+      "id": "anchor",
+      "lines": [
+        {
+          "file": "anchor-01.mp3",
+          "text": "At Airbnb — they'll ask for a one-pager. They mean one page.",
+          "speaker": "avery",
+          "duration": 4.598
+        },
+        {
+          "file": "anchor-02.mp3",
+          "text": "Use the template. Headline. Recommendation. Chart. Risk. Ask. Nothing else.",
+          "speaker": "avery",
+          "duration": 7.079
+        }
+      ]
+    },
+    {
+      "id": "pou",
+      "lines": [
+        {
+          "file": "pou-01.mp3",
+          "text": "Your turn.",
+          "speaker": "avery",
+          "duration": 0.601
+        },
+        {
+          "file": "pou-02.mp3",
+          "text": "Three situations. Pick the format — and what goes in it.",
+          "speaker": "avery",
+          "duration": 3.082
+        }
+      ]
+    },
+    {
+      "id": "handoff",
+      "lines": [
+        {
+          "file": "handoff-01.mp3",
+          "text": "Nice. Now — you finish the project.",
+          "speaker": "avery",
+          "duration": 3.161
+        },
+        {
+          "file": "handoff-02.mp3",
+          "text": "You've got your findings and your recommendation from earlier. Jordan needs it as a one-pager by end of day.",
+          "speaker": "avery",
+          "duration": 5.486
+        },
+        {
+          "file": "handoff-03.mp3",
+          "text": "Use Claude to reshape everything into the template. I'll be watching.",
+          "speaker": "avery",
+          "duration": 3.396
+        }
+      ]
+    },
+    {
+      "id": "pip",
+      "lines": [
+        {
+          "file": "pip-01.mp3",
+          "text": "Give Claude your raw content. Ask it to reformat into the five-part template.",
+          "speaker": "avery",
+          "duration": 4.206
+        },
+        {
+          "file": "pip-02.mp3",
+          "text": "Then iterate — put the recommendation up top, cut anything not decision-relevant.",
+          "speaker": "avery",
+          "duration": 4.206
+        },
+        {
+          "file": "pip-03.mp3",
+          "text": "Check it against three boxes — recommendation visible in ten seconds, fits one page, skimmable.",
+          "speaker": "avery",
+          "duration": 6.766
+        },
+        {
+          "file": "pip-04.mp3",
+          "text": "All three green — send it back.",
+          "speaker": "avery",
+          "duration": 1.959
+        }
+      ]
+    },
+    {
+      "id": "close",
+      "lines": [
+        {
+          "file": "close-01.mp3",
+          "text": "That's the project. Same data I had on Day 1. Completely different container. The container was the whole fight.",
+          "speaker": "avery",
+          "duration": 7.236
+        },
+        {
+          "file": "close-02.mp3",
+          "text": "Six chapters. From brief to one-pager. That's the playbook.",
+          "speaker": "avery",
+          "duration": 4.519
+        },
+        {
+          "file": "close-03.mp3",
+          "text": "And that's exactly the project Airbnb is handing interns this summer. Different platform, same shape. You already know the playbook. Let's go meet them.",
+          "speaker": "avery",
+          "duration": 8.359
+        }
+      ]
+    }
+  ]
+}

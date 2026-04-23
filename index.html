@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Zero · Foundations · Avery's Uber story</title>
+<style>
+:root {
+  --bg: #f5f4ef;
+  --paper: #fbf7ee;
+  --card: #ffffff;
+  --ink: #0f1115;
+  --ink-soft: #3d424d;
+  --ink-dim: #6b7280;
+  --ink-faint: #9ca3af;
+  --line: rgba(15,17,21,0.08);
+  --line-strong: rgba(15,17,21,0.16);
+  --good: #1e7a4b;
+  --good-soft: #e6f4ec;
+  --warn: #a85d12;
+  --warn-soft: #fff7e6;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  --g-mint: linear-gradient(135deg, #c8f5df 0%, #86d9b5 55%, #3fb489 100%);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); }
+body {
+  font-size: 15px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 56px 32px 80px;
+}
+
+/* ---- hero ---- */
+.hero {
+  display: grid; grid-template-columns: 1fr 220px;
+  gap: 32px; align-items: flex-start;
+  margin-bottom: 48px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--line);
+}
+.hero-text .eyebrow {
+  font-size: 11.5px; letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-dim); font-weight: 600;
+  margin-bottom: 10px;
+}
+.hero-text h1 {
+  font-family: var(--serif);
+  font-size: 48px; line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+  font-weight: 400;
+}
+.hero-text h1 .ital { font-style: italic; }
+.hero-text .lede {
+  font-size: 18px; line-height: 1.55;
+  color: var(--ink-soft);
+  font-family: var(--serif); font-style: italic;
+  max-width: 620px;
+}
+.hero-portrait {
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: var(--g-mint);
+  box-shadow: 0 8px 28px rgba(63,180,137,0.22), inset 0 2px 4px rgba(255,255,255,0.6);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+.hero-portrait::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 4px rgba(255,255,255,0.55);
+}
+.hero-portrait svg { width: 100%; height: 100%; display: block; }
+.hero-portrait .avery-name {
+  position: absolute; bottom: -30px; left: 0; right: 0;
+  text-align: center;
+  font-size: 13px; color: var(--ink-dim);
+  font-style: italic;
+  font-family: var(--serif);
+}
+
+/* ---- sections ---- */
+.section-label {
+  font-size: 11.5px; letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-dim); font-weight: 600;
+  margin-bottom: 18px;
+}
+
+/* ---- chapter grid ---- */
+.chapters {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 56px;
+}
+.chapter {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 22px 24px;
+  text-decoration: none;
+  color: var(--ink);
+  display: flex; flex-direction: column; gap: 10px;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+.chapter::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--step-color, #cbd5e1);
+}
+.chapter:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+  box-shadow: 0 6px 24px rgba(15,17,21,0.06);
+}
+.chapter .ch-head {
+  display: flex; align-items: baseline; gap: 10px;
+}
+.chapter .ch-num {
+  font-weight: 700; font-size: 13px;
+  color: var(--ink-dim);
+  letter-spacing: 0.02em;
+  font-family: "SF Mono", Menlo, monospace;
+}
+.chapter .ch-day {
+  margin-left: auto;
+  font-size: 11.5px; color: var(--ink-faint);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  font-weight: 500;
+}
+.chapter .ch-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.chapter .ch-title .ital { font-style: italic; color: var(--ink-soft); }
+.chapter .ch-teaches {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.chapter .ch-footer {
+  margin-top: auto;
+  display: flex; gap: 8px; align-items: center;
+  padding-top: 8px;
+  font-size: 11px; color: var(--ink-dim);
+  letter-spacing: 0.04em;
+}
+.chapter .ch-tag {
+  padding: 3px 9px;
+  background: var(--step-soft, #f3f4f6);
+  color: var(--step-color, #4b5563);
+  border-radius: 10px;
+  font-weight: 600;
+}
+.chapter .ch-arrow {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--ink-dim);
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+.chapter:hover .ch-arrow {
+  transform: translateX(3px);
+  color: var(--ink);
+}
+
+/* color-coded step indicator per chapter */
+.chapter.l0 { --step-color: #1a73e8; --step-soft: #e8f0fe; }
+.chapter.l1 { --step-color: #a85d12; --step-soft: #fff7e6; }
+.chapter.l2 { --step-color: #0f9d58; --step-soft: #e6f4ec; }
+.chapter.l3 { --step-color: #7b3f9a; --step-soft: #f2e6f8; }
+.chapter.l4 { --step-color: #b6311d; --step-soft: #fbe8e4; }
+.chapter.l5 { --step-color: #0f4a2b; --step-soft: #e6f4ec; }
+.chapter.l6 { --step-color: #0f1115; --step-soft: #e5e7eb; }
+
+/* ---- the thread ---- */
+.thread {
+  background: var(--paper);
+  border: 1px solid rgba(168,93,18,0.22);
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin-bottom: 48px;
+}
+.thread h2 {
+  font-family: var(--serif);
+  font-size: 26px;
+  letter-spacing: -0.01em;
+  margin: 0 0 10px;
+  font-weight: 400;
+}
+.thread h2 .ital { font-style: italic; }
+.thread p {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 16.5px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  max-width: 760px;
+}
+.thread p em { color: var(--ink); font-style: italic; }
+.thread p b { color: var(--ink); font-weight: 600; font-family: var(--sans); }
+
+/* ---- end card ---- */
+.end-card {
+  background: var(--ink);
+  color: white;
+  border-radius: 16px;
+  padding: 30px 34px;
+  display: flex; align-items: center; gap: 20px;
+  flex-wrap: wrap;
+}
+.end-card .end-num {
+  font-size: 44px; font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #f9d76e;
+  font-family: var(--serif); font-style: italic;
+}
+.end-card .end-copy {
+  flex: 1;
+  font-family: var(--serif);
+  font-size: 16px; font-style: italic;
+  color: #e8e4d7;
+  min-width: 260px;
+  line-height: 1.5;
+}
+.end-card .end-copy b { color: #ffffff; font-family: var(--sans); font-style: normal; font-weight: 600; }
+.end-card .end-cta {
+  color: #f9d76e; font-weight: 600; font-size: 13.5px;
+  padding: 10px 18px;
+  border: 1px solid #f9d76e;
+  border-radius: 999px;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.end-card .end-cta:hover { background: #f9d76e; color: #0f1115; }
+
+/* footer */
+.foot {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--ink-faint);
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+}
+
+@media (max-width: 720px) {
+  .wrap { padding: 28px 16px 48px; }
+  .hero { grid-template-columns: 1fr; }
+  .hero-portrait { width: 140px; height: 140px; }
+  .hero-text h1 { font-size: 34px; }
+  .chapters { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="hero-text">
+      <div class="eyebrow">Zero · Foundations · Avery's Uber story</div>
+      <h1>How to save <span class="ital">two million dollars</span> — without firing a single agent.</h1>
+      <div class="lede">
+        Seven chapters. One project. A VP's brief, a messy CSV, three bad drafts, a chart that almost lied,
+        and a one-pager read in an elevator. You'll walk out with the playbook.
+      </div>
+    </div>
+    <div class="hero-portrait">
+      <svg viewBox="0 0 220 220">
+        <defs>
+          <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <rect width="220" height="220" fill="url(#heroGrad)"/>
+        <text x="110" y="150" font-family="Iowan Old Style, Georgia, serif" font-size="120" font-style="italic" font-weight="400" text-anchor="middle" fill="#0b3b28">A</text>
+      </svg>
+      <div class="avery-name">— Avery, your guide</div>
+    </div>
+  </div>
+
+  <div class="section-label">The 7-step playbook</div>
+  <div class="chapters">
+
+    <a class="chapter l0" href="ZERO-L0-Concept-CostReduction-v3.html">
+      <div class="ch-head">
+        <span class="ch-num">L0</span>
+        <span class="ch-day">Day 1</span>
+      </div>
+      <h3 class="ch-title">The brief <span class="ital">— what "reduce cost" actually means</span></h3>
+      <div class="ch-teaches">Three questions that save you from opening the expense sheet: <em>which costs · how · how we'll know.</em></div>
+      <div class="ch-footer">
+        <span class="ch-tag">Category</span>
+        <span class="ch-arrow">Begin →</span>
+      </div>
+    </a>
+
+    <a class="chapter l1" href="ZERO-L1-Concept-UnderstandData-v1.html">
+      <div class="ch-head">
+        <span class="ch-num">L1</span>
+        <span class="ch-day">Day 2</span>
+      </div>
+      <h3 class="ch-title">Understanding the data <span class="ital">— translate before you analyze</span></h3>
+      <div class="ch-teaches">Headers lie. Build a glossary before you run a single query. What it means · where it comes from · what it doesn't tell you.</div>
+      <div class="ch-footer">
+        <span class="ch-tag">See</span>
+        <span class="ch-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="chapter l2" href="ZERO-L2-Concept-CleanData-v1.html">
+      <div class="ch-head">
+        <span class="ch-num">L2</span>
+        <span class="ch-day">Day 2 late afternoon</span>
+      </div>
+      <h3 class="ch-title">Cleaning the data <span class="ital">— spot the wrong rows</span></h3>
+      <div class="ch-teaches">Four kinds of wrong rows: duplicates, impossibles, nulls, wrong window. Spot them. Decide. Remove, fix, or flag.</div>
+      <div class="ch-footer">
+        <span class="ch-tag">See</span>
+        <span class="ch-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="chapter l3" href="ZERO-L3-Concept-FiveWhy-v3.html">
+      <div class="ch-head">
+        <span class="ch-num">L3</span>
+        <span class="ch-day">Day 3</span>
+      </div>
+      <h3 class="ch-title">The right question <span class="ital">— ask why five times</span></h3>
+      <div class="ch-teaches">A good cost project ends upstream — not where the first chart points. Root-cause analysis and the 5-why chain.</div>
+      <div class="ch-footer">
+        <span class="ch-tag">Ask</span>
+        <span class="ch-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="chapter l4" href="ZERO-L4-Concept-EvidenceOrTheater-v1.html">
+      <div class="ch-head">
+        <span class="ch-num">L4</span>
+        <span class="ch-day">Day 3</span>
+      </div>
+      <h3 class="ch-title">Evidence or theater? <span class="ital">— does this look real, or is it dressed up?</span></h3>
+      <div class="ch-teaches">Three faces of slop: chart magnitude, sample size, hollow prose. Tell evidence from theater before you ship.</div>
+      <div class="ch-footer">
+        <span class="ch-tag">Analyze</span>
+        <span class="ch-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="chapter l5" href="ZERO-L5-Concept-FindingToRecommendation-v1.html">
+      <div class="ch-head">
+        <span class="ch-num">L5</span>
+        <span class="ch-day">Day 3 evening</span>
+      </div>
+      <h3 class="ch-title">Finding → recommendation <span class="ital">— the last mile</span></h3>
+      <div class="ch-teaches">A finding tells people what happened. A recommendation tells people what to do. Four parts: action · cost · value · downside.</div>
+      <div class="ch-footer">
+        <span class="ch-tag">Deliver</span>
+        <span class="ch-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="chapter l6" href="ZERO-L6-Concept-ContainerIsTheFight-v1.html">
+      <div class="ch-head">
+        <span class="ch-num">L6</span>
+        <span class="ch-day">Day 4</span>
+      </div>
+      <h3 class="ch-title">The container is the fight <span class="ital">— format as function</span></h3>
+      <div class="ch-teaches">A one-pager isn't a shorter deck — it's a different artifact. 5-part template: headline · recommendation · chart · risk · ask.</div>
+      <div class="ch-footer">
+        <span class="ch-tag">Deliver</span>
+        <span class="ch-arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="thread">
+    <h2>The thread</h2>
+    <p>
+      Every chapter is one beat of Avery's Uber story. She almost opens the expense sheet. She almost
+      runs an analysis on headers she can't read. She almost ships a chart that makes a 6% bump look
+      like a cliff. She catches herself each time — <em>and shows you how.</em> <b>Same data, different
+      container. The container was the whole fight.</b>
+    </p>
+  </div>
+
+  <div class="end-card">
+    <div class="end-num">35%</div>
+    <div class="end-copy">
+      Ticket reduction in one month. <b>$2M saved.</b> Zero agents laid off. All from a one-sentence
+      recommendation Priya read in an elevator. Finish the arc and Airbnb's ready to brief you on the
+      same project — different platform.
+    </div>
+    <a class="end-cta" href="ZERO-L0-Concept-CostReduction-v3.html">Start with L0 →</a>
+  </div>
+
+  <div class="foot">
+    <span>Zero · Foundations · powered by Claude Cowork and Gemini 2.5 Flash</span>
+    <span>v1 · 7 chapters · ≈ 20 min watch + hands-on</span>
+  </div>
+
+</div>
+</body>
+</html>
