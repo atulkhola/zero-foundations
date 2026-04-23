@@ -655,6 +655,42 @@ img {
 .avery-pip-upload-zone-gated:hover { transform: none; }
 button:disabled, [disabled] { cursor: not-allowed; opacity: 0.6; }
 
+
+/* ===== chapter auto-flow CTA ===== */
+.zf-continue-cta {
+  position: fixed;
+  bottom: 22px; right: 22px;
+  z-index: 60;
+  background: linear-gradient(135deg, #da7756 0%, #c65f2b 60%, #a04418 100%);
+  color: #ffffff;
+  padding: 14px 22px 14px 24px;
+  border-radius: 999px;
+  text-decoration: none;
+  font: 600 13.5px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  letter-spacing: -0.005em;
+  display: inline-flex; align-items: center; gap: 12px;
+  box-shadow: 0 14px 36px rgba(198,95,43,0.38), 0 2px 6px rgba(0,0,0,0.08);
+  transform: translateY(18px);
+  opacity: 0;
+  animation: zfContinueIn 0.55s cubic-bezier(0.2, 1.3, 0.4, 1) 0.3s forwards;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  max-width: calc(100vw - 40px);
+}
+.zf-continue-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 44px rgba(198,95,43,0.48), 0 2px 6px rgba(0,0,0,0.1);
+}
+.zf-continue-cta:active { transform: scale(0.96) translateY(-1px); }
+.zf-continue-cta .zf-cta-label { display: inline-block; }
+.zf-continue-cta .zf-cta-sub {
+  display: block; font-size: 10.5px; letter-spacing: 0.08em; opacity: 0.78;
+  text-transform: uppercase; font-weight: 700; margin-bottom: 2px;
+}
+.zf-continue-cta .zf-cta-arrow { font-size: 18px; font-weight: 700; }
+@keyframes zfContinueIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
 </style>
 </head>
 <body>
@@ -786,6 +822,55 @@ button:disabled, [disabled] { cursor: not-allowed; opacity: 0.6; }
 
 <script>
 (() => {
+
+
+// === zero-foundations L0 Gemini helpers ===
+const ZF_GEMINI_API_KEY = 'AIzaSyAAPQZzB1RQFjqhqjnXMPdLLjRMt2kVGOg';
+const ZF_GEMINI_MODEL   = 'gemini-2.5-flash-lite';
+
+const L0_POU_SYSTEM_PROMPT = `You are an analyst coach evaluating a junior analyst's answer to this question:
+
+"Your manager just said: 'we need to reduce cost this quarter.' What do you need to find out before you start? Write a few lines in your own words."
+
+The complete answer needs three things:
+1. SCOPE — which costs specifically are they trying to cut? (Not all costs — a specific category like support, vendors, travel, a department, a line item)
+2. MECHANISM — how will they cut the cost? (Change the process, switch a vendor, do less of something, automate — any specific lever)
+3. SIGNAL — how will they know it worked? (A metric, a number, a direction of change, a deadline — some observable outcome)
+
+Evaluate the user's answer holistically. Count toward a check if the learner's answer clearly addresses that thing — even in plain language or with a synonym. If the learner is asking about something reasonable (which is what the question asks for — "what do you need to find out"), count it even if phrased as a question.
+
+Be generous but rigorous. If the answer says "is this about travel costs or vendor costs" → SCOPE ✓. If the answer says "are we cutting headcount or automating" → MECHANISM ✓. If the answer says "by how much, and by when" → SIGNAL ✓.
+
+Return a compact JSON object ONLY (no prose, no markdown fence):
+{"scope": true|false, "mechanism": true|false, "signal": true|false, "hit_reasons": {"scope": "short reason if hit, empty if miss", "mechanism": "...", "signal": "..."}, "miss_hint": "if 1 or 2 are missing, a one-sentence pointer about what to add. empty if all three are hit."}`;
+
+async function zfCallGeminiJson(userText) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${ZF_GEMINI_MODEL}:generateContent?key=${ZF_GEMINI_API_KEY}`;
+  const body = {
+    contents: [{ role: 'user', parts: [{ text: userText }] }],
+    systemInstruction: { parts: [{ text: L0_POU_SYSTEM_PROMPT }] },
+    generationConfig: {
+      temperature: 0.2,
+      maxOutputTokens: 350,
+      responseMimeType: 'application/json',
+    },
+  };
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) {
+    const t = await r.text();
+    throw new Error(`${r.status}: ${t.slice(0,200)}`);
+  }
+  const j = await r.json();
+  const text = j.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('no response text');
+  // Strip any accidental markdown fence just in case
+  const cleaned = text.replace(/^```json\s*|\s*```$/g, '').trim();
+  return JSON.parse(cleaned);
+}
 
 const VB_W = 1200, VB_H = 700;
 const AUDIO_DIR = 'ZERO-L0-assets/audio-v3';
@@ -1229,6 +1314,12 @@ function onLineEnd() {
   btnPlay.textContent = '▶ Play';
   portraitEl.classList.remove('speaking');
   updateScrub();
+  // Chapter-complete hook: last line of last scene → show auto-flow CTA.
+  try {
+    if (sceneIdx === FLAT.length - 1 && lineIdx === FLAT[sceneIdx].lines.length - 1) {
+      setTimeout(() => window.ZeroFoundations && window.ZeroFoundations.showContinueCTA(), 1400);
+    }
+  } catch (e) { /* noop */ }
   if (mode === 'auto') {
     // advance automatically
     goNext(true);
@@ -1389,33 +1480,71 @@ function scoreInput(text) {
   }
   return hit;
 }
-pouSubmit.addEventListener('click', () => {
+pouSubmit.addEventListener('click', async () => {
   const text = pouInput.value.trim();
   if (!text) {
     pouFeedback.className = 'feedback soft show';
     pouFeedback.innerHTML = 'Give it a shot — even a rough answer is fine.';
     return;
   }
-  const hit = scoreInput(text);
-  pouChips.forEach(c => c.classList.toggle('on', !!hit[c.dataset.k]));
-  const n = Object.values(hit).filter(Boolean).length;
-  if (n >= 3) {
-    pouFeedback.className = 'feedback pass show';
-    pouFeedback.innerHTML = `
-      <strong>Exactly — that's the frame.</strong><br>
-      You caught all three: which costs · how · how you'll know it worked.
-      <br><em>Avery:</em> "Every cost-reduction project you ever do lives inside these three boxes."
-    `;
-    xpBurst.classList.add('show');
-    setTimeout(() => xpBurst.classList.remove('show'), 2400);
-  } else if (n === 2) {
-    const missing = Object.keys(hit).filter(k => !hit[k])[0];
-    const label = { scope: 'which costs', mechanism: 'how', signal: "how we'll know" }[missing];
-    pouFeedback.className = 'feedback soft show';
-    pouFeedback.innerHTML = `<strong>Close.</strong> Missing piece — <em>${label}</em>. Try adding one line about that.`;
-  } else {
-    pouFeedback.className = 'feedback redirect show';
-    pouFeedback.innerHTML = `<strong>Rewind a sec.</strong> The three were: <em>which costs</em> · <em>how</em> · <em>how we'll know</em>. Tap ↻ Replay.`;
+  // Intermediate: thinking state
+  pouFeedback.className = 'feedback soft show';
+  pouFeedback.innerHTML = '<em>Checking against the three questions…</em>';
+  pouSubmit.disabled = true;
+  pouSubmit.textContent = 'Checking…';
+  try {
+    const result = await zfCallGeminiJson(text);
+    const hit = {
+      scope: !!result.scope,
+      mechanism: !!result.mechanism,
+      signal: !!result.signal,
+    };
+    pouChips.forEach(c => c.classList.toggle('on', !!hit[c.dataset.k]));
+    const n = Object.values(hit).filter(Boolean).length;
+    if (n >= 3) {
+      pouFeedback.className = 'feedback pass show';
+      pouFeedback.innerHTML = `
+        <strong>Exactly — that's the frame.</strong><br>
+        You caught all three: which costs · how · how you'll know it worked.
+        <br><em>Avery:</em> "Every cost-reduction project you ever do lives inside these three boxes."
+      `;
+      xpBurst.classList.add('show');
+      setTimeout(() => xpBurst.classList.remove('show'), 2400);
+      setTimeout(() => window.ZeroFoundations && window.ZeroFoundations.showContinueCTA(), 900);
+    } else if (n === 2) {
+      const missing = Object.keys(hit).filter(k => !hit[k])[0];
+      const label = { scope: 'which costs', mechanism: 'how', signal: "how we'll know" }[missing];
+      const extraHint = result.miss_hint ? ` ${result.miss_hint}` : '';
+      pouFeedback.className = 'feedback soft show';
+      pouFeedback.innerHTML = `<strong>Close.</strong> Missing piece — <em>${label}</em>. Try adding one line about that.${extraHint}`;
+    } else if (n === 1) {
+      const missing = Object.keys(hit).filter(k => !hit[k]);
+      const missingLabels = missing.map(k => ({ scope: 'which costs', mechanism: 'how', signal: "how we'll know" }[k]));
+      const extraHint = result.miss_hint ? ` ${result.miss_hint}` : '';
+      pouFeedback.className = 'feedback soft show';
+      pouFeedback.innerHTML = `<strong>Part of the way.</strong> Missing — <em>${missingLabels.join(' · ')}</em>.${extraHint}`;
+    } else {
+      const extraHint = result.miss_hint ? ` ${result.miss_hint}` : '';
+      pouFeedback.className = 'feedback redirect show';
+      pouFeedback.innerHTML = `<strong>Rewind a sec.</strong> The three were: <em>which costs</em> · <em>how</em> · <em>how we'll know</em>. Tap ↻ Replay.${extraHint}`;
+    }
+  } catch (e) {
+    console.warn('Gemini evaluation failed — falling back to keyword check.', e);
+    // Graceful fallback: run the old keyword scorer so nobody gets stuck.
+    const hit = scoreInput(text);
+    pouChips.forEach(c => c.classList.toggle('on', !!hit[c.dataset.k]));
+    const n = Object.values(hit).filter(Boolean).length;
+    if (n >= 3) {
+      pouFeedback.className = 'feedback pass show';
+      pouFeedback.innerHTML = `<strong>Looks good.</strong> All three: which costs · how · how you'll know.`;
+      setTimeout(() => window.ZeroFoundations && window.ZeroFoundations.showContinueCTA(), 900);
+    } else {
+      pouFeedback.className = 'feedback soft show';
+      pouFeedback.innerHTML = `<strong>Close.</strong> Check your answer against <em>which costs · how · how we'll know</em>.`;
+    }
+  } finally {
+    pouSubmit.disabled = false;
+    pouSubmit.textContent = 'Check my answer';
   }
 });
 pouSkip.addEventListener('click', () => pouEl.classList.remove('show'));
@@ -1450,5 +1579,47 @@ scrubLabel.textContent = `0:00 / ${fmtTime(totalDuration())}`;
 
 })();
 </script>
+<!-- ===== chapter auto-flow sequencer ===== -->
+<script>
+(function(){
+  const SEQUENCE = [
+    { href: 'ZERO-L0-Concept-CostReduction-v3.html',          label: 'L0', title: 'the brief' },
+    { href: 'ZERO-L1-Concept-UnderstandData-v1.html',         label: 'L1', title: 'understanding the data' },
+    { href: 'ZERO-L2-Concept-CleanData-v1.html',              label: 'L2', title: 'cleaning the data' },
+    { href: 'ZERO-L3-Concept-FiveWhy-v3.html',                label: 'L3', title: 'the right question' },
+    { href: 'ZERO-L4-Concept-EvidenceOrTheater-v1.html',      label: 'L4', title: 'evidence or theater' },
+    { href: 'ZERO-L5-Concept-FindingToRecommendation-v1.html',label: 'L5', title: 'finding → recommendation' },
+    { href: 'ZERO-L6-Concept-ContainerIsTheFight-v1.html',    label: 'L6', title: 'the container' },
+  ];
+  const ZF = (window.ZeroFoundations = window.ZeroFoundations || {});
+  ZF.sequence = SEQUENCE;
+  ZF.getNext = function(){
+    const path = location.pathname.split('/').pop();
+    const i = SEQUENCE.findIndex(c => c.href === path);
+    if (i < 0) return null;
+    if (i >= SEQUENCE.length - 1) return { href: 'index.html', label: '↗', title: "back to the index — you've finished the playbook" };
+    return SEQUENCE[i+1];
+  };
+  ZF.showContinueCTA = function(){
+    if (document.getElementById('zfContinueCta')) return;
+    const next = ZF.getNext();
+    if (!next) return;
+    const a = document.createElement('a');
+    a.id = 'zfContinueCta';
+    a.className = 'zf-continue-cta';
+    a.href = next.href;
+    const isEnd = next.href === 'index.html';
+    a.innerHTML = isEnd
+      ? `<span class="zf-cta-label"><span class="zf-cta-sub">You finished</span>Back to the playbook index</span><span class="zf-cta-arrow">↗</span>`
+      : `<span class="zf-cta-label"><span class="zf-cta-sub">Next · ${next.label}</span>Continue to ${next.title}</span><span class="zf-cta-arrow">→</span>`;
+    document.body.appendChild(a);
+  };
+  ZF.hideContinueCTA = function(){
+    const el = document.getElementById('zfContinueCta');
+    if (el) el.remove();
+  };
+})();
+</script>
+
 </body>
 </html>
